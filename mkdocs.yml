@@ -1,0 +1,93 @@
+site_name: GitOps Plattform Semesterarbeit 5
+site_description: Aufbau einer GitOps basierten Kubernetes Plattform mit Preisüberwachungs WebApp
+site_author: Efekan Demirci
+site_url: https://cancani.com/gitops-platform-sem5/
+
+repo_name: Cancani/gitops-platform-semesterarbeit
+repo_url: https://github.com/Cancani/gitops-platform-semesterarbeit
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: de
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - toc.follow
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Dark Mode aktivieren
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Light Mode aktivieren
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    repo: fontawesome/brands/github
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 4
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  - Start: index.md
+  - Dokumentation: dokumentation.md
+  - Runbooks:
+      - Plattform Initial Setup: runbooks/01_plattform_initial_setup.md
+      - Neue Version deployen: runbooks/02_neue_version_deployen.md
+      - Rollback Release: runbooks/03_rollback_release.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Cancani
+  generator: false
+
+copyright: Efekan Demirci, ITCNE24, TBZ Höhere Fachschule

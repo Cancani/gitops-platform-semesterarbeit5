@@ -1,0 +1,32 @@
+/* Tabellen mit klarer Trennung */
+.md-typeset table:not([class]) {
+  font-size: 0.85rem;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: var(--md-primary-fg-color--light);
+  color: var(--md-primary-bg-color);
+}
+
+/* Code Blöcke mit etwas mehr Abstand */
+.md-typeset pre > code {
+  padding: 1rem;
+}
+
+/* Mermaid Diagramme zentrieren */
+.mermaid {
+  text-align: center;
+  margin: 1.5rem auto;
+}
+
+/* Bildunterschriften */
+.md-typeset figcaption,
+.md-typeset em {
+  font-size: 0.85rem;
+  color: var(--md-default-fg-color--light);
+}
+
+/* Footer Anpassung */
+.md-footer {
+  background-color: var(--md-primary-fg-color);
+}
