@@ -3,8 +3,8 @@ site_description: Aufbau einer GitOps basierten Kubernetes Plattform mit Preisü
 site_author: Efekan Demirci
 site_url: https://cancani.com/gitops-platform-sem5/
 
-repo_name: Cancani/gitops-platform-semesterarbeit
-repo_url: https://github.com/Cancani/gitops-platform-semesterarbeit-5
+repo_name: Cancani/gitops-platform-semesterarbeit5
+repo_url: https://github.com/Cancani/gitops-platform-semesterarbeit5
 edit_uri: edit/main/docs/
 
 theme:
