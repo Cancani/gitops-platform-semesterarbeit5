@@ -28,7 +28,7 @@ Die laufende Projektdokumentation ist auf GitHub Pages verfügbar:
 
 | Dokument | Inhalt |
 | --- | --- |
-| [Dokumentation](dokumentation.md) | Hauptdokument, alle Kapitel von Management Summary bis Reflexion |
+| [Dokumentation](./docs/dokumentation.md) | Hauptdokument, alle Kapitel von Management Summary bis Reflexion |
 | [Runbook 01: Plattform Initial Setup](runbooks/01_plattform_initial_setup.md) | Cluster und Argo CD initial aufbauen |
 | [Runbook 02: Neue Version deployen](runbooks/02_neue_version_deployen.md) | Standard GitOps Release Workflow |
 | [Runbook 03: Rollback Release](runbooks/03_rollback_release.md) | Rollback eines fehlerhaften Releases |
