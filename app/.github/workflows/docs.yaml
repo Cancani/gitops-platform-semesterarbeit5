@@ -74,3 +74,5 @@ jobs:
 
       - name: Deploy to gh-pages
         run: mkdocs gh-deploy --force --clean --no-history
+
+# Test
