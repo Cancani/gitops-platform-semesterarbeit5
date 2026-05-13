@@ -1,8 +1,6 @@
 <div align="center">
 
-# GitOps Plattform mit Preisüberwachungs WebApp
-
-**Cloud Native Deployment auf Kubernetes mit Helm, Argo CD und GitHub Actions**
+**GitOps Plattform mit Preisüberwachungs WebApp, Cloud Native Deployment auf Kubernetes mit Helm, Argo CD und GitHub Actions**
 
 <p>
 <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
