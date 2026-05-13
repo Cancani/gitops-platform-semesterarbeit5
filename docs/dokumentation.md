@@ -45,7 +45,6 @@
     - [2.3.1 SMART Ziele](#231-smart-ziele)
     - [2.4 Abgrenzung](#24-abgrenzung)
     - [2.5 Themenfeldabdeckung](#25-themenfeldabdeckung)
-    - [2.6 Anpassung der Projektdauer nach Kickoff Präsentation](#26-anpassung-der-projektdauer-nach-kickoff-präsentation)
   - [3. Projektmanagement](#3-projektmanagement)
     - [3.1 Projektmethodik](#31-projektmethodik)
     - [3.2 Sprintstruktur im Detail](#32-sprintstruktur-im-detail)
@@ -182,21 +181,6 @@ Bewusst nicht im Scope:
 | CNC, Cloud Native Core | Kubernetes Grundlagen, Pods, Services, Deployments, ConfigMaps, Secrets, CronJob |
 | CNA, Cloud Native Advanced | Helm, GitOps mit Argo CD, Health Checks, deklarative Application Lifecycle |
 | DevOps (optional) | CI Pipeline mit GitHub Actions, Container Registry, automatisierte Auslieferung |
-
-### 2.6 Anpassung der Projektdauer nach Kickoff Präsentation
-
-Die ursprüngliche Planung im Einreichungsformular ging von einer Projektdauer von 12 Wochen aus, aufgeteilt in vier Sprints zu je drei Wochen. In der Kickoff Präsentation wurde durch die Lehrgangsleitung präzisiert, dass die Semesterarbeit tatsächlich nur **9 Wochen** dauert. Empfohlen wurde eine Sprintdauer von drei Wochen, sodass insgesamt drei Sprints durchgeführt werden.
-
-Die beiden Zwischenpräsentationen fallen damit jeweils auf das Ende von Sprint 1 und Sprint 2. Sie bieten eine strukturierte Gelegenheit, den Fortschritt zu reflektieren und gegebenenfalls den Plan anzupassen.
-
-Konsequenzen für diese Arbeit:
-
-- Die Sprintplanung wurde von vier auf drei Sprints reduziert (siehe Kapitel 3.2).
-- Inhaltlich wurden die ursprünglichen 21 User Stories auf 16 verdichtet, wobei der GitOps Durchstich von Sprint 3 auf **Sprint 2** vorgezogen wurde.
-- Die Doku Pflege erfolgt parallel ab Sprint 1, damit Sprint 3 nicht durch Doku Nachholarbeit unter Druck gerät.
-- Optional geplante Erweiterungen (Argo CD Image Updater, mehrere Values Profile, PostgreSQL als Subchart, vollwertiges Monitoring) wurden gestrichen oder als reine Bonus Items eingestuft.
-
-Diese Anpassung wurde nicht als Risiko, sondern als Präzisierung des Scopes verstanden. Der reduzierte Zeitrahmen schärft den Fokus auf die Plattform und auf einen sauberen GitOps Lifecycle.
 
 ---
 
