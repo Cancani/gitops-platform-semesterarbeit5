@@ -45,7 +45,6 @@
     - [2.3.1 SMART Ziele](#231-smart-ziele)
     - [2.4 Abgrenzung](#24-abgrenzung)
     - [2.5 Themenfeldabdeckung](#25-themenfeldabdeckung)
-    - [2.6 Anpassung der Projektdauer nach Kickoff Präsentation](#26-anpassung-der-projektdauer-nach-kickoff-präsentation)
   - [3. Projektmanagement](#3-projektmanagement)
     - [3.1 Projektmethodik](#31-projektmethodik)
     - [3.2 Sprintstruktur im Detail](#32-sprintstruktur-im-detail)
@@ -99,6 +98,13 @@
     - [Risikobehandlung über die Sprints](#risikobehandlung-über-die-sprints)
     - [Fazit zur Risikomatrix](#fazit-zur-risikomatrix)
     - [Status am Projektende](#status-am-projektende)
+  - [Architekturentscheide (ADRs)](#architekturentscheide-adrs)
+    - [ADR Übersicht](#adr-übersicht)
+    - [ADR-001: FastAPI statt Flask für das Backend](#adr-001-fastapi-statt-flask-für-das-backend)
+    - [ADR-002: Lokaler Cluster mit kind statt minikube](#adr-002-lokaler-cluster-mit-kind-statt-minikube)
+    - [ADR-003: SQLite statt PostgreSQL als Datenbank](#adr-003-sqlite-statt-postgresql-als-datenbank)
+    - [ADR-004: Monorepo statt Multi Repo](#adr-004-monorepo-statt-multi-repo)
+    - [ADR-005: Squash Merge statt Merge Commit](#adr-005-squash-merge-statt-merge-commit)
 
 ---
 
@@ -182,21 +188,6 @@ Bewusst nicht im Scope:
 | CNC, Cloud Native Core | Kubernetes Grundlagen, Pods, Services, Deployments, ConfigMaps, Secrets, CronJob |
 | CNA, Cloud Native Advanced | Helm, GitOps mit Argo CD, Health Checks, deklarative Application Lifecycle |
 | DevOps (optional) | CI Pipeline mit GitHub Actions, Container Registry, automatisierte Auslieferung |
-
-### 2.6 Anpassung der Projektdauer nach Kickoff Präsentation
-
-Die ursprüngliche Planung im Einreichungsformular ging von einer Projektdauer von 12 Wochen aus, aufgeteilt in vier Sprints zu je drei Wochen. In der Kickoff Präsentation wurde durch die Lehrgangsleitung präzisiert, dass die Semesterarbeit tatsächlich nur **9 Wochen** dauert. Empfohlen wurde eine Sprintdauer von drei Wochen, sodass insgesamt drei Sprints durchgeführt werden.
-
-Die beiden Zwischenpräsentationen fallen damit jeweils auf das Ende von Sprint 1 und Sprint 2. Sie bieten eine strukturierte Gelegenheit, den Fortschritt zu reflektieren und gegebenenfalls den Plan anzupassen.
-
-Konsequenzen für diese Arbeit:
-
-- Die Sprintplanung wurde von vier auf drei Sprints reduziert (siehe Kapitel 3.2).
-- Inhaltlich wurden die ursprünglichen 21 User Stories auf 16 verdichtet, wobei der GitOps Durchstich von Sprint 3 auf **Sprint 2** vorgezogen wurde.
-- Die Doku Pflege erfolgt parallel ab Sprint 1, damit Sprint 3 nicht durch Doku Nachholarbeit unter Druck gerät.
-- Optional geplante Erweiterungen (Argo CD Image Updater, mehrere Values Profile, PostgreSQL als Subchart, vollwertiges Monitoring) wurden gestrichen oder als reine Bonus Items eingestuft.
-
-Diese Anpassung wurde nicht als Risiko, sondern als Präzisierung des Scopes verstanden. Der reduzierte Zeitrahmen schärft den Fokus auf die Plattform und auf einen sauberen GitOps Lifecycle.
 
 ---
 
@@ -1095,3 +1086,314 @@ Nach Projektabschluss wird hier die Ist Bewertung pro Risiko ergänzt: ob das Ri
 | R9 | _offen_ | _offen_ | _wird am Sprint 3 Ende ergänzt_ |
 | R10 | _offen_ | _offen_ | _wird am Sprint 3 Ende ergänzt_ |
 
+---
+
+## Architekturentscheide (ADRs)
+
+Wichtige technische Entscheidungen werden als Architectural Decision Records (ADRs) dokumentiert. Jeder ADR beschreibt Kontext, betrachtete Alternativen, den Entscheid und die Konsequenzen. Das Format folgt einer abgespeckten Variante des MADR Schemas (Markdown Architectural Decision Records).
+
+Die ADRs sind versioniert und werden im Verlauf der Arbeit ergänzt, wenn neue Entscheidungen getroffen werden. Spätere Änderungen an einem bestehenden ADR werden nicht überschrieben, sondern erhalten den Status "Abgelöst" und verweisen auf den neuen ADR.
+
+### ADR Übersicht
+
+| ADR | Titel |
+| --- | --- |
+| [ADR-001](#42-adr-001-fastapi-statt-flask-für-das-backend) | FastAPI statt Flask für das Backend |
+| [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube) | Lokaler Cluster mit kind statt minikube |
+| [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank) | SQLite statt PostgreSQL als Datenbank |
+| [ADR-004](#45-adr-004-monorepo-statt-multi-repo) | Monorepo statt Multi Repo |
+| [ADR-005](#46-adr-005-squash-merge-statt-merge-commit) | Squash Merge statt Merge Commit | 
+
+### ADR-001: FastAPI statt Flask für das Backend
+
+**Kontext und Problemstellung**
+
+In der 4. Semesterarbeit (Geräteausleihe) wurde Python mit Flask als Backend Framework eingesetzt. Für diese Arbeit wird ein HTTP Service mit folgenden Anforderungen benötigt:
+
+- REST Endpoints für aktuelle und historische Preise
+- Health Endpoints `/healthz` und `/ready` für Kubernetes Liveness und Readiness Probes
+- Klar definierte Datenmodelle zwischen API Schicht und SQLite
+- Anbindung an einen Kubernetes CronJob für regelmässigen Preisabruf
+- Lerntransfer und Evolution gegenüber Sem 4
+
+Es ist zu entscheiden, ob das aus Sem 4 bekannte Flask weitergeführt oder ein anderes Framework gewählt wird.
+
+**Entscheidungstreiber**
+
+- Cloud Native Eignung, insbesondere klare Schnittstellen für Probes und API
+- OpenAPI Spezifikation und Swagger UI ohne zusätzlichen Aufwand für Dokumentation und manuelles Testen
+- Typisierte Datenmodelle (Pydantic) für Konsistenz zwischen Request, Response und Datenbankschicht
+- Vertretbare Einarbeitungszeit im 9 Wochen Rahmen
+- Sichtbarer Lerntransfer gegenüber Sem 4
+
+**Betrachtete Optionen**
+
+1. Flask weiterführen, bekannt aus Sem 4
+2. FastAPI als modernes ASGI Framework mit OpenAPI Unterstützung
+3. Django REST Framework als vollumfänglicher Stack
+
+**Entscheid**
+
+FastAPI wird als Backend Framework eingesetzt.
+
+**Begründung**
+
+FastAPI baut auf Python Type Hints auf und liefert die OpenAPI Spezifikation samt Swagger UI unter `/docs` ohne Zusatzkonfiguration. Pydantic Modelle erzwingen Konsistenz zwischen API Schicht und Persistenzschicht, was bei einer typisierten, kleinen Domain wie der Preisüberwachung sauber passt.
+
+Gegenüber Flask reduziert FastAPI Boilerplate (kein eigener Marshalling Code, automatische Request Validierung) und macht den Code prüfbarer. Gegenüber Django REST Framework ist FastAPI deutlich leichtgewichtiger und matchet den Scope (keine Admin Oberfläche, kein User Management) wesentlich besser.
+
+Der Wechsel von Flask zu FastAPI dokumentiert zudem den Lernfortschritt zwischen Sem 4 und Sem 5 und fliesst als Lerntransfer in die Reflexion ein.
+
+**Konsequenzen**
+
+*Positiv*
+
+- Automatische OpenAPI Dokumentation reduziert Testaufwand in Sprint 2 und Sprint 3
+- Pydantic Modelle stellen eine klare Schnittstelle zur Datenbank dar
+- Klarere Cloud Native Wahrnehmung im HF Bewertungsraster, da FastAPI als modernes Cloud Native Framework gilt
+
+*Negativ*
+
+- Einarbeitungszeit von rund 1 bis 2 Stunden für Pydantic und Dependency Injection
+- Async und sync müssen bewusst gewählt werden, in diesem Projekt bleiben Endpoints synchron, da SQLite keinen sinnvollen Async Treiber hat (siehe ADR-003)
+
+*Neutral*
+
+- Frontend Anbindung unverändert, beide Frameworks liefern JSON
+
+**Links**
+
+- FastAPI Dokumentation: https://fastapi.tiangolo.com/
+- Pydantic v2 Dokumentation: https://docs.pydantic.dev/latest/
+- Sem 4 Referenzprojekt (Flask): https://cancani.com/geraeteausleihe-sem4/dokumentation/
+
+### ADR-002: Lokaler Cluster mit kind statt minikube
+
+**Kontext und Problemstellung**
+
+Die Semesterarbeit benötigt eine lokal lauffähige Kubernetes Umgebung für Entwicklung und Demo. Ein Cloud Cluster (EKS, AKS, GKE) ist explizit nicht im Scope, aus Kostengründen.
+
+Die Umgebung muss:
+
+- Mehrere Nodes simulieren können, um Pod Scheduling sichtbar zu machen
+- Schnell starten und stoppen, da der Cluster oft frisch gebaut wird
+- Per Skript idempotent aufsetzbar sein (R3 in der Risikomatrix)
+- Kompatibel mit Helm, Argo CD und Docker Images aus GHCR sein
+
+**Entscheidungstreiber**
+
+- Multi Node Setup für realistischere Plattform Wahrnehmung
+- Schnelle Boot Zeit, damit Iteration beim Setup nicht bremst
+- Geringer Ressourcenverbrauch auf einem Notebook
+- Aktive Pflege und Cloud Native Standard
+
+**Betrachtete Optionen**
+
+1. kind (Kubernetes IN Docker), Multi Node via Docker Container
+2. minikube, VM oder Docker basiert, single Node Standard
+3. k3s oder k3d, leichtgewichtige Rancher Distribution
+
+**Entscheid**
+
+kind wird als lokaler Cluster eingesetzt, konfiguriert mit zwei Nodes (1 Control Plane, 1 Worker).
+
+**Begründung**
+
+kind bringt Multi Node Setups out of the box, indem jeder Node als eigener Docker Container läuft. Damit lässt sich Scheduling realistisch zeigen, was bei einem single Node minikube nicht möglich wäre. kind ist offizielles Kubernetes Tooling (im `kubernetes-sigs` Repository) und wird in der Kubernetes CI selbst verwendet, was Stabilität und langfristige Pflege gewährleistet.
+
+Gegenüber minikube entfällt der VM Overhead, da kind direkt mit dem lokalen Docker Daemon arbeitet. Die Boot Zeit liegt typischerweise unter einer Minute. Gegenüber k3s und k3d ist kind näher an "echtem" Kubernetes, also derselben Distribution, die im Hyperscaler Umfeld läuft, statt einer reduzierten Variante.
+
+**Konsequenzen**
+
+*Positiv*
+
+- Multi Node Cluster mit zwei Nodes in unter einer Minute startklar
+- Identisch zur Upstream Kubernetes Distribution, kein Vendor Lock
+- Hervorragend für CI Integration geeignet (relevant für US14 in Sprint 3)
+- Setup vollständig im Skript `scripts/setup-cluster.sh` reproduzierbar
+
+*Negativ*
+
+- Kein eingebautes Ingress oder LoadBalancer, Zugriff erfolgt via Port Forward oder NodePort
+- Container Images müssen entweder von GHCR gezogen oder per `kind load docker-image` in den Cluster importiert werden
+- Persistenz auf den Nodes geht verloren, sobald der Cluster zerstört wird (gilt für alle lokalen Cluster gleichermassen)
+
+*Neutral*
+
+- Argo CD und Helm laufen unverändert, der Cluster ist API kompatibel
+
+**Links**
+
+- kind Dokumentation: https://kind.sigs.k8s.io/
+- minikube Vergleich: https://kubernetes.io/docs/tasks/tools/
+
+### ADR-003: SQLite statt PostgreSQL als Datenbank
+
+**Kontext und Problemstellung**
+
+Die Preisüberwachungs WebApp speichert aktuelle und historische Preisdaten von digitalen Marktplatzobjekten. Das Datenvolumen ist klein (geschätzt einige tausend Datensätze pro Tag), die Schreibvorgänge erfolgen kontrolliert durch den Kubernetes CronJob, die Leseseite ist gering bis moderat.
+
+Es ist zu entscheiden, welche Datenbank für die Persistenz eingesetzt wird. Die Entscheidung muss zur Plattform passen (Kubernetes Resourcen) und darf den Scope der Arbeit nicht unnötig vergrössern.
+
+**Entscheidungstreiber**
+
+- Tatsächliches Datenvolumen und Lastprofil
+- Anzahl zusätzlicher Komponenten im Cluster (jeder Pod ist Wartungsaufwand)
+- Backup und Wiederherstellbarkeit für die Demo
+- Vereinbarkeit mit dem GitOps Ansatz (deklarativ, reproduzierbar)
+
+**Betrachtete Optionen**
+
+1. SQLite, embedded, eine Datei auf einem Persistent Volume
+2. PostgreSQL als eigener Pod, vermutlich via Bitnami Helm Subchart
+3. Externe Datenbank, z.B. gehostete Postgres Instanz
+
+**Entscheid**
+
+SQLite wird als Datenbank eingesetzt. Die Datenbankdatei liegt auf einem Persistent Volume Claim (PVC), das im Helm Chart definiert ist.
+
+**Begründung**
+
+Bei einem CronJob, der alle paar Minuten schreibt, und einer Leseseite, die hauptsächlich Read Only Queries beantwortet, ist SQLite mehr als ausreichend. Die Single Writer Beschränkung von SQLite ist hier kein Problem, da der Writer Pfad fest auf den CronJob beschränkt ist und die API nur liest.
+
+Ein zusätzlicher PostgreSQL Pod würde den Plattformfokus verwässern: zusätzliches Deployment, ConfigMap, Secret, PVC und ggf. ein Init Job für Schema Migrationen. Das ist Plattform Engineering, das die Story der Arbeit nicht stärkt, weil es nur eine zweite Datenbank dazustellt.
+
+Das Backup einer SQLite Datenbank reduziert sich auf das Kopieren einer Datei, was für die Demo und für eventuelle Rollback Szenarien (US12 in Sprint 3) einfach zu zeigen ist.
+
+**Konsequenzen**
+
+*Positiv*
+
+- Kein zusätzlicher Pod, kein Operator, keine Subchart Komplexität
+- Backup und Restore über simple Dateikopie demonstrierbar
+- Sehr schnelle Reads für kleine Datenmengen
+- Persistenz vollständig über PVC abgedeckt, getestet durch Pod Delete
+
+*Negativ*
+
+- Single Writer, keine Replikation. Bei zukünftigem Multi Pod Setup nicht skalierbar
+- Schemamigrationen erfolgen mit Bordmitteln (Alembic ist Overkill, vermutlich SQL Migrationen oder Code)
+- Wenn das Projekt produktiv weitergeführt würde, wäre eine Migration auf PostgreSQL nötig (siehe Reflexion und Ausblick)
+
+*Neutral*
+
+- Die Datenmodellschicht in FastAPI ist DB agnostisch genug, falls später migriert wird
+
+**Links**
+
+- SQLite Dokumentation: https://www.sqlite.org/docs.html
+- SQLite Limits: https://www.sqlite.org/limits.html
+
+### ADR-004: Monorepo statt Multi Repo
+
+**Kontext und Problemstellung**
+
+Die Arbeit umfasst Anwendungscode (Backend, Frontend), Container Definitionen (Dockerfile), Plattformkonfiguration (Helm Chart, Argo CD Application), CI Workflows und Dokumentation. Diese Artefakte hängen technisch und fachlich zusammen.
+
+Es ist zu entscheiden, ob alles in einem einzigen Repository liegt (Monorepo) oder ob es auf mehrere Repositories aufgeteilt wird (Multi Repo), zum Beispiel ein App Repository und ein separates GitOps Konfigurations Repository.
+
+**Entscheidungstreiber**
+
+- Komplexität bei einer Person als einziger Mitwirkender
+- Nachvollziehbarkeit von Commit zu Deployment, gerade für die HF Bewertung
+- GitOps Konfiguration mit Argo CD soll einfach beobachtbar bleiben
+- Praktikabilität im 50 Stunden Rahmen
+
+**Betrachtete Optionen**
+
+1. Monorepo, alle Artefakte in einem Repository
+2. App Repo plus GitOps Repo, klassisches Argo CD Pattern für grössere Organisationen
+3. Mehrere App Repos, ein Repo pro Komponente
+
+**Entscheid**
+
+Monorepo. Anwendungscode, Helm Chart, Argo CD Application und Dokumentation liegen alle in `gitops-platform-semesterarbeit5`. Argo CD beobachtet den Pfad `helm/price-watch` im selben Repository.
+
+**Begründung**
+
+Bei einer Person als alleiniger Mitwirkender hat ein Multi Repo Pattern keinen Vorteil. Die typischen Argumente für getrennte Repos (Berechtigungen pro Team, separate Release Zyklen, andere Compliance Anforderungen) treffen hier nicht zu. Stattdessen erzeugt Multi Repo zusätzliche Koordination: zwei Repositories synchron halten, Image Tag Bumps in einem zweiten Repo nachpflegen, Pull Requests mehrfach öffnen.
+
+Ein Monorepo macht den Lifecycle einer Änderung transparent: Commit auf `main` triggert sowohl CI Build als auch Argo CD Sync, beides aus demselben Repo, beides für den Reviewer in einer einzigen History sichtbar. Für die HF Bewertbarkeit ist das ein klarer Vorteil, weil alle Artefakte an einem Ort prüfbar sind.
+
+Der oft genannte "Mixed Concerns" Nachteil eines Monorepos (App Code und Deployment Konfig im selben Repo) wird hier bewusst akzeptiert. Falls in einer Folgearbeit auf Multi Repo gewechselt würde, ist die Trennung in Unterordner (`app/`, `helm/`, `argocd/`) so vorbereitet, dass eine Aufteilung mit überschaubarem Aufwand möglich wäre.
+
+**Konsequenzen**
+
+*Positiv*
+
+- Eine Wahrheit, ein History Strang, ein PR Workflow
+- Argo CD Pfad ist eindeutig (`helm/price-watch`)
+- Kürzerer Feedback Loop bei Änderungen, die Code und Helm gleichzeitig betreffen
+- Für HF Bewertung übersichtlich, alles an einem Ort prüfbar
+
+*Negativ*
+
+- Mixed Concerns, App und Plattformkonfiguration im selben Repo
+- Bei späterem Skalieren auf mehrere Teams nicht ideal (hier irrelevant)
+- Argo CD `path` Konfiguration muss präzise sein, sonst werden auch nicht relevante Pfade beobachtet
+
+*Neutral*
+
+- Branch Protection und Ruleset Konfiguration bleibt unverändert
+
+**Links**
+
+- Argo CD Best Practices, Repository Trennung: https://argo-cd.readthedocs.io/en/stable/user-guide/best_practices/
+- GitOps Repository Patterns (Cloudogu Serie): https://platform.cloudogu.com/de/blog/gitops-repository-patterns-teil-3-repository-patterns
+- 
+### ADR-005: Squash Merge statt Merge Commit
+
+**Kontext und Problemstellung**
+
+Pull Requests werden ausschliesslich vom Branch `develop` nach `main` geöffnet. Branch Protection erzwingt eine lineare History auf `main`. Es muss entschieden werden, welche Merge Strategie für diese Pull Requests gilt.
+
+Diese Entscheidung wirkt sich direkt auf den GitOps Lifecycle aus: Argo CD reagiert auf Commits auf `main`. Ein sauberer Commit pro PR macht Rollbacks, Bisects und das Lesen der Git History deutlich einfacher.
+
+**Entscheidungstreiber**
+
+- Lineare History auf `main` (Branch Protection Ruleset)
+- Eindeutiger Bezug zwischen PR und Commit auf `main`
+- Einfaches `git revert` für Rollback Szenarien (US12 in Sprint 3)
+- Lesbarkeit der History für Sprint Reviews und die HF Bewertung
+
+**Betrachtete Optionen**
+
+1. Squash Merge, ein einzelner Commit pro PR auf `main`
+2. Merge Commit, vollständige Branch History plus Merge Commit
+3. Rebase Merge, einzelne Commits aus `develop` werden auf `main` rebased
+
+**Entscheid**
+
+Squash Merge. Jeder Pull Request von `develop` nach `main` erzeugt genau einen Commit auf `main`.
+
+**Begründung**
+
+GitOps lebt davon, dass jeder Commit auf `main` eindeutig zu einer Deployment Änderung führt. Squash Merge erzeugt genau das: einen Commit pro PR, sauber benannt nach Conventional Commits Konvention, ein eindeutiges Ziel für `git revert`.
+
+Merge Commits würden die History aufblähen, weil jeder Mikro Commit von `develop` (oft mehrere pro Tag) in der History von `main` landet. Das macht Bisects schwierig und die History für einen Reviewer unleserlich. Rebase Merge wäre eine Mittellösung, würde aber bei der Rollback Story (Revert eines kompletten PR) zusätzliche Schritte erfordern, weil mehrere Commits gleichzeitig revertiert werden müssten.
+
+Die Detail Commits aus `develop` gehen damit zwar in der `main` History verloren, sind aber im PR selbst weiterhin sichtbar. Das ist ein bewusster Tradeoff, der zugunsten der Lesbarkeit auf `main` ausgeht.
+
+**Konsequenzen**
+
+*Positiv*
+
+- Lineare, lesbare History auf `main`
+- Eindeutiges `git revert` pro Sprint Story
+- Klarer 1 zu 1 Bezug zwischen PR und Deployment auf `main`
+- Argo CD Audit Trail bleibt überschaubar
+
+*Negativ*
+
+- Einzelne Commits aus `develop` sind in der `main` History nicht mehr sichtbar
+- Wer den Detailverlauf sehen will, muss den geschlossenen PR öffnen
+- Commit Datum auf `main` weicht vom Original Datum auf `develop` ab
+
+*Neutral*
+
+- Branch Protection Ruleset (linear history) unterstützt diese Strategie nativ
+
+**Links**
+
+- GitHub Merge Optionen: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges
+- Conventional Commits: https://www.conventionalcommits.org/
