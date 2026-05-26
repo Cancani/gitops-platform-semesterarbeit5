@@ -410,15 +410,17 @@ Die folgenden User Stories gehören zu Sprint 1:
 | US04 | WebApp Skelett mit FastAPI und Health Endpoints | WebApp | 3 |
 | US05 | Dockerfile baut WebApp Image lokal | Container | 2 |
 
-**Geplanter Aufwand Sprint 1:** **11 Story Points**
+**Sprintziel** : Plattform Grundgerüst aufgebaut, lokaler Cluster lauffähig, FastAPI Skelett als Container baubar.
 
-**WIP Regel**
+##### Erledigte User Stories
 
-In Progress maximal 2 parallel laufende Issues.
-
-**Evidence Standard für Sprint 1**
-
-Für Sprint 1 werden mindestens folgende Nachweise geplant:
+| ID | Titel | Story Points | Status | Issue |
+| --- | --- | --- | --- | --- |
+| US01 | Repository, Branch Protection, MkDocs Deploy | 2 | erledigt | geschlossen |
+| US02 | Architekturentscheide (5 ADRs) | 2 | erledigt | geschlossen |
+| US03 | Lokaler kind Cluster mit Setup und Teardown | 3 | erledigt | geschlossen |
+| US04 | FastAPI Backend Skelett mit Health Probes | 2 | erledigt | geschlossen |
+| US05 | Dockerfile mit Multi-Stage Build | 2 | erledigt | geschlossen |
 
 - Screenshot Project Board Übersicht mit Sprint 1 Spalten
 - Screenshot Milestones Übersicht (Sprint 1 bis 3 angelegt)
