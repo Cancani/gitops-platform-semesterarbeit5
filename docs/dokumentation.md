@@ -113,6 +113,7 @@
       - [Sicherheitsmerkmale](#sicherheitsmerkmale)
       - [.dockerignore](#dockerignore)
       - [Lokales Build und Test](#lokales-build-und-test)
+      - [Image in kind Cluster laden](#image-in-kind-cluster-laden)
 
 ---
 
@@ -1431,10 +1432,6 @@ Das Setup Skript prüft diese Voraussetzungen beim Start und meldet fehlende Too
 
 Das Setup Skript ist idempotent: Wenn der Cluster bereits existiert, wird er nicht neu erstellt, sondern nur der `kubectl` Kontext gesetzt und der aktuelle Status angezeigt. Damit ist mehrfaches Ausführen gefahrlos möglich (Massnahme zu Risiko R3).
 
-![Cluster Setup](./img/setup_cluster1.png)
-
-*Abbildung: Cluster Setup*
-
 #### Verifikation nach Setup
 
 Nach erfolgreichem Setup zeigt `kubectl get nodes` beide Nodes im Status `Ready`:
@@ -1446,9 +1443,7 @@ gitops-platform-control-plane     Ready    control-plane   1m    v1.31.x
 gitops-platform-worker            Ready    <none>          1m    v1.31.x
 ```
 
-![Cluster Ready](./img/setup_cluster3.png)
-
-*Abbildung: Clusterstatus*
+Sind beide Nodes `Ready`, ist das Messkriterium aus Ziel 1 (Kapitel 2.3) erfüllt. Falls ein Node im Status `NotReady` hängt, siehe das Runbook "kind Cluster Nodes nicht Ready" (Kapitel 8, folgt in Sprint 3).
 
 ### Backend Anwendung (FastAPI)
 
@@ -1494,10 +1489,6 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 Der Server reagiert auf Code-Änderungen mit Auto-Reload, was die Iteration beim Skelett Aufbau und beim späteren Anbinden der Datenbank in Sprint 2 beschleunigt.
 
-![App starten](./img/backendapp1.png)
-
-*Abbildung: Starten der Backend App*
-
 #### Health Probes
 
 Die beiden Health Endpoints werden in Sprint 2 als Kubernetes Liveness und Readiness Probes im Helm Chart konfiguriert:
@@ -1506,9 +1497,6 @@ Die beiden Health Endpoints werden in Sprint 2 als Kubernetes Liveness und Readi
 - `/ready` antwortet, sobald der Service Anfragen annehmen kann. Im Skelett immer "ready", in Sprint 2 wird hier zusätzlich die SQLite Verbindung geprüft (siehe [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank)). Diese Probe entscheidet, ob ein Pod Traffic vom Service erhält (Readiness Probe).
 
 Die Trennung in zwei Probes folgt der Kubernetes Best Practice und vermeidet, dass langsame Initialisierungen (zum Beispiel ein Schema-Load in Sprint 2) zu falschen Pod Restarts führen.
-
-![Health Check](./img/backend2.png)
-*Abbildung: Healthcheck Endpoints*
 
 ### Containerisierung (Dockerfile)
 
@@ -1569,28 +1557,26 @@ curl http://localhost:8000/api/prices
 # Erwartet: {"prices":[]}
 ```
 
-![Docker build](./img/docker1.png)
-*Abbildung: Docker build ausgeführt*
-
-![Docker run](./img/docker2.png)
-*Abbildung: Docker run ausgeführt*
-
-![Smoke Test](./img/docker3.png)
-*Abbildung: Ausgabe Test im zweiten Terminal*
-
 Der HEALTHCHECK wird vom Docker Daemon automatisch ausgeführt. Status prüfen mit:
 
 ```bash
 docker ps
 # Spalte STATUS zeigt "Up X seconds (healthy)" sobald der Check positiv war
 ```
-![Healthcheck](./img/docker4.png)
-*Abbildung: Healthcheck Docker Container*
 
 Image Grösse prüfen:
 
 ```bash
 docker images price-watch-backend
+# Erwartet: rund 150 MB
 ```
-![Image Grösse](./img/docker5.png)
-*Abbildung: Docker Image Grösse*
+
+#### Image in kind Cluster laden
+
+Solange noch keine CI Pipeline existiert (kommt in Sprint 2, US14), kann das lokal gebaute Image direkt in den kind Cluster geladen werden (siehe [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube)):
+
+```bash
+kind load docker-image price-watch-backend:dev --name gitops-platform
+```
+
+Damit ist das Image im Cluster verfügbar, ohne über eine Registry gehen zu müssen. Ab Sprint 2 wird dieser Schritt durch die CI Pipeline (Build und Push nach GHCR) und Argo CD Sync ersetzt.
