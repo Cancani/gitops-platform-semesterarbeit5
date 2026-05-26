@@ -19,11 +19,11 @@
 
 - [Semesterarbeit 5: Aufbau einer GitOps basierten Kubernetes Plattform mit Preisüberwachungs WebApp](#semesterarbeit-5-aufbau-einer-gitops-basierten-kubernetes-plattform-mit-preisüberwachungs-webapp)
   - [Inhaltsverzeichnis](#inhaltsverzeichnis)
-  - [1. Management Summary](#1-management-summary)
-  - [2. Einleitung](#2-einleitung)
-    - [2.1 Ausgangslage](#21-ausgangslage)
-    - [2.2 Zielgruppe](#22-zielgruppe)
-    - [2.3 Zielsetzung und Messkriterien](#23-zielsetzung-und-messkriterien)
+  - [Management Summary](#management-summary)
+  - [Einleitung](#einleitung)
+    - [Ausgangslage](#ausgangslage)
+    - [Zielgruppe](#zielgruppe)
+    - [Zielsetzung und Messkriterien](#zielsetzung-und-messkriterien)
     - [SMART Ziele](#smart-ziele)
     - [Abgrenzung](#abgrenzung)
     - [Themenfeldabdeckung](#themenfeldabdeckung)
@@ -40,6 +40,7 @@
       - [Verwendete Story-Point-Skala](#verwendete-story-point-skala)
       - [Priorisierung](#priorisierung)
     - [Sprint Planungen, Reviews und Retrospektiven](#sprint-planungen-reviews-und-retrospektiven)
+      - [Sprint 1 Planung](#sprint-1-planung)
       - [Sprint 1 Review](#sprint-1-review)
         - [Erledigte User Stories](#erledigte-user-stories)
         - [Demo-fähige Artefakte](#demo-fähige-artefakte)
@@ -53,16 +54,16 @@
         - [More of (mehr davon)](#more-of-mehr-davon)
         - [Less of (weniger davon)](#less-of-weniger-davon)
         - [Risikobewertung am Sprint 1 Ende (siehe Risikomatrix)](#risikobewertung-am-sprint-1-ende-siehe-risikomatrix)
-      - [3.6.4 Sprint 2 Planung](#364-sprint-2-planung)
+      - [Sprint 2 Planung](#sprint-2-planung)
       - [3.6.5 Sprint 2 Review](#365-sprint-2-review)
       - [3.6.6 Sprint 2 Retrospektive](#366-sprint-2-retrospektive)
       - [3.6.7 Sprint 3 Planung](#367-sprint-3-planung)
-      - [3.6.8 Sprint 3 Review](#368-sprint-3-review)
+      - [Sprint 3 Review](#sprint-3-review)
       - [3.6.9 Sprint 3 Retrospektive](#369-sprint-3-retrospektive)
-    - [3.7 Branching Strategie](#37-branching-strategie)
-    - [3.8 Repository Strategie: Monorepo](#38-repository-strategie-monorepo)
-    - [3.9 Definition of Done](#39-definition-of-done)
-    - [3.10 SWOT Analyse](#310-swot-analyse)
+    - [Branching Strategie](#branching-strategie)
+    - [Repository Strategie: Monorepo](#repository-strategie-monorepo)
+    - [Definition of Done](#definition-of-done)
+    - [SWOT Analyse](#swot-analyse)
       - [Stärken](#stärken)
       - [Schwächen](#schwächen)
       - [Chancen](#chancen)
@@ -113,11 +114,10 @@
       - [Sicherheitsmerkmale](#sicherheitsmerkmale)
       - [.dockerignore](#dockerignore)
       - [Lokales Build und Test](#lokales-build-und-test)
-      - [Image in kind Cluster laden](#image-in-kind-cluster-laden)
 
 ---
 
-## 1. Management Summary
+## Management Summary
 
 In dieser Semesterarbeit wird eine kleine, aber realistische Cloud Native Plattform auf Basis von Kubernetes aufgebaut. Auf der Plattform läuft eine einfache Preisüberwachungs WebApp als Referenzanwendung. Sie ruft regelmässig Preisdaten von digitalen Marktplatzobjekten ab, speichert aktuelle und historische Werte und stellt diese über eine einfache Weboberfläche dar.
 
@@ -129,9 +129,9 @@ Die Arbeit zeigt anhand eines praxisnahen Use Cases, wie zentrale Cloud Native K
 
 ---
 
-## 2. Einleitung
+## Einleitung
 
-### 2.1 Ausgangslage
+### Ausgangslage
 
 Containerisierte Anwendungen werden in vielen Umgebungen noch manuell oder nur teilweise automatisiert bereitgestellt. Daraus ergeben sich typische Probleme:
 
@@ -143,7 +143,7 @@ Containerisierte Anwendungen werden in vielen Umgebungen noch manuell oder nur t
 
 GitOps adressiert diese Probleme, indem der Soll Zustand der Plattform und der Anwendung in einem Git Repository definiert wird. Ein Operator wie Argo CD synchronisiert diesen Zustand automatisch in den Cluster und meldet Abweichungen.
 
-### 2.2 Zielgruppe
+### Zielgruppe
 
 Diese Dokumentation richtet sich an:
 
@@ -151,7 +151,7 @@ Diese Dokumentation richtet sich an:
 - spätere Studierende, die einen vergleichbaren Plattformaufbau als Referenz nutzen wollen,
 - den Autor selbst als Nachschlagewerk im Betrieb der Plattform.
 
-### 2.3 Zielsetzung und Messkriterien
+### Zielsetzung und Messkriterien
 
 | Nr. | Ziel | Messkriterium |
 |----|------|---------------|
@@ -245,7 +245,7 @@ Die Entscheidung für ein iteratives Vorgehen basiert auf folgenden Punkten:
 - Abgleich gegen Sprintziel
 - Zwischenpräsentationen mit Dozenten am Ende von Sprint 1 und Sprint 2 zur Qualitätssicherung
 - Bewertung der Zielerreichung und Identifikation von Verbesserungspotenzialen
-- Evidence Pflicht, Screenshots und Links werden direkt pro Sprint Review dokumentiert
+- Evidence Pflicht, Screenshots und Links werden direkt in der technischen Dokumentation platziert
 
 **Sprint Retrospektive:**
 
@@ -385,6 +385,56 @@ Die nachfolgenden Abschnitte dokumentieren den vollständigen Projektverlauf und
 
 ---
 
+#### Sprint 1 Planung
+
+**Sprint Zeitraum**
+
+Woche 1 bis 3 der Semesterarbeit.
+
+**Sprintziel**
+
+Projektbasis schaffen und die Grundlage für den GitOps Durchstich in Sprint 2 legen. Repository, Project Board, lokaler Kubernetes Cluster, WebApp Skelett und ein erstes Container Image sind lokal lauffähig. Die Doku Pages ist live.
+
+
+**Sprint 1 User Stories**
+
+Die folgenden User Stories gehören zu Sprint 1:
+
+[Link zu Issues auf GitHub](https://github.com/Cancani/gitops-platform-semesterarbeit5/milestone/1)
+
+| US | Titel | Bereich | Story Points |
+| --- | --- | --- | --- |
+| US01 | Repository, Project Board und Sprint Milestones aufgesetzt | Projektmanagement | 1 |
+| US02 | Architekturentscheide für Sem 5 dokumentiert | Architektur | 2 |
+| US03 | Lokaler Kubernetes Cluster mit kind lauffähig | Plattform | 3 |
+| US04 | WebApp Skelett mit FastAPI und Health Endpoints | WebApp | 3 |
+| US05 | Dockerfile baut WebApp Image lokal | Container | 2 |
+
+**Sprintziel** : Plattform Grundgerüst aufgebaut, lokaler Cluster lauffähig, FastAPI Skelett als Container baubar.
+
+##### Erledigte User Stories
+
+| ID | Titel | Story Points | Status | Issue |
+| --- | --- | --- | --- | --- |
+| US01 | Repository, Branch Protection, MkDocs Deploy | 2 | erledigt | geschlossen |
+| US02 | Architekturentscheide (5 ADRs) | 2 | erledigt | geschlossen |
+| US03 | Lokaler kind Cluster mit Setup und Teardown | 3 | erledigt | geschlossen |
+| US04 | FastAPI Backend Skelett mit Health Probes | 2 | erledigt | geschlossen |
+| US05 | Dockerfile mit Multi-Stage Build | 2 | erledigt | geschlossen |
+
+- Screenshot Project Board Übersicht mit Sprint 1 Spalten
+- Screenshot Milestones Übersicht (Sprint 1 bis 3 angelegt)
+- Screenshot Branch Protection Rulesets
+- Screenshot Issue Templates
+- Screenshot `kubectl get nodes` mit zwei Ready Nodes
+- Screenshot WebApp lokal
+- Screenshot `docker run` Output mit `curl /healthz` und 200 OK
+- Link zur Doku Page auf GitHub Pages
+- ADR Verzeichnis in Dokumentation
+
+
+---
+
 #### Sprint 1 Review
 
 **Datum**: 26.05.2026 (Sprint Abschluss vor Zwischenpräsentation am 05.06.2026)
@@ -404,10 +454,10 @@ Die nachfolgenden Abschnitte dokumentieren den vollständigen Projektverlauf und
 **Velocity**: 11 von 11 geplanten Story Points abgeschlossen (100 Prozent Sprint Goal Achievement).
 
 ![Milestone Sprint 1 Sprintende](./img/sprint1ende.png)
-*Abbildung: Milestone Sprint 1 am Sprintende*
+<small><em>Abbildung : Milestone Sprint 1 Ende</em></small>
 
 ![Project Board Sprint 1 Sprintende](./img/sprint1ende2.png)
-*Abbildung: Projectboard Sprint 1 am Sprintende*
+<small><em>Abbildung : Projectboard Sprint 1 Ende</em></small>
 
 ##### Demo-fähige Artefakte
 
@@ -453,6 +503,9 @@ Die Sprint 1 Ergebnisse werden in der Zwischenpräsentation am 05.06.2026 dem Fa
 
 Die Retrospektive folgt dem Starfish Modell. Beobachtungen aus Sprint 1 werden in fünf Kategorien einsortiert und in konkrete Aktionen für Sprint 2 überführt.
 
+![Starfish Retro Sprint 1](./img/starfishretrosprint1.png)
+<small><em>Abbildung : Sprint 1 Starfish Retrospektive</em></small>
+
 ##### Keep (lief gut)
 
 - **Doku parallel zum Code**: Jede Story hatte ein Doku Update im selben PR. R10 (Doku rückständig) ist dadurch in Sprint 1 nicht eingetreten. Die Massnahme aus der Sprint 1 Planung wirkt nachweisbar.
@@ -466,16 +519,16 @@ Die Retrospektive folgt dem Starfish Modell. Beobachtungen aus Sprint 1 werden i
 
 ##### Start (sollte ab jetzt gemacht werden)
 
-- **Self Review Checkliste vor jedem PR**: Filename Konvention, Funktion vor Style, Doku aktualisiert. Drei Minuten Investition, spart Nacharbeit-PRs.
+- **Self Review Checkliste vor jedem PR**: Filename Konvention, Funktion vor Style.
 
 ##### More of (mehr davon)
 
-- **Lokale Smoke Tests im PR Body dokumentieren**: Bei jeder Story die getesteten Befehle und erwarteten Ausgaben als Belegtabelle im PR. Erleichtert Self Review und liefert direkt Material für die Runbooks in Sprint 3.
+- **Lokale Smoke Tests im PR Body dokumentieren**: Bei jeder Story die getesteten Befehle und erwarteten Ausgaben  im PR. Erleichtert Self Review und liefert direkt Material für die Runbooks in Sprint 3.
 - **ADR Verweise im Code und in der Doku**: Mehr Querverlinkungen zwischen Dokumentation und ADR, damit der "warum"-Faden überall sichtbar ist.
 
 ##### Less of (weniger davon)
 
-
+- **kleine Pull Requests**: grosse Pull Requests durchführen mit mehreren Commits damit alle Commits einfacher nachverfolgbar sind pro Sprint.
 
 ##### Risikobewertung am Sprint 1 Ende (siehe Risikomatrix)
 
@@ -490,7 +543,7 @@ Die Retrospektive folgt dem Starfish Modell. Beobachtungen aus Sprint 1 werden i
 
 ---
 
-#### 3.6.4 Sprint 2 Planung
+#### Sprint 2 Planung
 
 **Sprint Zeitraum**
 
@@ -510,6 +563,7 @@ GitOps Durchstich. Push auf `main` führt automatisch zu Build, Push, Sync und D
 - Liveness und Readiness Probes
 
 ![Sprint2: Milestones und Issues](./img/image-2.png)
+<small><em>Abbildung : Sprint 2 Milestone und Issues</em></small>
 
 **Sprint 2 User Stories**
 
@@ -635,6 +689,7 @@ Plattform und Dokumentation sind prüfbar abgeschlossen. Rollback Szenario ist n
 - Generalprobe der Schlussdemo
 
 ![Sprint 3: Milestone und Issues](./img/image-3.png)
+<small><em>Abbildung : Sprint 3 Milestones und Issues</em></small>
 
 **Sprint 3 User Stories**
 
@@ -670,7 +725,7 @@ Für Sprint 3 werden mindestens folgende Nachweise geplant:
 
 ---
 
-#### 3.6.8 Sprint 3 Review
+#### Sprint 3 Review
 
 **Review Ergebnis**
 
@@ -732,7 +787,7 @@ _Gesamtfazit zum Projektmanagement über alle drei Sprints. Was hat die Methodik
 
 ---
 
-### 3.7 Branching Strategie
+### Branching Strategie
 
 Bewusst einfach gehalten, passend für ein Einpersonen Projekt mit Nachweisanspruch.
 
@@ -751,7 +806,7 @@ Branch Protection ist über GitHub Rulesets umgesetzt:
 | `develop` | keine Löschung, kein Force Push |
 | `gh-pages` | keine Löschung (Force Push erlaubt, da MkDocs gh-deploy ihn benötigt) |
 
-### 3.8 Repository Strategie: Monorepo
+### Repository Strategie: Monorepo
 
 Es wurde zwischen Monorepo und mehreren Repositories abgewogen.
 
@@ -765,7 +820,7 @@ Es wurde zwischen Monorepo und mehreren Repositories abgewogen.
 
 **Entscheid:** Monorepo. Code, Helm Chart, Argo CD Application und Dokumentation liegen in einem Repository. Argo CD beobachtet `helm/price-watch`. Die Anwendung wird im selben Repository entwickelt, wodurch der Lifecycle transparent ist.
 
-### 3.9 Definition of Done
+### Definition of Done
 
 Eine User Story gilt als erledigt, wenn:
 
@@ -776,7 +831,7 @@ Eine User Story gilt als erledigt, wenn:
 5. wo sinnvoll, Tests oder Lint Schritte in der Pipeline grün sind,
 6. wo zutreffend, Argo CD die Application im Status `Synced, Healthy` zeigt.
 
-### 3.10 SWOT Analyse
+### SWOT Analyse
 
 Eine SWOT Analyse hilft, das Projekt aus vier Perspektiven einzuschätzen und Massnahmen für die Sprint Planung abzuleiten.
 
@@ -1432,6 +1487,15 @@ Das Setup Skript prüft diese Voraussetzungen beim Start und meldet fehlende Too
 
 Das Setup Skript ist idempotent: Wenn der Cluster bereits existiert, wird er nicht neu erstellt, sondern nur der `kubectl` Kontext gesetzt und der aktuelle Status angezeigt. Damit ist mehrfaches Ausführen gefahrlos möglich (Massnahme zu Risiko R3).
 
+![Cluster starten mit Skript](img/setup_cluster1.png)
+<small><em>Abbildung : Starten des Clusters lokal</em></small>
+
+![alt text](img/setup_cluster2.png)
+<small><em>Abbildung : Status Cluster</em></small>
+
+![alt text](img/setup_cluster3.png)
+<small><em>Abbildung : Cluster Info nach Start</em></small>
+
 #### Verifikation nach Setup
 
 Nach erfolgreichem Setup zeigt `kubectl get nodes` beide Nodes im Status `Ready`:
@@ -1443,7 +1507,7 @@ gitops-platform-control-plane     Ready    control-plane   1m    v1.31.x
 gitops-platform-worker            Ready    <none>          1m    v1.31.x
 ```
 
-Sind beide Nodes `Ready`, ist das Messkriterium aus Ziel 1 (Kapitel 2.3) erfüllt. Falls ein Node im Status `NotReady` hängt, siehe das Runbook "kind Cluster Nodes nicht Ready" (Kapitel 8, folgt in Sprint 3).
+Sind beide Nodes `Ready`, ist das Messkriterium aus Ziel 1 (Kapitel 2.3) erfüllt.
 
 ### Backend Anwendung (FastAPI)
 
@@ -1487,6 +1551,9 @@ pip install -r requirements.txt
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
+![Ausführung App](img/backendapp1.png)
+<small><em>Abbildung : Ausführung der App lokal</em></small>
+
 Der Server reagiert auf Code-Änderungen mit Auto-Reload, was die Iteration beim Skelett Aufbau und beim späteren Anbinden der Datenbank in Sprint 2 beschleunigt.
 
 #### Health Probes
@@ -1497,6 +1564,9 @@ Die beiden Health Endpoints werden in Sprint 2 als Kubernetes Liveness und Readi
 - `/ready` antwortet, sobald der Service Anfragen annehmen kann. Im Skelett immer "ready", in Sprint 2 wird hier zusätzlich die SQLite Verbindung geprüft (siehe [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank)). Diese Probe entscheidet, ob ein Pod Traffic vom Service erhält (Readiness Probe).
 
 Die Trennung in zwei Probes folgt der Kubernetes Best Practice und vermeidet, dass langsame Initialisierungen (zum Beispiel ein Schema-Load in Sprint 2) zu falschen Pod Restarts führen.
+
+![Health Probes](img/backend2.png)
+<small><em>Abbildung : Healthpoints App</em></small>
 
 ### Containerisierung (Dockerfile)
 
@@ -1557,26 +1627,27 @@ curl http://localhost:8000/api/prices
 # Erwartet: {"prices":[]}
 ```
 
+![Docker build](img/docker1.png)
+<small><em>Abbildung : Docker ¨Build ausführung</em></small>
+
+![Docker run](img/docker2.png)
+<small><em>Abbildung : Docker run ausführung</em></small>
+
+![Endpoint Check](img/docker3.png)
+<small><em>Abbildung : Endpoint checks</em></small>
+
 Der HEALTHCHECK wird vom Docker Daemon automatisch ausgeführt. Status prüfen mit:
 
 ```bash
 docker ps
-# Spalte STATUS zeigt "Up X seconds (healthy)" sobald der Check positiv war
 ```
+![Docker Container Status](img/docker4.png)
+<small><em>Abbildung : Docker Container Status</em></small>
 
 Image Grösse prüfen:
 
 ```bash
 docker images price-watch-backend
-# Erwartet: rund 150 MB
 ```
-
-#### Image in kind Cluster laden
-
-Solange noch keine CI Pipeline existiert (kommt in Sprint 2, US14), kann das lokal gebaute Image direkt in den kind Cluster geladen werden (siehe [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube)):
-
-```bash
-kind load docker-image price-watch-backend:dev --name gitops-platform
-```
-
-Damit ist das Image im Cluster verfügbar, ohne über eine Registry gehen zu müssen. Ab Sprint 2 wird dieser Schritt durch die CI Pipeline (Build und Push nach GHCR) und Argo CD Sync ersetzt.
+![Image Grösse](img/docker5.png)
+<small><em>Abbildung : Docker Image Grösse</em></small>
