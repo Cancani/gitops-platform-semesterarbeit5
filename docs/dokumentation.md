@@ -98,6 +98,12 @@
       - [Endpoints im Skelett](#endpoints-im-skelett)
       - [Lokale Ausführung](#lokale-ausführung)
       - [Health Probes](#health-probes)
+    - [Containerisierung (Dockerfile)](#containerisierung-dockerfile)
+      - [Multi-Stage Build](#multi-stage-build)
+      - [Sicherheitsmerkmale](#sicherheitsmerkmale)
+      - [.dockerignore](#dockerignore)
+      - [Lokales Build und Test](#lokales-build-und-test)
+      - [Image in kind Cluster laden](#image-in-kind-cluster-laden)
 
 ---
 
@@ -1507,3 +1513,86 @@ Die beiden Health Endpoints werden in Sprint 2 als Kubernetes Liveness und Readi
 - `/ready` antwortet, sobald der Service Anfragen annehmen kann. Im Skelett immer "ready", in Sprint 2 wird hier zusätzlich die SQLite Verbindung geprüft (siehe [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank)). Diese Probe entscheidet, ob ein Pod Traffic vom Service erhält (Readiness Probe).
 
 Die Trennung in zwei Probes folgt der Kubernetes Best Practice und vermeidet, dass langsame Initialisierungen (zum Beispiel ein Schema-Load in Sprint 2) zu falschen Pod Restarts führen.
+
+### Containerisierung (Dockerfile)
+
+Das FastAPI Backend wird als Container Image paketiert, das später per CI Pipeline gebaut und in die GitHub Container Registry (GHCR) gepusht wird (siehe Sprint 2, US14). Das Dockerfile liegt unter `app/backend/Dockerfile`.
+
+#### Multi-Stage Build
+
+Das Dockerfile verwendet ein Two-Stage Build Pattern:
+
+| Stage | Zweck | Output |
+| --- | --- | --- |
+| `builder` | Installiert Python Abhängigkeiten in eine isolierte virtuelle Umgebung | `/opt/venv` mit allen Paketen |
+| `runtime` | Schlankes Laufzeit-Image mit nur dem Nötigsten | Finales Image, kopiert `/opt/venv` aus dem Builder |
+
+Vorteil: Build-Werkzeuge (zum Beispiel `gcc` für eventuelle native Abhängigkeiten in Sprint 2) bleiben im Builder Stage und landen nicht im Final Image. Damit ist das Final Image deutlich schlanker und die Angriffsfläche kleiner.
+
+#### Sicherheitsmerkmale
+
+Folgende Cloud Native Härtungsmassnahmen sind im Dockerfile umgesetzt:
+
+| Massnahme | Umsetzung |
+| --- | --- |
+| Non-Root User | User `app` (UID 1001) wird angelegt und im `USER` Statement aktiviert. Der Container läuft nicht als root. |
+| Spezifisches Base Image | `python:3.12-slim` statt `:latest`. Reproduzierbarkeit und kleinere Angriffsfläche. |
+| Minimale Layer | Build Dependencies bleiben im Builder Stage, nur die fertige venv landet im Runtime Image. |
+| Pinning Vorbereitung | Image kann später für die Abgabe auf einen Digest gepinnt werden (`python:3.12-slim@sha256:...`). |
+| HEALTHCHECK | Container-interner Health Check gegen `/healthz`, unabhängig von Kubernetes Probes. |
+| OCI Labels | Metadata für Title, Description, Source und Lizenz nach OCI Image Spec. |
+
+Die UID 1001 ist bewusst fest gewählt, damit das Helm Chart in Sprint 2 mit `runAsUser: 1001` und `runAsNonRoot: true` konsistent zum Image konfiguriert werden kann.
+
+#### .dockerignore
+
+Die Datei `app/backend/.dockerignore` schliesst Build-irrelevante Inhalte aus dem Build Context aus:
+
+- Virtuelle Umgebungen (`.venv/`, `venv/`)
+- Python Cache (`__pycache__/`, `*.pyc`)
+- Test- und Coverage-Artefakte
+- IDE Konfiguration (`.vscode/`, `.idea/`)
+- Git Metadaten (`.git/`)
+
+Damit ist der Build Context schlank, was den Upload zum Docker Daemon beschleunigt und verhindert, dass lokale Entwicklungs-Artefakte ins Image gelangen.
+
+#### Lokales Build und Test
+
+```bash
+# Image bauen (Tag :dev für lokale Iterationen)
+docker build -t price-watch-backend:dev app/backend
+
+# Image als Container starten
+docker run --rm -p 8000:8000 price-watch-backend:dev
+
+# Smoke Test in einem zweiten Terminal
+curl http://localhost:8000/healthz
+# Erwartet: {"status":"ok"}
+
+curl http://localhost:8000/api/prices
+# Erwartet: {"prices":[]}
+```
+
+Der HEALTHCHECK wird vom Docker Daemon automatisch ausgeführt. Status prüfen mit:
+
+```bash
+docker ps
+# Spalte STATUS zeigt "Up X seconds (healthy)" sobald der Check positiv war
+```
+
+Image Grösse prüfen:
+
+```bash
+docker images price-watch-backend
+# Erwartet: rund 150 MB
+```
+
+#### Image in kind Cluster laden
+
+Solange noch keine CI Pipeline existiert (kommt in Sprint 2, US14), kann das lokal gebaute Image direkt in den kind Cluster geladen werden (siehe [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube)):
+
+```bash
+kind load docker-image price-watch-backend:dev --name gitops-platform
+```
+
+Damit ist das Image im Cluster verfügbar, ohne über eine Registry gehen zu müssen. Ab Sprint 2 wird dieser Schritt durch die CI Pipeline (Build und Push nach GHCR) und Argo CD Sync ersetzt.
