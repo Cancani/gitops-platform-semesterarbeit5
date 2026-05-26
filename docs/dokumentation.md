@@ -15,27 +15,9 @@
 | Pages | https://cancani.com/gitops-platform-sem5/ |
 | Version | 0.2, Stand nach Kickoff Anpassung |
 
-# Semesterarbeit 5: Aufbau einer GitOps basierten Kubernetes Plattform mit Preisüberwachungs WebApp
-
-| Feld | Wert |
-|------|------|
-| Autor | Efekan Demirci |
-| Klasse | ITCNE24 |
-| Schule | Technische Berufsschule Zürich TBZ, Höhere Fachschule |
-| Lehrgang | Dipl. Informatiker HF, Cloud Native Engineer |
-| Semesterarbeit | Nummer 5 |
-| Fachexperte IaCA, CNC, CNA | Marcel Bernet |
-| Fachexperte Projektmanagement | Thanam Pangri |
-| Module | Projektmanagement, IaCA, CNC und CNA, optional DevOps |
-| Geplanter Aufwand | ca. 50 Stunden über 9 Wochen |
-| Repository | https://github.com/Cancani/gitops-platform-semesterarbeit5 |
-| Pages | https://cancani.com/gitops-platform-sem5/ |
-| Version | 0.2, Stand nach Kickoff Anpassung |
-
 ## Inhaltsverzeichnis
 
 - [Semesterarbeit 5: Aufbau einer GitOps basierten Kubernetes Plattform mit Preisüberwachungs WebApp](#semesterarbeit-5-aufbau-einer-gitops-basierten-kubernetes-plattform-mit-preisüberwachungs-webapp)
-- [Semesterarbeit 5: Aufbau einer GitOps basierten Kubernetes Plattform mit Preisüberwachungs WebApp](#semesterarbeit-5-aufbau-einer-gitops-basierten-kubernetes-plattform-mit-preisüberwachungs-webapp-1)
   - [Inhaltsverzeichnis](#inhaltsverzeichnis)
   - [1. Management Summary](#1-management-summary)
   - [2. Einleitung](#2-einleitung)
@@ -105,6 +87,12 @@
     - [ADR-003: SQLite statt PostgreSQL als Datenbank](#adr-003-sqlite-statt-postgresql-als-datenbank)
     - [ADR-004: Monorepo statt Multi Repo](#adr-004-monorepo-statt-multi-repo)
     - [ADR-005: Squash Merge statt Merge Commit](#adr-005-squash-merge-statt-merge-commit)
+  - [Plattformaufbau](#plattformaufbau)
+    - [Lokaler Cluster mit kind](#lokaler-cluster-mit-kind)
+      - [Cluster Topologie](#cluster-topologie)
+      - [Voraussetzungen](#voraussetzungen)
+      - [Setup und Teardown](#setup-und-teardown)
+      - [Verifikation nach Setup](#verifikation-nach-setup)
 
 ---
 
@@ -1397,3 +1385,67 @@ Die Detail Commits aus `develop` gehen damit zwar in der `main` History verloren
 
 - GitHub Merge Optionen: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges
 - Conventional Commits: https://www.conventionalcommits.org/
+
+---
+
+## Plattformaufbau
+
+Dieses Kapitel beschreibt die technische Umsetzung der Plattform: vom lokalen Cluster über die Anwendungskomponenten bis hin zum GitOps Setup. Die Reihenfolge der Unterkapitel folgt der tatsächlichen Bootstrap-Reihenfolge auf einem leeren Rechner: erst der Cluster, dann die Anwendung, dann die GitOps Schicht.
+
+### Lokaler Cluster mit kind
+
+Der lokale Kubernetes Cluster wird mit kind aufgesetzt. Die Wahl von kind gegenüber minikube, k3s und k3d ist in [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube) dokumentiert.
+
+#### Cluster Topologie
+
+Der Cluster besteht aus zwei Nodes:
+
+| Node | Rolle | Zweck |
+| --- | --- | --- |
+| `gitops-platform-control-plane` | Control Plane | API Server, Scheduler, Controller Manager, etcd |
+| `gitops-platform-worker` | Worker | Workloads (Backend, CronJob, später Argo CD) |
+
+Die Konfiguration liegt in `kind/cluster.yaml` im Repository Root. Zusätzlich sind zwei Port Mappings vom Control Plane Node auf den Host eingerichtet:
+
+| containerPort | hostPort | Verwendung |
+| --- | --- | --- |
+| 30080 | 30080 | HTTP NodePort, später Frontend und Argo CD UI |
+| 30443 | 30443 | HTTPS NodePort, reserviert für TLS Tests |
+
+Damit sind Services im Cluster ohne Ingress Controller per `http://localhost:30080` vom Host aus erreichbar, sobald ein passender NodePort Service deklariert ist.
+
+#### Voraussetzungen
+
+Auf dem Entwicklungsrechner müssen folgende Tools verfügbar sein:
+
+| Tool | Empfohlene Version | Zweck |
+| --- | --- | --- |
+| Docker | aktuelle Stable | Container Runtime für die kind Nodes |
+| kind | 0.24 oder neuer | Cluster Bootstrap |
+| kubectl | 1.30 oder neuer | Cluster Interaktion |
+
+Das Setup Skript prüft diese Voraussetzungen beim Start und meldet fehlende Tools mit dem jeweiligen Installationslink.
+
+#### Setup und Teardown
+
+| Aktion | Befehl |
+| --- | --- |
+| Cluster erstellen oder Kontext setzen | `bash scripts/setup-cluster.sh` |
+| Cluster löschen | `bash scripts/teardown-cluster.sh` |
+| Nodes prüfen | `kubectl get nodes -o wide` |
+| Cluster Info | `kubectl cluster-info --context kind-gitops-platform` |
+
+Das Setup Skript ist idempotent: Wenn der Cluster bereits existiert, wird er nicht neu erstellt, sondern nur der `kubectl` Kontext gesetzt und der aktuelle Status angezeigt. Damit ist mehrfaches Ausführen gefahrlos möglich (Massnahme zu Risiko R3).
+
+#### Verifikation nach Setup
+
+Nach erfolgreichem Setup zeigt `kubectl get nodes` beide Nodes im Status `Ready`:
+
+```
+$ kubectl get nodes
+NAME                              STATUS   ROLES           AGE   VERSION
+gitops-platform-control-plane     Ready    control-plane   1m    v1.31.x
+gitops-platform-worker            Ready    <none>          1m    v1.31.x
+```
+
+Sind beide Nodes `Ready`, ist das Messkriterium aus Ziel 1 (Kapitel 2.3) erfüllt. Falls ein Node im Status `NotReady` hängt, siehe das Runbook "kind Cluster Nodes nicht Ready" (Kapitel 8, folgt in Sprint 3).
