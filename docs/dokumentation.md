@@ -15,27 +15,9 @@
 | Pages | https://cancani.com/gitops-platform-sem5/ |
 | Version | 0.2, Stand nach Kickoff Anpassung |
 
-# Semesterarbeit 5: Aufbau einer GitOps basierten Kubernetes Plattform mit Preisüberwachungs WebApp
-
-| Feld | Wert |
-|------|------|
-| Autor | Efekan Demirci |
-| Klasse | ITCNE24 |
-| Schule | Technische Berufsschule Zürich TBZ, Höhere Fachschule |
-| Lehrgang | Dipl. Informatiker HF, Cloud Native Engineer |
-| Semesterarbeit | Nummer 5 |
-| Fachexperte IaCA, CNC, CNA | Marcel Bernet |
-| Fachexperte Projektmanagement | Thanam Pangri |
-| Module | Projektmanagement, IaCA, CNC und CNA, optional DevOps |
-| Geplanter Aufwand | ca. 50 Stunden über 9 Wochen |
-| Repository | https://github.com/Cancani/gitops-platform-semesterarbeit5 |
-| Pages | https://cancani.com/gitops-platform-sem5/ |
-| Version | 0.2, Stand nach Kickoff Anpassung |
-
 ## Inhaltsverzeichnis
 
 - [Semesterarbeit 5: Aufbau einer GitOps basierten Kubernetes Plattform mit Preisüberwachungs WebApp](#semesterarbeit-5-aufbau-einer-gitops-basierten-kubernetes-plattform-mit-preisüberwachungs-webapp)
-- [Semesterarbeit 5: Aufbau einer GitOps basierten Kubernetes Plattform mit Preisüberwachungs WebApp](#semesterarbeit-5-aufbau-einer-gitops-basierten-kubernetes-plattform-mit-preisüberwachungs-webapp-1)
   - [Inhaltsverzeichnis](#inhaltsverzeichnis)
   - [1. Management Summary](#1-management-summary)
   - [2. Einleitung](#2-einleitung)
@@ -105,6 +87,23 @@
     - [ADR-003: SQLite statt PostgreSQL als Datenbank](#adr-003-sqlite-statt-postgresql-als-datenbank)
     - [ADR-004: Monorepo statt Multi Repo](#adr-004-monorepo-statt-multi-repo)
     - [ADR-005: Squash Merge statt Merge Commit](#adr-005-squash-merge-statt-merge-commit)
+  - [Plattformaufbau](#plattformaufbau)
+    - [Lokaler Cluster mit kind](#lokaler-cluster-mit-kind)
+      - [Cluster Topologie](#cluster-topologie)
+      - [Voraussetzungen](#voraussetzungen)
+      - [Setup und Teardown](#setup-und-teardown)
+      - [Verifikation nach Setup](#verifikation-nach-setup)
+    - [Backend Anwendung (FastAPI)](#backend-anwendung-fastapi)
+      - [Projektstruktur](#projektstruktur)
+      - [Endpoints im Skelett](#endpoints-im-skelett)
+      - [Lokale Ausführung](#lokale-ausführung)
+      - [Health Probes](#health-probes)
+    - [Containerisierung (Dockerfile)](#containerisierung-dockerfile)
+      - [Multi-Stage Build](#multi-stage-build)
+      - [Sicherheitsmerkmale](#sicherheitsmerkmale)
+      - [.dockerignore](#dockerignore)
+      - [Lokales Build und Test](#lokales-build-und-test)
+      - [Image in kind Cluster laden](#image-in-kind-cluster-laden)
 
 ---
 
@@ -1397,3 +1396,203 @@ Die Detail Commits aus `develop` gehen damit zwar in der `main` History verloren
 
 - GitHub Merge Optionen: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges
 - Conventional Commits: https://www.conventionalcommits.org/
+
+---
+
+## Plattformaufbau
+
+Dieses Kapitel beschreibt die technische Umsetzung der Plattform: vom lokalen Cluster über die Anwendungskomponenten bis hin zum GitOps Setup. Die Reihenfolge der Unterkapitel folgt der tatsächlichen Bootstrap-Reihenfolge auf einem leeren Rechner: erst der Cluster, dann die Anwendung, dann die GitOps Schicht.
+
+### Lokaler Cluster mit kind
+
+Der lokale Kubernetes Cluster wird mit kind aufgesetzt. Die Wahl von kind gegenüber minikube, k3s und k3d ist in [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube) dokumentiert.
+
+#### Cluster Topologie
+
+Der Cluster besteht aus zwei Nodes:
+
+| Node | Rolle | Zweck |
+| --- | --- | --- |
+| `gitops-platform-control-plane` | Control Plane | API Server, Scheduler, Controller Manager, etcd |
+| `gitops-platform-worker` | Worker | Workloads (Backend, CronJob, später Argo CD) |
+
+Die Konfiguration liegt in `kind/cluster.yaml` im Repository Root. Zusätzlich sind zwei Port Mappings vom Control Plane Node auf den Host eingerichtet:
+
+| containerPort | hostPort | Verwendung |
+| --- | --- | --- |
+| 30080 | 30080 | HTTP NodePort, später Frontend und Argo CD UI |
+| 30443 | 30443 | HTTPS NodePort, reserviert für TLS Tests |
+
+Damit sind Services im Cluster ohne Ingress Controller per `http://localhost:30080` vom Host aus erreichbar, sobald ein passender NodePort Service deklariert ist.
+
+#### Voraussetzungen
+
+Auf dem Entwicklungsrechner müssen folgende Tools verfügbar sein:
+
+| Tool | Empfohlene Version | Zweck |
+| --- | --- | --- |
+| Docker | aktuelle Stable | Container Runtime für die kind Nodes |
+| kind | 0.24 oder neuer | Cluster Bootstrap |
+| kubectl | 1.30 oder neuer | Cluster Interaktion |
+
+Das Setup Skript prüft diese Voraussetzungen beim Start und meldet fehlende Tools mit dem jeweiligen Installationslink.
+
+#### Setup und Teardown
+
+| Aktion | Befehl |
+| --- | --- |
+| Cluster erstellen oder Kontext setzen | `bash scripts/setup-cluster.sh` |
+| Cluster löschen | `bash scripts/teardown-cluster.sh` |
+| Nodes prüfen | `kubectl get nodes -o wide` |
+| Cluster Info | `kubectl cluster-info --context kind-gitops-platform` |
+
+Das Setup Skript ist idempotent: Wenn der Cluster bereits existiert, wird er nicht neu erstellt, sondern nur der `kubectl` Kontext gesetzt und der aktuelle Status angezeigt. Damit ist mehrfaches Ausführen gefahrlos möglich (Massnahme zu Risiko R3).
+
+#### Verifikation nach Setup
+
+Nach erfolgreichem Setup zeigt `kubectl get nodes` beide Nodes im Status `Ready`:
+
+```
+$ kubectl get nodes
+NAME                              STATUS   ROLES           AGE   VERSION
+gitops-platform-control-plane     Ready    control-plane   1m    v1.31.x
+gitops-platform-worker            Ready    <none>          1m    v1.31.x
+```
+
+Sind beide Nodes `Ready`, ist das Messkriterium aus Ziel 1 (Kapitel 2.3) erfüllt. Falls ein Node im Status `NotReady` hängt, siehe das Runbook "kind Cluster Nodes nicht Ready" (Kapitel 8, folgt in Sprint 3).
+
+### Backend Anwendung (FastAPI)
+
+Das Backend wird als FastAPI Anwendung implementiert. Die Wahl von FastAPI gegenüber Flask ist in [ADR-001](#42-adr-001-fastapi-statt-flask-für-das-backend) dokumentiert.
+
+In Sprint 1 (US04) wird das Backend als minimales Skelett aufgebaut, das die spätere Plattform Integration ermöglicht (Health Probes, OpenAPI Schema), aber noch keine fachliche Logik enthält. Preisabruf, Persistenz und CronJob Anbindung folgen in Sprint 2.
+
+#### Projektstruktur
+
+Der Backend Code liegt unter `app/backend/`:
+
+| Pfad | Inhalt |
+| --- | --- |
+| `app/backend/main.py` | FastAPI Anwendung mit Health und API Endpoints |
+| `app/backend/requirements.txt` | Python Abhängigkeiten mit Versionsranges |
+| `app/backend/README.md` | Setup Anleitung für lokale Entwicklung |
+
+Die Trennung in `app/backend/` reflektiert die Monorepo Struktur (siehe [ADR-004](#45-adr-004-monorepo-statt-multi-repo)) und macht die Helm Chart Konfiguration in Sprint 2 für die jeweilige Komponente eindeutig adressierbar.
+
+#### Endpoints im Skelett
+
+| Pfad | Methode | Beschreibung | Status |
+| --- | --- | --- | --- |
+| `/docs` | GET | Interaktive OpenAPI Doku (Swagger UI) | aktiv |
+| `/healthz` | GET | Liveness Probe für Kubernetes | aktiv |
+| `/ready` | GET | Readiness Probe für Kubernetes | aktiv |
+| `/api/prices` | GET | Aktuelle Preise aller beobachteten Objekte | Skelett, Implementation in Sprint 2 |
+| `/api/prices/history` | GET | Historische Preisdaten | Skelett, Implementation in Sprint 2 |
+
+OpenAPI Schema und Swagger UI sind durch FastAPI automatisch verfügbar und müssen nicht separat konfiguriert werden. Das wird für manuelle Tests und für die Demo in den Zwischenpräsentationen genutzt.
+
+#### Lokale Ausführung
+
+Die Anwendung läuft lokal ohne Kubernetes Cluster, was den Entwicklungs-Loop in Sprint 1 und 2 kurz hält:
+
+```bash
+cd app/backend
+python -m venv .venv
+source .venv/bin/activate   # PowerShell: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Der Server reagiert auf Code-Änderungen mit Auto-Reload, was die Iteration beim Skelett Aufbau und beim späteren Anbinden der Datenbank in Sprint 2 beschleunigt.
+
+#### Health Probes
+
+Die beiden Health Endpoints werden in Sprint 2 als Kubernetes Liveness und Readiness Probes im Helm Chart konfiguriert:
+
+- `/healthz` antwortet, solange der FastAPI Prozess lebt. Wird von Kubernetes verwendet, um abgestürzte Pods neu zu starten (Liveness Probe).
+- `/ready` antwortet, sobald der Service Anfragen annehmen kann. Im Skelett immer "ready", in Sprint 2 wird hier zusätzlich die SQLite Verbindung geprüft (siehe [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank)). Diese Probe entscheidet, ob ein Pod Traffic vom Service erhält (Readiness Probe).
+
+Die Trennung in zwei Probes folgt der Kubernetes Best Practice und vermeidet, dass langsame Initialisierungen (zum Beispiel ein Schema-Load in Sprint 2) zu falschen Pod Restarts führen.
+
+### Containerisierung (Dockerfile)
+
+Das FastAPI Backend wird als Container Image paketiert, das später per CI Pipeline gebaut und in die GitHub Container Registry (GHCR) gepusht wird (siehe Sprint 2, US14). Das Dockerfile liegt unter `app/backend/Dockerfile`.
+
+#### Multi-Stage Build
+
+Das Dockerfile verwendet ein Two-Stage Build Pattern:
+
+| Stage | Zweck | Output |
+| --- | --- | --- |
+| `builder` | Installiert Python Abhängigkeiten in eine isolierte virtuelle Umgebung | `/opt/venv` mit allen Paketen |
+| `runtime` | Schlankes Laufzeit-Image mit nur dem Nötigsten | Finales Image, kopiert `/opt/venv` aus dem Builder |
+
+Vorteil: Build-Werkzeuge (zum Beispiel `gcc` für eventuelle native Abhängigkeiten in Sprint 2) bleiben im Builder Stage und landen nicht im Final Image. Damit ist das Final Image deutlich schlanker und die Angriffsfläche kleiner.
+
+#### Sicherheitsmerkmale
+
+Folgende Cloud Native Härtungsmassnahmen sind im Dockerfile umgesetzt:
+
+| Massnahme | Umsetzung |
+| --- | --- |
+| Non-Root User | User `app` (UID 1001) wird angelegt und im `USER` Statement aktiviert. Der Container läuft nicht als root. |
+| Spezifisches Base Image | `python:3.12-slim` statt `:latest`. Reproduzierbarkeit und kleinere Angriffsfläche. |
+| Minimale Layer | Build Dependencies bleiben im Builder Stage, nur die fertige venv landet im Runtime Image. |
+| Pinning Vorbereitung | Image kann später für die Abgabe auf einen Digest gepinnt werden (`python:3.12-slim@sha256:...`). |
+| HEALTHCHECK | Container-interner Health Check gegen `/healthz`, unabhängig von Kubernetes Probes. |
+| OCI Labels | Metadata für Title, Description, Source und Lizenz nach OCI Image Spec. |
+
+Die UID 1001 ist bewusst fest gewählt, damit das Helm Chart in Sprint 2 mit `runAsUser: 1001` und `runAsNonRoot: true` konsistent zum Image konfiguriert werden kann.
+
+#### .dockerignore
+
+Die Datei `app/backend/.dockerignore` schliesst Build-irrelevante Inhalte aus dem Build Context aus:
+
+- Virtuelle Umgebungen (`.venv/`, `venv/`)
+- Python Cache (`__pycache__/`, `*.pyc`)
+- Test- und Coverage-Artefakte
+- IDE Konfiguration (`.vscode/`, `.idea/`)
+- Git Metadaten (`.git/`)
+
+Damit ist der Build Context schlank, was den Upload zum Docker Daemon beschleunigt und verhindert, dass lokale Entwicklungs-Artefakte ins Image gelangen.
+
+#### Lokales Build und Test
+
+```bash
+# Image bauen (Tag :dev für lokale Iterationen)
+docker build -t price-watch-backend:dev app/backend
+
+# Image als Container starten
+docker run --rm -p 8000:8000 price-watch-backend:dev
+
+# Smoke Test in einem zweiten Terminal
+curl http://localhost:8000/healthz
+# Erwartet: {"status":"ok"}
+
+curl http://localhost:8000/api/prices
+# Erwartet: {"prices":[]}
+```
+
+Der HEALTHCHECK wird vom Docker Daemon automatisch ausgeführt. Status prüfen mit:
+
+```bash
+docker ps
+# Spalte STATUS zeigt "Up X seconds (healthy)" sobald der Check positiv war
+```
+
+Image Grösse prüfen:
+
+```bash
+docker images price-watch-backend
+# Erwartet: rund 150 MB
+```
+
+#### Image in kind Cluster laden
+
+Solange noch keine CI Pipeline existiert (kommt in Sprint 2, US14), kann das lokal gebaute Image direkt in den kind Cluster geladen werden (siehe [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube)):
+
+```bash
+kind load docker-image price-watch-backend:dev --name gitops-platform
+```
+
+Damit ist das Image im Cluster verfügbar, ohne über eine Registry gehen zu müssen. Ab Sprint 2 wird dieser Schritt durch die CI Pipeline (Build und Push nach GHCR) und Argo CD Sync ersetzt.
