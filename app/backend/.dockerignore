@@ -1,0 +1,29 @@
+# Python build und runtime artefakte
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtuelle Umgebungen
+.venv/
+venv/
+env/
+
+# IDE und Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git und VCS
+.git/
+.gitignore
+.gitattributes
+
+# Lokale Doku im Backend Ordner (Quelle im docs/ Ordner)
+README.md
