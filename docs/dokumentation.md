@@ -93,6 +93,11 @@
       - [Voraussetzungen](#voraussetzungen)
       - [Setup und Teardown](#setup-und-teardown)
       - [Verifikation nach Setup](#verifikation-nach-setup)
+    - [Backend Anwendung (FastAPI)](#backend-anwendung-fastapi)
+      - [Projektstruktur](#projektstruktur)
+      - [Endpoints im Skelett](#endpoints-im-skelett)
+      - [Lokale Ausführung](#lokale-ausführung)
+      - [Health Probes](#health-probes)
 
 ---
 
@@ -1449,3 +1454,56 @@ gitops-platform-worker            Ready    <none>          1m    v1.31.x
 ```
 
 Sind beide Nodes `Ready`, ist das Messkriterium aus Ziel 1 (Kapitel 2.3) erfüllt. Falls ein Node im Status `NotReady` hängt, siehe das Runbook "kind Cluster Nodes nicht Ready" (Kapitel 8, folgt in Sprint 3).
+
+### Backend Anwendung (FastAPI)
+
+Das Backend wird als FastAPI Anwendung implementiert. Die Wahl von FastAPI gegenüber Flask ist in [ADR-001](#42-adr-001-fastapi-statt-flask-für-das-backend) dokumentiert.
+
+In Sprint 1 (US04) wird das Backend als minimales Skelett aufgebaut, das die spätere Plattform Integration ermöglicht (Health Probes, OpenAPI Schema), aber noch keine fachliche Logik enthält. Preisabruf, Persistenz und CronJob Anbindung folgen in Sprint 2.
+
+#### Projektstruktur
+
+Der Backend Code liegt unter `app/backend/`:
+
+| Pfad | Inhalt |
+| --- | --- |
+| `app/backend/main.py` | FastAPI Anwendung mit Health und API Endpoints |
+| `app/backend/requirements.txt` | Python Abhängigkeiten mit Versionsranges |
+| `app/backend/README.md` | Setup Anleitung für lokale Entwicklung |
+
+Die Trennung in `app/backend/` reflektiert die Monorepo Struktur (siehe [ADR-004](#45-adr-004-monorepo-statt-multi-repo)) und macht die Helm Chart Konfiguration in Sprint 2 für die jeweilige Komponente eindeutig adressierbar.
+
+#### Endpoints im Skelett
+
+| Pfad | Methode | Beschreibung | Status |
+| --- | --- | --- | --- |
+| `/docs` | GET | Interaktive OpenAPI Doku (Swagger UI) | aktiv |
+| `/healthz` | GET | Liveness Probe für Kubernetes | aktiv |
+| `/ready` | GET | Readiness Probe für Kubernetes | aktiv |
+| `/api/prices` | GET | Aktuelle Preise aller beobachteten Objekte | Skelett, Implementation in Sprint 2 |
+| `/api/prices/history` | GET | Historische Preisdaten | Skelett, Implementation in Sprint 2 |
+
+OpenAPI Schema und Swagger UI sind durch FastAPI automatisch verfügbar und müssen nicht separat konfiguriert werden. Das wird für manuelle Tests und für die Demo in den Zwischenpräsentationen genutzt.
+
+#### Lokale Ausführung
+
+Die Anwendung läuft lokal ohne Kubernetes Cluster, was den Entwicklungs-Loop in Sprint 1 und 2 kurz hält:
+
+```bash
+cd app/backend
+python -m venv .venv
+source .venv/bin/activate   # PowerShell: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Der Server reagiert auf Code-Änderungen mit Auto-Reload, was die Iteration beim Skelett Aufbau und beim späteren Anbinden der Datenbank in Sprint 2 beschleunigt.
+
+#### Health Probes
+
+Die beiden Health Endpoints werden in Sprint 2 als Kubernetes Liveness und Readiness Probes im Helm Chart konfiguriert:
+
+- `/healthz` antwortet, solange der FastAPI Prozess lebt. Wird von Kubernetes verwendet, um abgestürzte Pods neu zu starten (Liveness Probe).
+- `/ready` antwortet, sobald der Service Anfragen annehmen kann. Im Skelett immer "ready", in Sprint 2 wird hier zusätzlich die SQLite Verbindung geprüft (siehe [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank)). Diese Probe entscheidet, ob ein Pod Traffic vom Service erhält (Readiness Probe).
+
+Die Trennung in zwei Probes folgt der Kubernetes Best Practice und vermeidet, dass langsame Initialisierungen (zum Beispiel ein Schema-Load in Sprint 2) zu falschen Pod Restarts führen.
