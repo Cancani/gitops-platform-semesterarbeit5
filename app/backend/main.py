@@ -56,3 +56,4 @@ def get_price_history() -> dict:
     durch den Kubernetes CronJob befüllt, der die Preisquelle abruft.
     """
     return {"history": []}
+# Kommentar für ci.yaml
