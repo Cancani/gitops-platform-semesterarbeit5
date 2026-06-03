@@ -1673,21 +1673,39 @@ helm template price-watch helm/price-watch
 
 # Chart installieren
 helm install price-watch helm/price-watch
+```
+![Helminstall](./img/helminstall_1.png)
 
+![Helminstall](./img/helminstall_2.png)
+
+```bash
 # Status prüfen
 kubectl get pods,svc
 kubectl get pod -l app.kubernetes.io/name=price-watch
+```
 
+![Helminstall get pods](./img/helminstall_3.png)
+
+```bash
 # Smoke Tests gegen NodePort
 curl http://localhost:30080/healthz
 # Erwartet: {"status":"ok"}
 
 curl http://localhost:30080/api/prices
 # Erwartet: {"prices":[]}
+```
 
+![Test](./img/helminstall_4.png)
+
+```bash
 # Logs
 kubectl logs -l app.kubernetes.io/name=price-watch
+```
+![Kubectl Logs](./img/helminstall_5.png)
 
+![Swagger Seite](./img/Helminstall_6.png)
+
+```bash
 # Deinstallieren
 helm uninstall price-watch
 ```
