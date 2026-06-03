@@ -1,0 +1,61 @@
+# Standardwerte für das Price Watch Helm Chart.
+# Diese Datei kann über --values, --set oder ein Overlay overridden werden.
+
+# Anzahl Replicas. Bewusst auf 1 fixiert, da SQLite Single Writer ist
+# (siehe ADR-003). Skalierung würde eine Multi-Pod taugliche DB voraussetzen.
+replicaCount: 1
+
+image:
+  repository: price-watch-backend
+  tag: dev
+  pullPolicy: IfNotPresent
+
+# Pod Level Security Context. Matched die Non-Root Konfiguration aus dem
+# Dockerfile (UID 1001, siehe US05).
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+# Ressourcen für das Skelett. Werden in Sprint 2 nach echten Lasttests angepasst.
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+# Service Konfiguration
+service:
+  type: NodePort
+  port: 8000
+
+  # NodePort 30080 matched die extraPortMappings in kind/cluster.yaml,
+  # damit das Backend vom Host via http://localhost:30080 erreichbar ist.
+  nodePort: 30080
+
+# Liveness Probe: prüft, ob der FastAPI Prozess lebt
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 3
+
+# Readiness Probe: prüft, ob der Service Anfragen annehmen kann
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
