@@ -1,0 +1,17 @@
+# Versteckte Files
+.DS_Store
+.git/
+.gitignore
+.idea/
+.vscode/
+
+# Temporäre Files
+*.swp
+*.swo
+*.tmp
+*.orig
+*.bak
+*.tmproj
+
+# Helm Build Artefakte
+*.tgz
