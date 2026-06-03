@@ -121,6 +121,14 @@
       - [Security Context und Härtung](#security-context-und-härtung)
       - [Service Exposition via NodePort](#service-exposition-via-nodeport)
       - [Lokales Deployment und Verifikation](#lokales-deployment-und-verifikation)
+    - [CI Pipeline (GitHub Actions)](#ci-pipeline-github-actions)
+      - [Workflow Überblick](#workflow-überblick)
+      - [Trigger und Path Filter](#trigger-und-path-filter)
+      - [Image Tag Strategie](#image-tag-strategie)
+      - [Values Update für den GitOps Loop](#values-update-für-den-gitops-loop)
+      - [Layer Caching](#layer-caching)
+      - [Einmalige Setup-Schritte](#einmalige-setup-schritte)
+      - [Verifikation nach erstem CI Run](#verifikation-nach-erstem-ci-run)
 ---
 
 ## 1. Management Summary
@@ -1709,4 +1717,99 @@ kubectl logs -l app.kubernetes.io/name=price-watch
 # Deinstallieren
 helm uninstall price-watch
 ```
+---
 
+
+### CI Pipeline (GitHub Actions)
+
+Die CI Pipeline automatisiert den Build und Push des Container Images nach GHCR. Sie ist das erste Glied im GitOps Loop: ein Commit auf `main` mit Code-Änderungen triggert die Pipeline, die das Image baut, pushed und die `helm/price-watch/values.yaml` mit dem neuen Image Tag aktualisiert. Argo CD erkennt die Änderung und synct den Cluster (siehe Kapitel 5.6).
+
+#### Workflow Überblick
+
+Der Workflow liegt unter `.github/workflows/ci.yaml` und besteht aus einem einzigen Job mit fünf Schritten:
+
+| Schritt | Aktion |
+| --- | --- |
+| 1. Checkout | Repository auschecken, `GITHUB_TOKEN` als Credentials für spätere Commits |
+| 2. Buildx | Docker Buildx für effiziente Multi-Layer Builds einrichten |
+| 3. GHCR Login | Authentifizierung gegen `ghcr.io` via `GITHUB_TOKEN` |
+| 4. Metadaten | Image Tags und OCI Labels aus dem Commit Kontext ableiten |
+| 5. Build und Push | Multi-Stage Image bauen und nach GHCR pushen |
+| 6. Values Update | `helm/price-watch/values.yaml` mit Repository URL, SHA Tag und `pullPolicy: Always` aktualisieren, Commit zurück auf `main` |
+
+#### Trigger und Path Filter
+
+Der Workflow feuert ausschliesslich bei Pushes auf `main` und nur wenn sich der Pfad `app/backend/**` ändert:
+
+```yaml
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/backend/**'
+```
+
+Reine Doku-Commits oder Helm Chart Anpassungen bauen kein neues Image. Das reduziert unnötige CI Läufe und spart GitHub Actions Minuten.
+
+#### Image Tag Strategie
+
+Das Image wird mit zwei Tags in GHCR gespeichert:
+
+| Tag | Format | Zweck |
+| --- | --- | --- |
+| SHA Tag | `sha-abc1234` (7 Zeichen) | Eindeutige Identifikation jedes Builds, ermöglicht Rollback |
+| Latest Tag | `latest` | Zeigt immer auf den neusten Build |
+
+`helm/price-watch/values.yaml` wird vom CI mit dem SHA Tag aktualisiert. Damit ist in der Git History jederzeit nachvollziehbar, welcher Commit zu welchem Image Tag führte.
+
+#### Values Update für den GitOps Loop
+
+Nach erfolgreichem Build und Push updatet der CI Workflow `helm/price-watch/values.yaml` direkt auf `main`:
+
+```yaml
+image:
+  repository: ghcr.io/cancani/price-watch-backend   # gesetzt durch CI
+  tag: sha-abc1234                                    # gesetzt durch CI
+  pullPolicy: Always                                  # gesetzt durch CI
+```
+
+Der Commit durch `github-actions[bot]` trägt `[skip ci]` in der Message, damit kein weiterer Workflow Loop ausgelöst wird. Argo CD erkennt die Änderung in `values.yaml` und synct den Cluster auf das neue Image (siehe Kapitel 5.6).
+
+#### Layer Caching
+
+Der Workflow nutzt den GitHub Actions Cache (`cache-from: type=gha`) für Docker Layer Caching. Bei reinen App-Code Änderungen (zum Beispiel `main.py`) bleibt der `pip install` Layer im Cache, was die Build Zeit von rund 30 Sekunden auf unter 10 Sekunden reduziert.
+
+#### Einmalige Setup-Schritte
+
+Zwei Konfigurationen sind einmalig in GitHub notwendig:
+
+**github-actions[bot] Branch Protection Bypass:**
+Im Repository unter `Settings → Branches → main` muss `github-actions[bot]` als Actor hinzugefügt werden, der die Branch Protection bypassen darf. Ohne das schlägt der `git push` im Values Update Schritt fehl.
+
+**GHCR Paket Sichtbarkeit:**
+Nach dem ersten CI Run ist das `price-watch-backend` Paket unter `ghcr.io/cancani/price-watch-backend` initial als private gespeichert. Unter dem eigenen GitHub Profil unter `Packages → price-watch-backend → Package settings → Change visibility → Public` auf Public setzen, damit Kubernetes im kind Cluster das Image ohne `imagePullSecret` ziehen kann.
+
+#### Verifikation nach erstem CI Run
+
+Nach einem Push auf `main` mit Änderung in `app/backend/`:
+
+```bash
+# Laufende und abgeschlossene Workflow Runs anzeigen
+gh run list --workflow=ci.yaml
+
+# Logs eines Runs anschauen
+gh run view <run-id> --log
+
+# GHCR Image verifizieren
+docker pull ghcr.io/cancani/price-watch-backend:latest
+docker pull ghcr.io/cancani/price-watch-backend:sha-<abc1234>
+
+# values.yaml prüfen ob CI den Tag gesetzt hat
+grep "tag:" helm/price-watch/values.yaml
+grep "repository:" helm/price-watch/values.yaml
+```
+
+Der CI Run erscheint auch direkt im GitHub Repository unter dem Tab **Actions**.
+
+---
