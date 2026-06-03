@@ -70,3 +70,4 @@ jobs:
             git commit -m "chore: image tag auf ${SHORT_SHA} gesetzt [skip ci]"
             git push
           fi
+# Kommentar für Triger
