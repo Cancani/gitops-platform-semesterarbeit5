@@ -114,7 +114,22 @@
       - [Sicherheitsmerkmale](#sicherheitsmerkmale)
       - [.dockerignore](#dockerignore)
       - [Lokales Build und Test](#lokales-build-und-test)
-
+      - [Image in kind Cluster laden](#image-in-kind-cluster-laden)
+    - [Helm Chart](#helm-chart)
+      - [Chart Struktur](#chart-struktur)
+      - [Konfigurierbarkeit über values.yaml](#konfigurierbarkeit-über-valuesyaml)
+      - [Health Probes Konfiguration](#health-probes-konfiguration)
+      - [Security Context und Härtung](#security-context-und-härtung)
+      - [Service Exposition via NodePort](#service-exposition-via-nodeport)
+      - [Lokales Deployment und Verifikation](#lokales-deployment-und-verifikation)
+    - [CI Pipeline (GitHub Actions)](#ci-pipeline-github-actions)
+      - [Workflow Überblick](#workflow-überblick)
+      - [Trigger und Path Filter](#trigger-und-path-filter)
+      - [Image Tag Strategie](#image-tag-strategie)
+      - [Values Update für den GitOps Loop](#values-update-für-den-gitops-loop)
+      - [Layer Caching](#layer-caching)
+      - [Einmalige Setup-Schritte](#einmalige-setup-schritte)
+      - [Verifikation nach erstem CI Run](#verifikation-nach-erstem-ci-run)
 ---
 
 ## Management Summary
@@ -1649,5 +1664,232 @@ Image Grösse prüfen:
 ```bash
 docker images price-watch-backend
 ```
-![Image Grösse](img/docker5.png)
-<small><em>Abbildung : Docker Image Grösse</em></small>
+
+#### Image in kind Cluster laden
+
+Solange noch keine CI Pipeline existiert (kommt in Sprint 2, US14), kann das lokal gebaute Image direkt in den kind Cluster geladen werden (siehe [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube)):
+
+```bash
+kind load docker-image price-watch-backend:dev --name gitops-platform
+```
+
+Damit ist das Image im Cluster verfügbar, ohne über eine Registry gehen zu müssen. Ab Sprint 2 wird dieser Schritt durch die CI Pipeline (Build und Push nach GHCR) und Argo CD Sync ersetzt.
+
+---
+
+
+### Helm Chart
+
+Das Backend wird über ein Helm Chart in den Kubernetes Cluster deployed. Das Chart liegt unter `helm/price-watch/`. In Sprint 2 (US06) wird die Skelett-Version mit Deployment und Service aufgebaut. PVC, ConfigMap und CronJob für die SQLite Persistenz folgen in US07.
+
+#### Chart Struktur
+
+| Pfad | Zweck |
+| --- | --- |
+| `helm/price-watch/Chart.yaml` | Chart Metadaten (Name, Version, App Version) |
+| `helm/price-watch/values.yaml` | Konfigurierbare Standardwerte |
+| `helm/price-watch/.helmignore` | Files, die nicht ins Chart Paket gehören |
+| `helm/price-watch/templates/_helpers.tpl` | Helm Template Helpers für Namen und Labels |
+| `helm/price-watch/templates/deployment.yaml` | Backend Deployment mit Probes und Security Context |
+| `helm/price-watch/templates/service.yaml` | NodePort Service |
+| `helm/price-watch/templates/NOTES.txt` | Post-Install Hilfe |
+
+Chart Version und App Version sind bewusst getrennt: Chart-Änderungen (zum Beispiel Ressourcen anpassen) bumpen die `version`, App-Releases (neues Backend Image) bumpen die `appVersion`. Dieses Trennungsmuster ist Helm Best Practice und erleichtert das spätere Versionsmanagement in Sprint 3.
+
+#### Konfigurierbarkeit über values.yaml
+
+Die `values.yaml` Datei enthält alle Parameter, die per `--values` Datei, `--set` Flag oder Overlay overridden werden können. Die wichtigsten Gruppen:
+
+| Gruppe | Inhalt |
+| --- | --- |
+| `image` | Repository, Tag, PullPolicy |
+| `service` | Type, Port, NodePort |
+| `resources` | Requests und Limits für CPU und Memory |
+| `livenessProbe`, `readinessProbe` | Health Probe Konfiguration |
+| `podSecurityContext`, `securityContext` | Sicherheitsmerkmale auf Pod und Container Ebene |
+
+Bewusste Voreinstellungen:
+
+- `replicaCount: 1`: Single Replica wegen SQLite Single Writer (siehe [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank)). Skalierung würde eine Multi-Pod taugliche DB voraussetzen.
+- `image.pullPolicy: IfNotPresent`: Für lokale Tests via `kind load docker-image`. Beim Wechsel auf GHCR in US10 wird das auf `Always` umgestellt.
+- `service.nodePort: 30080`: Matched die `extraPortMappings` in `kind/cluster.yaml`, damit das Backend ohne Ingress Controller vom Host erreichbar ist.
+
+#### Health Probes Konfiguration
+
+Beide FastAPI Endpoints aus US04 werden im Chart als Kubernetes Probes verdrahtet:
+
+| Probe | Pfad | initialDelay | period | failureThreshold |
+| --- | --- | --- | --- | --- |
+| Liveness | `/healthz` | 10 s | 10 s | 3 |
+| Readiness | `/ready` | 5 s | 5 s | 3 |
+
+Die Liveness Probe sorgt für automatischen Pod Restart bei Hänger. Die Readiness Probe entscheidet, ob ein Pod Traffic vom Service erhält. Beide Probes nutzen den `http` Port (Name statt Nummer), damit Container Port und Probe Port automatisch konsistent bleiben, wenn der Port via values angepasst wird.
+
+#### Security Context und Härtung
+
+Das Chart setzt folgende Härtungsmassnahmen, konsistent zum Dockerfile aus US05:
+
+| Massnahme | Wirkung |
+| --- | --- |
+| `runAsNonRoot: true` | Container darf nicht als root laufen |
+| `runAsUser: 1001`, `runAsGroup: 1001` | Matched den `app` User im Dockerfile |
+| `fsGroup: 1001` | Gemountete Volumes gehören der `app` Gruppe |
+| `allowPrivilegeEscalation: false` | Kein `setuid` Escalation möglich |
+| `readOnlyRootFilesystem: true` | Container kann keine Files ausserhalb gemounteter Volumes schreiben |
+| `capabilities.drop: [ALL]` | Alle Linux Capabilities werden entzogen |
+
+Damit `readOnlyRootFilesystem: true` mit uvicorn funktioniert, wird `/tmp` als `emptyDir` Volume gemountet. uvicorn nutzt `/tmp` für interne Worker Kommunikation.
+
+#### Service Exposition via NodePort
+
+Bewusst NodePort statt Ingress. Ein Ingress Controller (zum Beispiel ingress-nginx) wäre eine zusätzliche Plattformkomponente, die im Scope der Semesterarbeit keinen Mehrwert bringt, sondern nur Wartungsaufwand erzeugt. NodePort matched ausserdem die kind Cluster Konfiguration aus US03 (siehe Kapitel 5.1.1), die Port 30080 vom Cluster auf den Host mappt.
+
+Damit ist das Backend unter `http://localhost:30080/` erreichbar, sobald der Pod im Status `Running` und `Ready` ist.
+
+#### Lokales Deployment und Verifikation
+
+```bash
+# Voraussetzung: Cluster läuft, Image ist lokal gebaut und in kind geladen
+docker build -t price-watch-backend:dev app/backend
+kind load docker-image price-watch-backend:dev --name gitops-platform
+
+# Chart linten (statische Prüfung)
+helm lint helm/price-watch
+
+# Chart rendern ohne zu deployen (Dry Run)
+helm template price-watch helm/price-watch
+
+# Chart installieren
+helm install price-watch helm/price-watch
+```
+![Helminstall](./img/helminstall_1.png)
+
+![Helminstall](./img/helminstall_2.png)
+
+```bash
+# Status prüfen
+kubectl get pods,svc
+kubectl get pod -l app.kubernetes.io/name=price-watch
+```
+
+![Helminstall get pods](./img/helminstall_3.png)
+
+```bash
+# Smoke Tests gegen NodePort
+curl http://localhost:30080/healthz
+# Erwartet: {"status":"ok"}
+
+curl http://localhost:30080/api/prices
+# Erwartet: {"prices":[]}
+```
+
+![Test](./img/helminstall_4.png)
+
+```bash
+# Logs
+kubectl logs -l app.kubernetes.io/name=price-watch
+```
+![Kubectl Logs](./img/helminstall_5.png)
+
+![Swagger Seite](./img/Helminstall_6.png)
+
+```bash
+# Deinstallieren
+helm uninstall price-watch
+```
+---
+
+
+### CI Pipeline (GitHub Actions)
+
+Die CI Pipeline automatisiert den Build und Push des Container Images nach GHCR. Sie ist das erste Glied im GitOps Loop: ein Commit auf `main` mit Code-Änderungen triggert die Pipeline, die das Image baut, pushed und die `helm/price-watch/values.yaml` mit dem neuen Image Tag aktualisiert. Argo CD erkennt die Änderung und synct den Cluster (siehe Kapitel 5.6).
+
+#### Workflow Überblick
+
+Der Workflow liegt unter `.github/workflows/ci.yaml` und besteht aus einem einzigen Job mit fünf Schritten:
+
+| Schritt | Aktion |
+| --- | --- |
+| 1. Checkout | Repository auschecken, `GITHUB_TOKEN` als Credentials für spätere Commits |
+| 2. Buildx | Docker Buildx für effiziente Multi-Layer Builds einrichten |
+| 3. GHCR Login | Authentifizierung gegen `ghcr.io` via `GITHUB_TOKEN` |
+| 4. Metadaten | Image Tags und OCI Labels aus dem Commit Kontext ableiten |
+| 5. Build und Push | Multi-Stage Image bauen und nach GHCR pushen |
+| 6. Values Update | `helm/price-watch/values.yaml` mit Repository URL, SHA Tag und `pullPolicy: Always` aktualisieren, Commit zurück auf `main` |
+
+#### Trigger und Path Filter
+
+Der Workflow feuert ausschliesslich bei Pushes auf `main` und nur wenn sich der Pfad `app/backend/**` ändert:
+
+```yaml
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/backend/**'
+```
+
+Reine Doku-Commits oder Helm Chart Anpassungen bauen kein neues Image. Das reduziert unnötige CI Läufe und spart GitHub Actions Minuten.
+
+#### Image Tag Strategie
+
+Das Image wird mit zwei Tags in GHCR gespeichert:
+
+| Tag | Format | Zweck |
+| --- | --- | --- |
+| SHA Tag | `sha-abc1234` (7 Zeichen) | Eindeutige Identifikation jedes Builds, ermöglicht Rollback |
+| Latest Tag | `latest` | Zeigt immer auf den neusten Build |
+
+`helm/price-watch/values.yaml` wird vom CI mit dem SHA Tag aktualisiert. Damit ist in der Git History jederzeit nachvollziehbar, welcher Commit zu welchem Image Tag führte.
+
+#### Values Update für den GitOps Loop
+
+Nach erfolgreichem Build und Push updatet der CI Workflow `helm/price-watch/values.yaml` direkt auf `main`:
+
+```yaml
+image:
+  repository: ghcr.io/cancani/price-watch-backend   # gesetzt durch CI
+  tag: sha-abc1234                                    # gesetzt durch CI
+  pullPolicy: Always                                  # gesetzt durch CI
+```
+
+Der Commit durch `github-actions[bot]` trägt `[skip ci]` in der Message, damit kein weiterer Workflow Loop ausgelöst wird. Argo CD erkennt die Änderung in `values.yaml` und synct den Cluster auf das neue Image (siehe Kapitel 5.6).
+
+#### Layer Caching
+
+Der Workflow nutzt den GitHub Actions Cache (`cache-from: type=gha`) für Docker Layer Caching. Bei reinen App-Code Änderungen (zum Beispiel `main.py`) bleibt der `pip install` Layer im Cache, was die Build Zeit von rund 30 Sekunden auf unter 10 Sekunden reduziert.
+
+#### Einmalige Setup-Schritte
+
+Zwei Konfigurationen sind einmalig in GitHub notwendig:
+
+**github-actions[bot] Branch Protection Bypass:**
+Im Repository unter `Settings → Branches → main` muss `github-actions[bot]` als Actor hinzugefügt werden, der die Branch Protection bypassen darf. Ohne das schlägt der `git push` im Values Update Schritt fehl.
+
+**GHCR Paket Sichtbarkeit:**
+Nach dem ersten CI Run ist das `price-watch-backend` Paket unter `ghcr.io/cancani/price-watch-backend` initial als private gespeichert. Unter dem eigenen GitHub Profil unter `Packages → price-watch-backend → Package settings → Change visibility → Public` auf Public setzen, damit Kubernetes im kind Cluster das Image ohne `imagePullSecret` ziehen kann.
+
+#### Verifikation nach erstem CI Run
+
+Nach einem Push auf `main` mit Änderung in `app/backend/`:
+
+```bash
+# Laufende und abgeschlossene Workflow Runs anzeigen
+gh run list --workflow=ci.yaml
+
+# Logs eines Runs anschauen
+gh run view <run-id> --log
+
+# GHCR Image verifizieren
+docker pull ghcr.io/cancani/price-watch-backend:latest
+docker pull ghcr.io/cancani/price-watch-backend:sha-<abc1234>
+
+# values.yaml prüfen ob CI den Tag gesetzt hat
+grep "tag:" helm/price-watch/values.yaml
+grep "repository:" helm/price-watch/values.yaml
+```
+
+Der CI Run erscheint auch direkt im GitHub Repository unter dem Tab **Actions**.
+
+---

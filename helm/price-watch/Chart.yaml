@@ -1,0 +1,23 @@
+apiVersion: v2
+name: price-watch
+description: Helm Chart für das FastAPI Backend der Preisüberwachungs WebApp
+type: application
+
+# Version des Helm Charts selbst
+version: 0.1.0
+
+# Version der Anwendung, die das Chart deployed (synchron zu app/backend/main.py)
+appVersion: "0.1.0"
+
+keywords:
+  - fastapi
+  - kubernetes
+  - cloud-native
+  - semesterarbeit
+
+maintainers:
+  - name: Efekan Demirci
+
+home: https://cancani.com/gitops-platform-semesterarbeit5/
+sources:
+  - https://github.com/Cancani/gitops-platform-semesterarbeit5
