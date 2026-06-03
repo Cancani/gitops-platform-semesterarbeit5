@@ -114,7 +114,13 @@
       - [.dockerignore](#dockerignore)
       - [Lokales Build und Test](#lokales-build-und-test)
       - [Image in kind Cluster laden](#image-in-kind-cluster-laden)
-
+    - [Helm Chart](#helm-chart)
+      - [Chart Struktur](#chart-struktur)
+      - [Konfigurierbarkeit über values.yaml](#konfigurierbarkeit-über-valuesyaml)
+      - [Health Probes Konfiguration](#health-probes-konfiguration)
+      - [Security Context und Härtung](#security-context-und-härtung)
+      - [Service Exposition via NodePort](#service-exposition-via-nodeport)
+      - [Lokales Deployment und Verifikation](#lokales-deployment-und-verifikation)
 ---
 
 ## 1. Management Summary
@@ -1580,3 +1586,109 @@ kind load docker-image price-watch-backend:dev --name gitops-platform
 ```
 
 Damit ist das Image im Cluster verfügbar, ohne über eine Registry gehen zu müssen. Ab Sprint 2 wird dieser Schritt durch die CI Pipeline (Build und Push nach GHCR) und Argo CD Sync ersetzt.
+
+---
+
+
+### Helm Chart
+
+Das Backend wird über ein Helm Chart in den Kubernetes Cluster deployed. Das Chart liegt unter `helm/price-watch/`. In Sprint 2 (US06) wird die Skelett-Version mit Deployment und Service aufgebaut. PVC, ConfigMap und CronJob für die SQLite Persistenz folgen in US07.
+
+#### Chart Struktur
+
+| Pfad | Zweck |
+| --- | --- |
+| `helm/price-watch/Chart.yaml` | Chart Metadaten (Name, Version, App Version) |
+| `helm/price-watch/values.yaml` | Konfigurierbare Standardwerte |
+| `helm/price-watch/.helmignore` | Files, die nicht ins Chart Paket gehören |
+| `helm/price-watch/templates/_helpers.tpl` | Helm Template Helpers für Namen und Labels |
+| `helm/price-watch/templates/deployment.yaml` | Backend Deployment mit Probes und Security Context |
+| `helm/price-watch/templates/service.yaml` | NodePort Service |
+| `helm/price-watch/templates/NOTES.txt` | Post-Install Hilfe |
+
+Chart Version und App Version sind bewusst getrennt: Chart-Änderungen (zum Beispiel Ressourcen anpassen) bumpen die `version`, App-Releases (neues Backend Image) bumpen die `appVersion`. Dieses Trennungsmuster ist Helm Best Practice und erleichtert das spätere Versionsmanagement in Sprint 3.
+
+#### Konfigurierbarkeit über values.yaml
+
+Die `values.yaml` Datei enthält alle Parameter, die per `--values` Datei, `--set` Flag oder Overlay overridden werden können. Die wichtigsten Gruppen:
+
+| Gruppe | Inhalt |
+| --- | --- |
+| `image` | Repository, Tag, PullPolicy |
+| `service` | Type, Port, NodePort |
+| `resources` | Requests und Limits für CPU und Memory |
+| `livenessProbe`, `readinessProbe` | Health Probe Konfiguration |
+| `podSecurityContext`, `securityContext` | Sicherheitsmerkmale auf Pod und Container Ebene |
+
+Bewusste Voreinstellungen:
+
+- `replicaCount: 1`: Single Replica wegen SQLite Single Writer (siehe [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank)). Skalierung würde eine Multi-Pod taugliche DB voraussetzen.
+- `image.pullPolicy: IfNotPresent`: Für lokale Tests via `kind load docker-image`. Beim Wechsel auf GHCR in US10 wird das auf `Always` umgestellt.
+- `service.nodePort: 30080`: Matched die `extraPortMappings` in `kind/cluster.yaml`, damit das Backend ohne Ingress Controller vom Host erreichbar ist.
+
+#### Health Probes Konfiguration
+
+Beide FastAPI Endpoints aus US04 werden im Chart als Kubernetes Probes verdrahtet:
+
+| Probe | Pfad | initialDelay | period | failureThreshold |
+| --- | --- | --- | --- | --- |
+| Liveness | `/healthz` | 10 s | 10 s | 3 |
+| Readiness | `/ready` | 5 s | 5 s | 3 |
+
+Die Liveness Probe sorgt für automatischen Pod Restart bei Hänger. Die Readiness Probe entscheidet, ob ein Pod Traffic vom Service erhält. Beide Probes nutzen den `http` Port (Name statt Nummer), damit Container Port und Probe Port automatisch konsistent bleiben, wenn der Port via values angepasst wird.
+
+#### Security Context und Härtung
+
+Das Chart setzt folgende Härtungsmassnahmen, konsistent zum Dockerfile aus US05:
+
+| Massnahme | Wirkung |
+| --- | --- |
+| `runAsNonRoot: true` | Container darf nicht als root laufen |
+| `runAsUser: 1001`, `runAsGroup: 1001` | Matched den `app` User im Dockerfile |
+| `fsGroup: 1001` | Gemountete Volumes gehören der `app` Gruppe |
+| `allowPrivilegeEscalation: false` | Kein `setuid` Escalation möglich |
+| `readOnlyRootFilesystem: true` | Container kann keine Files ausserhalb gemounteter Volumes schreiben |
+| `capabilities.drop: [ALL]` | Alle Linux Capabilities werden entzogen |
+
+Damit `readOnlyRootFilesystem: true` mit uvicorn funktioniert, wird `/tmp` als `emptyDir` Volume gemountet. uvicorn nutzt `/tmp` für interne Worker Kommunikation.
+
+#### Service Exposition via NodePort
+
+Bewusst NodePort statt Ingress. Ein Ingress Controller (zum Beispiel ingress-nginx) wäre eine zusätzliche Plattformkomponente, die im Scope der Semesterarbeit keinen Mehrwert bringt, sondern nur Wartungsaufwand erzeugt. NodePort matched ausserdem die kind Cluster Konfiguration aus US03 (siehe Kapitel 5.1.1), die Port 30080 vom Cluster auf den Host mappt.
+
+Damit ist das Backend unter `http://localhost:30080/` erreichbar, sobald der Pod im Status `Running` und `Ready` ist.
+
+#### Lokales Deployment und Verifikation
+
+```bash
+# Voraussetzung: Cluster läuft, Image ist lokal gebaut und in kind geladen
+docker build -t price-watch-backend:dev app/backend
+kind load docker-image price-watch-backend:dev --name gitops-platform
+
+# Chart linten (statische Prüfung)
+helm lint helm/price-watch
+
+# Chart rendern ohne zu deployen (Dry Run)
+helm template price-watch helm/price-watch
+
+# Chart installieren
+helm install price-watch helm/price-watch
+
+# Status prüfen
+kubectl get pods,svc
+kubectl get pod -l app.kubernetes.io/name=price-watch
+
+# Smoke Tests gegen NodePort
+curl http://localhost:30080/healthz
+# Erwartet: {"status":"ok"}
+
+curl http://localhost:30080/api/prices
+# Erwartet: {"prices":[]}
+
+# Logs
+kubectl logs -l app.kubernetes.io/name=price-watch
+
+# Deinstallieren
+helm uninstall price-watch
+```
+
