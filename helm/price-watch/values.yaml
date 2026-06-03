@@ -6,9 +6,9 @@
 replicaCount: 1
 
 image:
-  repository: price-watch-backend
-  tag: dev
-  pullPolicy: IfNotPresent
+  repository: ghcr.io/Cancani/price-watch-backend
+  tag: sha-389f95f
+  pullPolicy: Always
 
 # Pod Level Security Context. Matched die Non-Root Konfiguration aus dem
 # Dockerfile (UID 1001, siehe US05).
