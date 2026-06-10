@@ -1,59 +1,78 @@
 """
-FastAPI Skelett der Preisüberwachungs WebApp (Sprint 1, US04).
+FastAPI Backend der Preisüberwachungs WebApp.
 
-Stand: Minimales Skelett mit Health Endpoints und Platzhalter API.
-Echte Preisabruf- und Persistenzlogik folgt in Sprint 2.
+Sprint 2, US08: echte Anwendungslogik mit Pydantic Modellen, SQLite
+Persistenz und Preisquelle.
 
 Lokaler Start:
     uvicorn main:app --reload --host 0.0.0.0 --port 8000
 """
 
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, HTTPException
+
+from database import (
+    check_connection,
+    get_latest_prices,
+    get_price_history,
+    init_db,
+    insert_prices,
+)
+from models import HistoryResponse, PricesResponse, RefreshResponse
+from pricesource import fetch_prices
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Beim Start die Datenbank initialisieren (Tabelle anlegen)
+    init_db()
+    yield
+
 
 app = FastAPI(
     title="Price Watch API",
     description="Preisüberwachung für digitale Marktplatzobjekte",
-    version="0.1.0",
+    version="0.2.0",
+    lifespan=lifespan,
 )
 
 
 @app.get("/healthz", tags=["health"])
 def health_check() -> dict:
-    """Liveness Probe.
-
-    Antwortet, solange der Prozess lebt. Wird in Sprint 2 als Kubernetes
-    Liveness Probe konfiguriert, damit abgestürzte Pods neu gestartet werden.
-    """
+    """Liveness Probe: antwortet, solange der Prozess lebt."""
     return {"status": "ok"}
 
 
 @app.get("/ready", tags=["health"])
 def readiness_check() -> dict:
-    """Readiness Probe.
-
-    Antwortet, sobald der Service Anfragen annehmen kann. Im Skelett
-    immer "ready". In Sprint 2 wird hier zusätzlich die SQLite Verbindung
-    geprüft (siehe ADR-003).
-    """
+    """Readiness Probe: prueft zusaetzlich die Datenbankverbindung."""
+    try:
+        check_connection()
+    except Exception:
+        raise HTTPException(status_code=503, detail="database not ready")
     return {"status": "ready"}
 
 
-@app.get("/api/prices", tags=["prices"])
+@app.get("/api/prices", tags=["prices"], response_model=PricesResponse)
 def get_current_prices() -> dict:
-    """Aktuelle Preise aller beobachteten Objekte.
+    """Aktuelle Preise aller beobachteten Objekte (neuster Wert pro Objekt)."""
+    return {"prices": get_latest_prices()}
 
-    Skelett: liefert eine leere Liste. Die Datenabfrage aus SQLite
-    folgt in Sprint 2.
+
+@app.get("/api/prices/history", tags=["prices"], response_model=HistoryResponse)
+def price_history(item: str | None = None) -> dict:
+    """Historische Preisdaten, optional gefiltert nach Objekt via ?item=..."""
+    return {"history": get_price_history(item)}
+
+
+@app.post("/api/prices/refresh", tags=["prices"], response_model=RefreshResponse)
+def refresh_prices() -> dict:
+    """Ruft aktuelle Preise ab und speichert sie.
+
+    Wird in US07 vom Kubernetes CronJob regelmaessig aufgerufen.
+    Manuell nutzbar fuer Tests und Demo.
     """
-    return {"prices": []}
-
-
-@app.get("/api/prices/history", tags=["prices"])
-def get_price_history() -> dict:
-    """Historische Preisdaten aller beobachteten Objekte.
-
-    Skelett: liefert eine leere Liste. Die Historie wird in Sprint 2
-    durch den Kubernetes CronJob befüllt, der die Preisquelle abruft.
-    """
-    return {"history": []}
-# Kommentar für ci.yaml
+    entries = fetch_prices()
+    insert_prices(entries)
+    return {"fetched": len(entries)}
