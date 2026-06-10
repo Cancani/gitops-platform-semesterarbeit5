@@ -1567,8 +1567,8 @@ Die Trennung in `app/backend/` reflektiert die Monorepo Struktur (siehe [ADR-004
 | `/docs` | GET | Interaktive OpenAPI Doku (Swagger UI) | aktiv |
 | `/healthz` | GET | Liveness Probe für Kubernetes | aktiv |
 | `/ready` | GET | Readiness Probe für Kubernetes | aktiv |
-| `/api/prices` | GET | Aktuelle Preise aller beobachteten Objekte | Skelett, Implementation in Sprint 2 |
-| `/api/prices/history` | GET | Historische Preisdaten | Skelett, Implementation in Sprint 2 |
+| `/api/prices` | GET | Aktuelle Preise aller beobachteten Objekte | aktiv |
+| `/api/prices/history` | GET | Historische Preisdaten | aktiv |
 
 OpenAPI Schema und Swagger UI sind durch FastAPI automatisch verfügbar und müssen nicht separat konfiguriert werden. Das wird für manuelle Tests und für die Demo in den Zwischenpräsentationen genutzt.
 
@@ -2136,6 +2136,8 @@ export DATABASE_PATH=./prices.db
 uvicorn main:app --reload --port 8000
 ```
 
+![Run App](./img/appbackend1sq.png)
+
 ```bash
 # Preise abrufen und speichern
 curl -X POST http://localhost:8000/api/prices/refresh
@@ -2152,4 +2154,9 @@ curl -X POST http://localhost:8000/api/prices/refresh
 curl "http://localhost:8000/api/prices/history?item=AWP%20Asiimov"
 ```
 
+![curl calls](./img/appbackend2sq.png)
+
 Die interaktive OpenAPI Doku unter `http://localhost:8000/docs` zeigt den neuen POST Endpoint und die Pydantic Response Schemas.
+
+![Price Refresh Endpoint](./img/appbackend3sq.png)
+
