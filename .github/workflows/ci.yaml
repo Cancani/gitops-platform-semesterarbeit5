@@ -56,7 +56,7 @@ jobs:
         run: |
           SHORT_SHA="sha-$(echo '${{ github.sha }}' | cut -c1-7)"
 
-          sed -i "s|^  repository:.*|  repository: ghcr.io/${{ github.repository_owner }}/price-watch-backend|" helm/price-watch/values.yaml
+          sed -i "s|^  repository:.*|  repository: ghcr.io/cancani/price-watch-backend|" helm/price-watch/values.yaml
           sed -i "s|^  tag:.*|  tag: ${SHORT_SHA}|" helm/price-watch/values.yaml
           sed -i "s|^  pullPolicy:.*|  pullPolicy: Always|" helm/price-watch/values.yaml
 
