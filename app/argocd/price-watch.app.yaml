@@ -7,7 +7,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/Cancani/gitops-platform-semesterarbeit5
+    repoURL: https://github.com/cancani/gitops-platform-semesterarbeit5
     targetRevision: sprint2
     path: helm/price-watch
 
