@@ -41,8 +41,9 @@
       - [Priorisierung](#priorisierung)
     - [Sprint Planungen, Reviews und Retrospektiven](#sprint-planungen-reviews-und-retrospektiven)
       - [Sprint 1 Planung](#sprint-1-planung)
-      - [Sprint 1 Review](#sprint-1-review)
         - [Erledigte User Stories](#erledigte-user-stories)
+      - [Sprint 1 Review](#sprint-1-review)
+        - [Erledigte User Stories](#erledigte-user-stories-1)
         - [Demo-fähige Artefakte](#demo-fähige-artefakte)
         - [Definition of Done Check](#definition-of-done-check)
         - [Zielerreichung gegen SMART Tabelle](#zielerreichung-gegen-smart-tabelle)
@@ -130,6 +131,11 @@
       - [Layer Caching](#layer-caching)
       - [Einmalige Setup-Schritte](#einmalige-setup-schritte)
       - [Verifikation nach erstem CI Run](#verifikation-nach-erstem-ci-run)
+    - [Argo CD Installation](#argo-cd-installation)
+      - [Installation](#installation)
+      - [Komponenten im Cluster](#komponenten-im-cluster)
+      - [UI Zugang](#ui-zugang)
+      - [Warum kubectl apply statt Helm Chart](#warum-kubectl-apply-statt-helm-chart)
 ---
 
 ## Management Summary
@@ -1893,3 +1899,74 @@ grep "repository:" helm/price-watch/values.yaml
 Der CI Run erscheint auch direkt im GitHub Repository unter dem Tab **Actions**.
 
 ---
+
+### Argo CD Installation
+
+Argo CD ist der GitOps Controller, der Änderungen im Git Repository erkennt und den Cluster auf den deklarierten Soll-Zustand synchronisiert. Die Installation erfolgt im Namespace `argocd` via offiziellem Manifest.
+
+#### Installation
+
+Argo CD wird über das idempotente Script `scripts/setup-argocd.sh` installiert:
+
+```bash
+bash scripts/setup-argocd.sh
+```
+
+Das Script führt folgende Schritte aus:
+
+| Schritt | Aktion |
+| --- | --- |
+| 1. Checks | kubectl verfügbar, Cluster erreichbar |
+| 2. Namespace | `argocd` Namespace erstellen (idempotent) |
+| 3. Install | Offizielles Argo CD Manifest via `kubectl apply` |
+| 4. Warten | Alle Deployments im Status `Available` |
+| 5. Ausgabe | Admin Passwort und Port Forward Befehl |
+
+#### Komponenten im Cluster
+
+Nach der Installation laufen folgende Pods im Namespace `argocd`:
+
+```bash
+kubectl get pods -n argocd
+```
+
+![Argo CD](./img/setupargocd.png)
+
+| Deployment | Zweck |
+| --- | --- |
+| `argocd-server` | API Server und Web UI |
+| `argocd-repo-server` | Git Repository Zugriff und Helm Rendering |
+| `argocd-application-controller` | Reconciliation Loop, vergleicht Soll- und Ist-Zustand |
+| `argocd-dex-server` | SSO und Authentication |
+| `argocd-redis` | Interner Cache |
+
+#### UI Zugang
+
+Argo CD ist über Port Forward erreichbar:
+
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+Browser öffnen: `https://localhost:8080`
+
+Die Zertifikatswarnung des selbst signierten Zertifikats im Browser akzeptieren. Login mit:
+
+- **Benutzername**: `admin`
+- **Passwort**: Ausgabe von `scripts/setup-argocd.sh`, oder manuell:
+
+```bash
+# Git Bash / Linux / macOS
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d; echo
+
+# PowerShell
+$pw = kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}"
+[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($pw))
+```
+
+![ArgoCD UI](./img/argocdui.png)
+
+#### Warum kubectl apply statt Helm Chart
+
+Argo CD kann sich nicht selbst via GitOps verwalten (Chicken-and-Egg Problem). Das offizielle Manifest via `kubectl apply` ist deshalb der empfohlene Bootstrap-Weg und wird in der offiziellen Argo CD Dokumentation so beschrieben. Für Production wäre ein eigener Argo CD Helm Chart mit App-of-Apps Pattern denkbar, sprengt aber den Scope dieser Semesterarbeit.
