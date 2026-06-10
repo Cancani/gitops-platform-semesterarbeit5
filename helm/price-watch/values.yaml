@@ -6,7 +6,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/Cancani/price-watch-backend
+  repository: ghcr.io/cancani/price-watch-backend
   tag: sha-3b68b44
   pullPolicy: Always
 
