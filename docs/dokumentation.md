@@ -41,8 +41,9 @@
       - [Priorisierung](#priorisierung)
     - [Sprint Planungen, Reviews und Retrospektiven](#sprint-planungen-reviews-und-retrospektiven)
       - [Sprint 1 Planung](#sprint-1-planung)
-      - [Sprint 1 Review](#sprint-1-review)
         - [Erledigte User Stories](#erledigte-user-stories)
+      - [Sprint 1 Review](#sprint-1-review)
+        - [Erledigte User Stories](#erledigte-user-stories-1)
         - [Demo-fähige Artefakte](#demo-fähige-artefakte)
         - [Definition of Done Check](#definition-of-done-check)
         - [Zielerreichung gegen SMART Tabelle](#zielerreichung-gegen-smart-tabelle)
@@ -130,6 +131,30 @@
       - [Layer Caching](#layer-caching)
       - [Einmalige Setup-Schritte](#einmalige-setup-schritte)
       - [Verifikation nach erstem CI Run](#verifikation-nach-erstem-ci-run)
+    - [Argo CD Installation](#argo-cd-installation)
+      - [Installation](#installation)
+      - [Komponenten im Cluster](#komponenten-im-cluster)
+      - [UI Zugang](#ui-zugang)
+      - [Warum kubectl apply statt Helm Chart](#warum-kubectl-apply-statt-helm-chart)
+    - [Argo CD Application und GitOps Loop](#argo-cd-application-und-gitops-loop)
+      - [Application Definition](#application-definition)
+      - [Sync Policy](#sync-policy)
+      - [Deployment der Application](#deployment-der-application)
+      - [Der vollständige GitOps Loop](#der-vollständige-gitops-loop)
+      - [Verifikation](#verifikation)
+    - [Anwendungslogik und Datenmodelle](#anwendungslogik-und-datenmodelle)
+      - [Datenmodelle (Pydantic)](#datenmodelle-pydantic)
+      - [Persistenz (SQLite)](#persistenz-sqlite)
+      - [Preisquelle](#preisquelle)
+      - [API Endpoints](#api-endpoints)
+      - [Lokale Verifikation](#lokale-verifikation)
+    - [Frontend (Preisübersicht und Verlauf)](#frontend-preisübersicht-und-verlauf)
+      - [Aufbau und Auslieferung](#aufbau-und-auslieferung)
+      - [Technische Wahl: kein Frontend Framework](#technische-wahl-kein-frontend-framework)
+      - [Funktionen](#funktionen)
+      - [Echte Skin Bilder](#echte-skin-bilder)
+      - [Farbcodierung nach Seltenheit](#farbcodierung-nach-seltenheit)
+      - [Lokale Verifikation](#lokale-verifikation-1)
 ---
 
 ## Management Summary
@@ -1549,8 +1574,8 @@ Die Trennung in `app/backend/` reflektiert die Monorepo Struktur (siehe [ADR-004
 | `/docs` | GET | Interaktive OpenAPI Doku (Swagger UI) | aktiv |
 | `/healthz` | GET | Liveness Probe für Kubernetes | aktiv |
 | `/ready` | GET | Readiness Probe für Kubernetes | aktiv |
-| `/api/prices` | GET | Aktuelle Preise aller beobachteten Objekte | Skelett, Implementation in Sprint 2 |
-| `/api/prices/history` | GET | Historische Preisdaten | Skelett, Implementation in Sprint 2 |
+| `/api/prices` | GET | Aktuelle Preise aller beobachteten Objekte | aktiv |
+| `/api/prices/history` | GET | Historische Preisdaten | aktiv |
 
 OpenAPI Schema und Swagger UI sind durch FastAPI automatisch verfügbar und müssen nicht separat konfiguriert werden. Das wird für manuelle Tests und für die Demo in den Zwischenpräsentationen genutzt.
 
@@ -1893,3 +1918,324 @@ grep "repository:" helm/price-watch/values.yaml
 Der CI Run erscheint auch direkt im GitHub Repository unter dem Tab **Actions**.
 
 ---
+
+### Argo CD Installation
+
+Argo CD ist der GitOps Controller, der Änderungen im Git Repository erkennt und den Cluster auf den deklarierten Soll-Zustand synchronisiert. Die Installation erfolgt im Namespace `argocd` via offiziellem Manifest.
+
+#### Installation
+
+Argo CD wird über das idempotente Script `scripts/setup-argocd.sh` installiert:
+
+```bash
+bash scripts/setup-argocd.sh
+```
+
+Das Script führt folgende Schritte aus:
+
+| Schritt | Aktion |
+| --- | --- |
+| 1. Checks | kubectl verfügbar, Cluster erreichbar |
+| 2. Namespace | `argocd` Namespace erstellen (idempotent) |
+| 3. Install | Offizielles Argo CD Manifest via `kubectl apply` |
+| 4. Warten | Alle Deployments im Status `Available` |
+| 5. Ausgabe | Admin Passwort und Port Forward Befehl |
+
+#### Komponenten im Cluster
+
+Nach der Installation laufen folgende Pods im Namespace `argocd`:
+
+```bash
+kubectl get pods -n argocd
+```
+
+![Argo CD](./img/setupargocd.png)
+
+| Deployment | Zweck |
+| --- | --- |
+| `argocd-server` | API Server und Web UI |
+| `argocd-repo-server` | Git Repository Zugriff und Helm Rendering |
+| `argocd-application-controller` | Reconciliation Loop, vergleicht Soll- und Ist-Zustand |
+| `argocd-dex-server` | SSO und Authentication |
+| `argocd-redis` | Interner Cache |
+
+#### UI Zugang
+
+Argo CD ist über Port Forward erreichbar:
+
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+Browser öffnen: `https://localhost:8080`
+
+Die Zertifikatswarnung des selbst signierten Zertifikats im Browser akzeptieren. Login mit:
+
+- **Benutzername**: `admin`
+- **Passwort**: Ausgabe von `scripts/setup-argocd.sh`, oder manuell:
+
+```bash
+# Git Bash / Linux / macOS
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d; echo
+
+# PowerShell
+$pw = kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}"
+[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($pw))
+```
+
+![ArgoCD UI](./img/argocdui.png)
+
+#### Warum kubectl apply statt Helm Chart
+
+Argo CD kann sich nicht selbst via GitOps verwalten (Chicken-and-Egg Problem). Das offizielle Manifest via `kubectl apply` ist deshalb der empfohlene Bootstrap-Weg und wird in der offiziellen Argo CD Dokumentation so beschrieben. Für Production wäre ein eigener Argo CD Helm Chart mit App-of-Apps Pattern denkbar, sprengt aber den Scope dieser Semesterarbeit.
+
+<!--
+Einfügeposition: Diesen Inhalt nach Kapitel 5.6.4 in docs/dokumentation.md
+anhängen.
+
+Inhaltsverzeichnis Erweiterung: Im bestehenden TOC nach dem 5.6 Block
+ergänzen:
+
+    - [5.7 Argo CD Application und GitOps Loop](#57-argo-cd-application-und-gitops-loop)
+      - [5.7.1 Application Definition](#571-application-definition)
+      - [5.7.2 Sync Policy](#572-sync-policy)
+      - [5.7.3 Deployment der Application](#573-deployment-der-application)
+      - [5.7.4 Der vollständige GitOps Loop](#574-der-vollständige-gitops-loop)
+      - [5.7.5 Verifikation](#575-verifikation)
+-->
+
+### Argo CD Application und GitOps Loop
+
+Die Argo CD Application verbindet das Git Repository mit dem Cluster und schliesst damit den GitOps Loop. Argo CD beobachtet den Pfad `helm/price-watch` auf dem Branch `main` und synchronisiert Änderungen automatisch in den Cluster.
+
+#### Application Definition
+
+Die Application ist in `app/argocd/price-watch.app.yaml` deklariert:
+
+| Feld | Wert | Bedeutung |
+| --- | --- | --- |
+| `source.repoURL` | Repository URL | Beobachtetes Git Repository |
+| `source.targetRevision` | `main` | Beobachteter Branch |
+| `source.path` | `helm/price-watch` | Pfad zum Helm Chart im Monorepo (siehe [ADR-004](#45-adr-004-monorepo-statt-multi-repo)) |
+| `destination.server` | `https://kubernetes.default.svc` | Ziel-Cluster (lokaler Cluster) |
+| `destination.namespace` | `default` | Ziel-Namespace für die Anwendung |
+
+Argo CD rendert das Helm Chart selbst (über den `argocd-repo-server`) und vergleicht das Ergebnis mit dem Ist-Zustand im Cluster.
+
+#### Sync Policy
+
+Die Application nutzt eine automatisierte Sync Policy:
+
+| Option | Wert | Wirkung |
+| --- | --- | --- |
+| `automated.prune` | `true` | Ressourcen, die aus Git entfernt werden, werden auch im Cluster gelöscht |
+| `automated.selfHeal` | `true` | Manuelle Änderungen am Cluster werden auf den Git Stand zurückgesetzt |
+
+`selfHeal` macht Git zur einzigen Wahrheit: Wer `kubectl edit` am laufenden Deployment macht, dessen Änderung wird von Argo CD automatisch rückgängig gemacht. Das ist das Kernprinzip von GitOps.
+
+#### Deployment der Application
+
+```bash
+# Bestehenden manuellen Helm Release entfernen, Argo CD übernimmt
+helm uninstall price-watch
+
+# Application registrieren
+kubectl apply -f app/argocd/price-watch.app.yaml
+
+# Sync Status beobachten
+kubectl get application -n argocd price-watch -w
+```
+
+Erwartetes Ergebnis nach 1 bis 2 Minuten: `SYNC STATUS: Synced`, `HEALTH STATUS: Healthy`.
+
+
+
+####  Der vollständige GitOps Loop
+
+Mit der Application ist der Loop geschlossen. Eine Code-Änderung durchläuft folgende Stationen vollautomatisch:
+
+| Schritt | Akteur | Aktion |
+| --- | --- | --- |
+| 1 | Entwickler | Commit auf `develop`, Pull Request, Squash Merge auf `main` |
+| 2 | GitHub Actions | CI baut Container Image, pushed nach GHCR (siehe Kapitel 5.5) |
+| 3 | GitHub Actions | `helm/price-watch/values.yaml` wird mit neuem Image Tag aktualisiert, Commit zurück auf `main` |
+| 4 | Argo CD | Erkennt die Änderung in `values.yaml` (Polling alle 3 Minuten oder via Webhook) |
+| 5 | Argo CD | Rendert das Helm Chart neu und synchronisiert den Cluster |
+| 6 | Kubernetes | Rollt das neue Image als Deployment aus |
+
+Kein manuelles `kubectl` oder `helm` ist nach dem Merge mehr nötig. Der Soll-Zustand im Git Repository wird automatisch zum Ist-Zustand im Cluster.
+
+####  Verifikation
+
+```bash
+# Application Status
+kubectl get application -n argocd price-watch
+
+# Pod läuft mit GHCR Image
+kubectl get pods
+kubectl describe pod -l app.kubernetes.io/name=price-watch | grep Image:
+
+# Smoke Test
+curl http://localhost:30080/healthz
+# Erwartet: {"status":"ok"}
+```
+
+In der Argo CD UI (siehe Kapitel 5.6.3) wird die Application `price-watch` mit allen Ressourcen (Deployment, Service, Pod, ReplicaSet) als Baum dargestellt, jeweils mit Health- und Sync-Status.
+
+Hinweis zu Image Pull: Da `values.yaml` durch die CI auf das GHCR Image zeigt, muss das GHCR Paket auf Public gesetzt sein. Andernfalls zeigt der Pod `ImagePullBackOff`.
+
+
+### Anwendungslogik und Datenmodelle
+
+In US06 erhält das Backend echte Funktionalität: Preisdaten werden über eine Quelle abgerufen, in SQLite gespeichert und über die API als aktuelle Werte und Historie ausgeliefert. Die Wahl von SQLite ist im ADR zur Datenbank begründet.
+
+#### Datenmodelle (Pydantic)
+
+Die Datenstruktur ist in `app/backend/models.py` als Pydantic Modelle definiert. Pydantic erzwingt die Konsistenz zwischen API Schicht und Persistenz (siehe ADR zu FastAPI).
+
+| Modell | Felder | Zweck |
+| --- | --- | --- |
+| `PriceEntry` | item_name, price, currency, source, timestamp | Ein Preisdatenpunkt |
+| `PricesResponse` | prices (Liste) | Antwort der aktuellen Preise |
+| `HistoryResponse` | history (Liste) | Antwort der Historie |
+| `RefreshResponse` | fetched (Anzahl) | Antwort nach Preisabruf |
+
+Das Feld `price` ist mit `Field(gt=0)` validiert, sodass ungültige negative Preise abgelehnt werden. Die Response Modelle werden als `response_model` an den Endpoints deklariert und erscheinen automatisch im OpenAPI Schema.
+
+#### Persistenz (SQLite)
+
+Der Datenzugriff liegt in `app/backend/database.py`. Die Datenbankdatei wird über die Umgebungsvariable `DATABASE_PATH` konfiguriert:
+
+| Umgebung | DATABASE_PATH | Begründung |
+| --- | --- | --- |
+| Lokal | `./prices.db` (manuell gesetzt) | Einfaches Testen ohne Cluster |
+| Container (Standard) | `/tmp/prices.db` | Einziger beschreibbarer Pfad bei `readOnlyRootFilesystem: true` |
+| Cluster mit PVC | `/data/prices.db` | Persistentes Volume, übersteht Pod Neustarts |
+
+Die Tabelle `prices` wird beim Anwendungsstart über den FastAPI Lifespan Hook idempotent angelegt (`CREATE TABLE IF NOT EXISTS`). Ein Index auf `(item_name, timestamp)` beschleunigt die Abfragen für aktuelle Preise und Historie.
+
+Die Single Writer Beschränkung von SQLite ist unproblematisch, da nur der Refresh Pfad schreibt und die API ausschliesslich liest.
+
+#### Preisquelle
+
+Die Preisquelle in `app/backend/pricesource.py` erzeugt aktuell plausible Preise für eine feste Liste digitaler Marktplatzobjekte mit zufälliger Schwankung um einen Basispreis. Diese Mock Quelle macht die Demo unabhängig von externen APIs und adressiert damit das Risiko einer instabilen Preisquelle. Über die Funktion `fetch_prices()` als Schnittstelle liesse sich eine echte HTTP Quelle wie Steam Market anbinden, ohne die übrige Anwendung zu ändern.
+
+#### API Endpoints
+
+| Pfad | Methode | Beschreibung |
+| --- | --- | --- |
+| `/healthz` | GET | Liveness Probe |
+| `/ready` | GET | Readiness Probe, prüft zusätzlich die Datenbankverbindung |
+| `/api/prices` | GET | Neuster Preis pro Objekt |
+| `/api/prices/history` | GET | Historie, optional gefiltert via `?item=...` |
+| `/api/prices/refresh` | POST | Ruft Preise ab und speichert sie |
+
+Der POST Endpoint `/api/prices/refresh` ist der Hook, der später vom Kubernetes CronJob regelmässig aufgerufen wird. Manuell dient er für Tests und die Demo.
+
+Die Readiness Probe prüft nun die Datenbankverbindung. Schlägt diese fehl, antwortet der Endpoint mit HTTP 503, und Kubernetes nimmt den Pod aus dem Service, bis die Datenbank wieder erreichbar ist.
+
+#### Lokale Verifikation
+
+```bash
+cd app/backend
+export DATABASE_PATH=./prices.db
+uvicorn main:app --reload --port 8000
+```
+
+![Run App](./img/appbackend1sq.png)
+
+```bash
+# Preise abrufen und speichern
+curl -X POST http://localhost:8000/api/prices/refresh
+# Erwartet: {"fetched":4}
+
+# Aktuelle Preise
+curl http://localhost:8000/api/prices
+# Erwartet: 4 Objekte mit Preisen
+
+# Nochmal abrufen, damit Historie mehrere Punkte hat
+curl -X POST http://localhost:8000/api/prices/refresh
+
+# Historie eines Objekts
+curl "http://localhost:8000/api/prices/history?item=AWP%20Asiimov"
+```
+
+![curl calls](./img/appbackend2sq.png)
+
+Die interaktive OpenAPI Doku unter `http://localhost:8000/docs` zeigt den neuen POST Endpoint und die Pydantic Response Schemas.
+
+![Price Refresh Endpoint](./img/appbackend3sq.png)
+
+<!--
+Einfügeposition: Als Unterkapitel im technischen Teil von docs/dokumentation.md,
+passend bei der Backend Anwendung bzw. nach der Anwendungslogik einsortieren.
+
+Gehoert zu US07 (#39): API liefert Preise, Frontend zeigt Tabelle und Verlauf.
+-->
+
+### Frontend (Preisübersicht und Verlauf)
+
+Das Frontend stellt die Preisdaten als durchsuchbare Übersicht dar und zeigt pro Objekt den Preisverlauf als Diagramm. Es ist bewusst als einzelne `index.html` ohne Build-Schritt umgesetzt und wird vom FastAPI Backend als statische Datei ausgeliefert.
+
+#### Aufbau und Auslieferung
+
+Das Frontend liegt unter `app/backend/static/index.html`. FastAPI bindet das Verzeichnis über einen StaticFiles Mount ein:
+
+```python
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
+```
+
+Wichtig ist die Reihenfolge: Der Mount wird nach allen API Routen registriert. Sonst würde er die Pfade `/api/...`, `/healthz` und `/ready` abfangen. So liefert das Backend unter `/` das Frontend und unter `/api/...` die Daten, beides aus demselben Container.
+
+#### Technische Wahl: kein Frontend Framework
+
+Die Oberfläche kommt mit reinem HTML, CSS und Vanilla JavaScript aus. Auf React, Vue oder einen Build-Schritt wurde bewusst verzichtet, weil:
+
+- kein zweiter Container und kein npm Build im CI nötig ist,
+- die Auslieferung über StaticFiles trivial bleibt,
+- der Fokus der Arbeit auf der Plattform liegt, nicht auf dem Frontend Stack.
+
+Für die Diagramme wird Chart.js über ein CDN eingebunden, ebenfalls ohne Build.
+
+#### Funktionen
+
+| Funktion | Umsetzung |
+| --- | --- |
+| Übersicht | Grid aus Karten, eine pro beobachtetes Objekt |
+| Suche | Eingabefeld filtert die Karten clientseitig live nach Name |
+| Aktueller Preis | Karte zeigt neusten Preis und prozentuale Änderung zum Vorwert |
+| Bilder | Echte Skin Bilder vom Steam CDN (siehe unten) |
+| Verlauf | Klick auf eine Karte öffnet ein Diagramm mit der Preishistorie |
+| Aktualisieren | Button löst `POST /api/prices/refresh` aus und lädt neu |
+
+Die prozentuale Änderung und der Verlauf werden aus `GET /api/prices/history` berechnet. Steigt der Preis, wird die Änderung grün dargestellt, fällt er, rot.
+
+#### Echte Skin Bilder
+
+Die Item Bilder stammen vom offiziellen Steam CDN. Jeder Skin hat einen `icon_url` Hash, der aus der Steam Market API gewonnen und in der Preisquelle hinterlegt ist. Die Bild URL wird daraus gebaut:
+
+```
+https://community.cloudflare.steamstatic.com/economy/image/<icon_url>/360fx360f
+```
+
+Das Bild lädt der Browser direkt vom Steam CDN. Die Preise selbst sind in dieser Ausbaustufe noch Mock Werte (plausible Schwankung um einen realistischen Basispreis), siehe Abschnitt zur Preisquelle. Die Umstellung auf echte Steam Preise ist ein separater Schritt und ändert nur die Preisquelle, nicht das Frontend.
+
+#### Farbcodierung nach Seltenheit
+
+Die Akzentfarbe pro Karte entspricht der Seltenheitsfarbe des Skins aus der Steam Market API (`name_color`). Damit greift das Frontend die im CS2 Umfeld etablierte Farbsemantik auf, statt einer generischen Akzentfarbe.
+
+#### Lokale Verifikation
+
+```bash
+cd app/backend
+export DATABASE_PATH=./prices.db
+uvicorn main:app --reload --port 8000
+```
+![Frontend lokal](./img/lokalpreis1.png)
+
+Browser auf `http://localhost:8000/` öffnen. Beim ersten Start ist die Übersicht leer. Ein Klick auf "Preise aktualisieren" ruft die Preisquelle ab und füllt das Grid. Mehrmaliges Aktualisieren erzeugt einen Verlauf, der im Detaildiagramm sichtbar wird.
+
+Die API bleibt unter `http://localhost:8000/api/prices` und die OpenAPI Doku unter `http://localhost:8000/docs` erreichbar.
+
+![Frontend lokal Preise](./img/lokalpreis2.png)

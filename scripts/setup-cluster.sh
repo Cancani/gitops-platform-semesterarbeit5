@@ -21,7 +21,7 @@ done
 
 if ! docker info >/dev/null 2>&1; then
   echo "FEHLER: Docker Daemon läuft nicht." >&2
-  echo "  Bitte Docker Desktop bzw. den Docker Daemon starten und Skript erneut ausfuehren." >&2
+  echo "  Bitte Docker Desktop bzw. den Docker Daemon starten und Skript erneut ausführen." >&2
   exit 1
 fi
 

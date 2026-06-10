@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: price-watch
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/cancani/gitops-platform-semesterarbeit5
+    targetRevision: main
+    path: helm/price-watch
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+
+  syncPolicy:
+    automated:
+      prune: true      # entfernte Ressourcen werden gelöscht
+      selfHeal: true   # manuelle cluster Änderungen werden zurückgesetzt
+    syncOptions:
+      - CreateNamespace=false
