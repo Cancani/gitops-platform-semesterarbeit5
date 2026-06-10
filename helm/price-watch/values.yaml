@@ -6,8 +6,8 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/cancani/price-watch-backend
-  tag: sha-3b68b44
+  repository: ghcr.io/Cancani/price-watch-backend
+  tag: sha-112c4ff
   pullPolicy: Always
 
 # Pod Level Security Context. Matched die Non-Root Konfiguration aus dem
