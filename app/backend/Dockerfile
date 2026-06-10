@@ -43,7 +43,7 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 
 # Anwendungscode mit korrekter Ownership kopieren
-COPY --chown=app:app main.py ./
+COPY --chown=app:app . .
 
 # Non-Root User aktivieren
 USER app
