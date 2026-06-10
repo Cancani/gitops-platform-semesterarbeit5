@@ -1,9 +1,4 @@
-"""SQLite Datenzugriff für die Preisdaten (US08).
-
-Die Datenbankdatei liegt standardmaessig unter /tmp/prices.db, da dies der
-einzige beschreibbare Pfad im Container ist (readOnlyRootFilesystem: true,
-siehe Helm Chart). In US07 wird der Pfad per Umgebungsvariable auf ein
-persistentes Volume (PVC) gesetzt.
+"""SQLite Datenzugriff für die Preisdaten.
 """
 
 import os
@@ -35,6 +30,7 @@ def init_db() -> None:
                 price REAL NOT NULL,
                 currency TEXT NOT NULL,
                 source TEXT NOT NULL,
+                image_url TEXT,
                 timestamp TEXT NOT NULL
             )
             """
@@ -49,10 +45,12 @@ def insert_prices(entries) -> None:
     """Speichert mehrere Preisdatenpunkte."""
     with get_connection() as conn:
         conn.executemany(
-            "INSERT INTO prices (item_name, price, currency, source, timestamp) "
-            "VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO prices "
+            "(item_name, price, currency, source, image_url, timestamp) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
             [
-                (e.item_name, e.price, e.currency, e.source, e.timestamp.isoformat())
+                (e.item_name, e.price, e.currency, e.source, e.image_url,
+                 e.timestamp.isoformat())
                 for e in entries
             ],
         )
@@ -63,7 +61,7 @@ def get_latest_prices() -> list[dict]:
     with get_connection() as conn:
         rows = conn.execute(
             """
-            SELECT p.item_name, p.price, p.currency, p.source, p.timestamp
+            SELECT p.item_name, p.price, p.currency, p.source, p.image_url, p.timestamp
             FROM prices p
             INNER JOIN (
                 SELECT item_name, MAX(timestamp) AS max_ts
@@ -82,13 +80,13 @@ def get_price_history(item_name: str | None = None) -> list[dict]:
     with get_connection() as conn:
         if item_name:
             rows = conn.execute(
-                "SELECT item_name, price, currency, source, timestamp "
+                "SELECT item_name, price, currency, source, image_url, timestamp "
                 "FROM prices WHERE item_name = ? ORDER BY timestamp",
                 (item_name,),
             ).fetchall()
         else:
             rows = conn.execute(
-                "SELECT item_name, price, currency, source, timestamp "
+                "SELECT item_name, price, currency, source, image_url, timestamp "
                 "FROM prices ORDER BY timestamp"
             ).fetchall()
         return [dict(r) for r in rows]

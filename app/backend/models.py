@@ -1,4 +1,4 @@
-"""Pydantic Modelle für die Preisdaten (US08)."""
+"""Pydantic Modelle für die Preisdaten."""
 
 from datetime import datetime
 from pydantic import BaseModel, Field
@@ -8,8 +8,9 @@ class PriceEntry(BaseModel):
     """Ein einzelner Preisdatenpunkt für ein beobachtetes Objekt."""
     item_name: str
     price: float = Field(gt=0)
-    currency: str = "USD"
+    currency: str = "CHF"
     source: str
+    image_url: str | None = None
     timestamp: datetime
 
 

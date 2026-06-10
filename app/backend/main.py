@@ -1,16 +1,18 @@
 """
 FastAPI Backend der Preisüberwachungs WebApp.
 
-Sprint 2, US08: echte Anwendungslogik mit Pydantic Modellen, SQLite
-Persistenz und Preisquelle.
+Echte Anwendungslogik mit Pydantic Modellen, SQLite Persistenz, Preisquelle
+und ausgeliefertem Frontend.
 
 Lokaler Start:
     uvicorn main:app --reload --host 0.0.0.0 --port 8000
 """
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
 
 from database import (
     check_connection,
@@ -21,6 +23,8 @@ from database import (
 )
 from models import HistoryResponse, PricesResponse, RefreshResponse
 from pricesource import fetch_prices
+
+STATIC_DIR = Path(__file__).parent / "static"
 
 
 @asynccontextmanager
@@ -33,7 +37,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Price Watch API",
     description="Preisüberwachung für digitale Marktplatzobjekte",
-    version="0.2.0",
+    version="0.3.0",
     lifespan=lifespan,
 )
 
@@ -70,9 +74,11 @@ def price_history(item: str | None = None) -> dict:
 def refresh_prices() -> dict:
     """Ruft aktuelle Preise ab und speichert sie.
 
-    Wird in US07 vom Kubernetes CronJob regelmaessig aufgerufen.
+    Wird vom Kubernetes CronJob regelmaessig aufgerufen.
     Manuell nutzbar fuer Tests und Demo.
     """
     entries = fetch_prices()
     insert_prices(entries)
     return {"fetched": len(entries)}
+
+app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")

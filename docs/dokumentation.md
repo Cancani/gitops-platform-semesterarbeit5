@@ -148,6 +148,13 @@
       - [Preisquelle](#preisquelle)
       - [API Endpoints](#api-endpoints)
       - [Lokale Verifikation](#lokale-verifikation)
+    - [Frontend (Preisübersicht und Verlauf)](#frontend-preisübersicht-und-verlauf)
+      - [Aufbau und Auslieferung](#aufbau-und-auslieferung)
+      - [Technische Wahl: kein Frontend Framework](#technische-wahl-kein-frontend-framework)
+      - [Funktionen](#funktionen)
+      - [Echte Skin Bilder](#echte-skin-bilder)
+      - [Farbcodierung nach Seltenheit](#farbcodierung-nach-seltenheit)
+      - [Lokale Verifikation](#lokale-verifikation-1)
 ---
 
 ## Management Summary
@@ -2160,3 +2167,75 @@ Die interaktive OpenAPI Doku unter `http://localhost:8000/docs` zeigt den neuen 
 
 ![Price Refresh Endpoint](./img/appbackend3sq.png)
 
+<!--
+Einfügeposition: Als Unterkapitel im technischen Teil von docs/dokumentation.md,
+passend bei der Backend Anwendung bzw. nach der Anwendungslogik einsortieren.
+
+Gehoert zu US07 (#39): API liefert Preise, Frontend zeigt Tabelle und Verlauf.
+-->
+
+### Frontend (Preisübersicht und Verlauf)
+
+Das Frontend stellt die Preisdaten als durchsuchbare Übersicht dar und zeigt pro Objekt den Preisverlauf als Diagramm. Es ist bewusst als einzelne `index.html` ohne Build-Schritt umgesetzt und wird vom FastAPI Backend als statische Datei ausgeliefert.
+
+#### Aufbau und Auslieferung
+
+Das Frontend liegt unter `app/backend/static/index.html`. FastAPI bindet das Verzeichnis über einen StaticFiles Mount ein:
+
+```python
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
+```
+
+Wichtig ist die Reihenfolge: Der Mount wird nach allen API Routen registriert. Sonst würde er die Pfade `/api/...`, `/healthz` und `/ready` abfangen. So liefert das Backend unter `/` das Frontend und unter `/api/...` die Daten, beides aus demselben Container.
+
+#### Technische Wahl: kein Frontend Framework
+
+Die Oberfläche kommt mit reinem HTML, CSS und Vanilla JavaScript aus. Auf React, Vue oder einen Build-Schritt wurde bewusst verzichtet, weil:
+
+- kein zweiter Container und kein npm Build im CI nötig ist,
+- die Auslieferung über StaticFiles trivial bleibt,
+- der Fokus der Arbeit auf der Plattform liegt, nicht auf dem Frontend Stack.
+
+Für die Diagramme wird Chart.js über ein CDN eingebunden, ebenfalls ohne Build.
+
+#### Funktionen
+
+| Funktion | Umsetzung |
+| --- | --- |
+| Übersicht | Grid aus Karten, eine pro beobachtetes Objekt |
+| Suche | Eingabefeld filtert die Karten clientseitig live nach Name |
+| Aktueller Preis | Karte zeigt neusten Preis und prozentuale Änderung zum Vorwert |
+| Bilder | Echte Skin Bilder vom Steam CDN (siehe unten) |
+| Verlauf | Klick auf eine Karte öffnet ein Diagramm mit der Preishistorie |
+| Aktualisieren | Button löst `POST /api/prices/refresh` aus und lädt neu |
+
+Die prozentuale Änderung und der Verlauf werden aus `GET /api/prices/history` berechnet. Steigt der Preis, wird die Änderung grün dargestellt, fällt er, rot.
+
+#### Echte Skin Bilder
+
+Die Item Bilder stammen vom offiziellen Steam CDN. Jeder Skin hat einen `icon_url` Hash, der aus der Steam Market API gewonnen und in der Preisquelle hinterlegt ist. Die Bild URL wird daraus gebaut:
+
+```
+https://community.cloudflare.steamstatic.com/economy/image/<icon_url>/360fx360f
+```
+
+Das Bild lädt der Browser direkt vom Steam CDN. Die Preise selbst sind in dieser Ausbaustufe noch Mock Werte (plausible Schwankung um einen realistischen Basispreis), siehe Abschnitt zur Preisquelle. Die Umstellung auf echte Steam Preise ist ein separater Schritt und ändert nur die Preisquelle, nicht das Frontend.
+
+#### Farbcodierung nach Seltenheit
+
+Die Akzentfarbe pro Karte entspricht der Seltenheitsfarbe des Skins aus der Steam Market API (`name_color`). Damit greift das Frontend die im CS2 Umfeld etablierte Farbsemantik auf, statt einer generischen Akzentfarbe.
+
+#### Lokale Verifikation
+
+```bash
+cd app/backend
+export DATABASE_PATH=./prices.db
+uvicorn main:app --reload --port 8000
+```
+![Frontend lokal](./img/lokalpreis1.png)
+
+Browser auf `http://localhost:8000/` öffnen. Beim ersten Start ist die Übersicht leer. Ein Klick auf "Preise aktualisieren" ruft die Preisquelle ab und füllt das Grid. Mehrmaliges Aktualisieren erzeugt einen Verlauf, der im Detaildiagramm sichtbar wird.
+
+Die API bleibt unter `http://localhost:8000/api/prices` und die OpenAPI Doku unter `http://localhost:8000/docs` erreichbar.
+
+![Frontend lokal Preise](./img/lokalpreis2.png)
