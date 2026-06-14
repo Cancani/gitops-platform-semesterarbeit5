@@ -1,6 +1,6 @@
 <div align="center">
 
-**GitOps Plattform mit Preisüberwachungs WebApp, Cloud Native Deployment auf Kubernetes mit Helm, Argo CD und GitHub Actions**
+GitOps Plattform mit Preisüberwachungs WebApp, Cloud Native Deployment auf Kubernetes mit Helm, Argo CD und GitHub Actions
 
 <p>
 <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
@@ -27,9 +27,9 @@ Die laufende Projektdokumentation ist auf GitHub Pages verfügbar:
 | Dokument | Inhalt |
 | --- | --- |
 | [Dokumentation](dokumentation.md) | Hauptdokument, alle Kapitel von Management Summary bis Reflexion |
-| [Runbook 01: Plattform Initial Setup](runbooks/01_plattform_initial_setup.md) | Cluster und Argo CD initial aufbauen |
-| [Runbook 02: Neue Version deployen](runbooks/02_neue_version_deployen.md) | Standard GitOps Release Workflow |
-| [Runbook 03: Rollback Release](runbooks/03_rollback_release.md) | Rollback eines fehlerhaften Releases |
+| Runbook 01: Plattform Initial Setup | Cluster und Argo CD initial aufbauen (folgt in Sprint 3, US13) |
+| Runbook 02: Neue Version deployen | Standard GitOps Release Workflow (folgt in Sprint 3, US13) |
+| Runbook 03: Rollback Release | Rollback eines fehlerhaften Releases (folgt in Sprint 3, US13) |
 
 ---
 
@@ -45,9 +45,9 @@ Diese Semesterarbeit baut eine kleine, aber realistische Cloud Native Plattform 
 
 | Sprint | Wochen | Sprint Ziel | Status |
 | --- | --- | --- | --- |
-| Sprint 1 | 1 bis 3 | Setup, Cluster, WebApp Skelett, Container | ![status](https://img.shields.io/badge/in__progress-yellow?style=flat-square) |
-| Sprint 2 | 4 bis 6 | GitOps Durchstich (CI, Helm, Argo CD) | ![status](https://img.shields.io/badge/planned-lightgrey?style=flat-square) |
-| Sprint 3 | 7 bis 9 | Stabilisierung, Runbooks, Doku, Demo | ![status](https://img.shields.io/badge/planned-lightgrey?style=flat-square) |
+| Sprint 1 | 1 bis 3 | Setup, Cluster, WebApp Skelett, Container | ![status](https://img.shields.io/badge/done-brightgreen?style=flat-square) |
+| Sprint 2 | 4 bis 6 | GitOps Durchstich (CI, Helm, Argo CD) | ![status](https://img.shields.io/badge/done-brightgreen?style=flat-square) |
+| Sprint 3 | 7 bis 9 | Stabilisierung, Runbooks, Doku, Demo | ![status](https://img.shields.io/badge/in__progress-yellow?style=flat-square) |
 
 ---
 
@@ -81,9 +81,9 @@ flowchart LR
 | Registry | GitHub Container Registry (ghcr.io) |
 | Backend | Python 3.12, FastAPI |
 | Frontend | minimales HTML mit Chart.js |
-| Datenbank | SQLite mit PVC |
-| Job Scheduling | Kubernetes CronJob für regelmässigen Preisabruf |
-| Quelle Preisdaten | öffentliche Preis API mit Testdaten Fallback |
+| Datenbank | SQLite (PVC folgt in Sprint 3) |
+| Job Scheduling | Kubernetes CronJob für regelmässigen Preisabruf (folgt in Sprint 3) |
+| Quelle Preisdaten | Mock Preisquelle mit echten Steam CDN Bildern, echte API folgt |
 | Doku | MkDocs Material auf GitHub Pages |
 
 ---
@@ -124,55 +124,63 @@ sequenceDiagram
 ├── docs/                           # gesamte Doku, wird zur Pages Seite
 │   ├── index.md                    # diese Startseite
 │   ├── dokumentation.md            # Hauptdokument der Semesterarbeit
-│   ├── runbooks/                   # drei Runbooks
-│   ├── architektur/                # Diagramme und ADRs
-│   └── screenshots/                # Nachweise und Belege
+│   ├── runbooks/                   # drei Runbooks (folgt Sprint 3)
+│   └── img/                        # Screenshots und Abbildungen
 ├── app/
-│   ├── backend/                    # FastAPI Service: API, Preisabruf, DB Zugriff
-│   └── frontend/                   # einfache Weboberfläche
-├── docker/
-│   └── Dockerfile                  # Image Definition WebApp
+│   └── backend/                    # FastAPI Service: API, Preisabruf, DB Zugriff
+│       ├── main.py                 # FastAPI Anwendung
+│       ├── database.py             # SQLite Datenzugriff
+│       ├── models.py               # Pydantic Modelle
+│       ├── pricesource.py          # Preisquelle (Mock mit Steam CDN Bildern)
+│       ├── requirements.txt        # Python Abhängigkeiten
+│       ├── Dockerfile              # Multi-Stage Container Build
+│       └── static/                 # Frontend (index.html mit Chart.js)
 ├── helm/
 │   └── price-watch/                # Helm Chart der WebApp
-├── argocd/
-│   └── price-watch-app.yaml        # Argo CD Application Definition
+├── app/argocd/
+│   └── price-watch.app.yaml        # Argo CD Application Definition
+├── kind/
+│   └── cluster.yaml                # kind Cluster Konfiguration
 ├── .github/
 │   ├── workflows/
 │   │   ├── ci.yaml                 # Build und Push in Registry
 │   │   └── docs.yaml               # MkDocs Build und Pages Deploy
-│   ├── ISSUE_TEMPLATE/             # User Story, Task, Bug Templates
-│   └── PULL_REQUEST_TEMPLATE.md
-├── tests/                          # Unit Tests, Smoke Tests
+│   └── ISSUE_TEMPLATE/             # User Story Templates
 └── scripts/
     ├── setup-cluster.sh            # kind Cluster aufsetzen
-    └── bootstrap-argocd.sh         # Argo CD installieren
+    ├── setup-argocd.sh             # Argo CD installieren
+    └── teardown-cluster.sh         # Cluster abbauen
 ```
 
 ---
 
 ## Quick Start, lokales Setup
 
-Voraussetzungen: Docker, kubectl, Helm, kind, Git, Visual Studio Code.
+Voraussetzungen: Docker, kubectl, Helm, kind, Git.
 
 ```bash
 # 1. Repository klonen
 git clone https://github.com/Cancani/gitops-platform-semesterarbeit5.git
 cd gitops-platform-semesterarbeit5
 
-# 2. lokalen Cluster bauen
-./scripts/setup-cluster.sh
+# 2. Lokalen Cluster bauen
+bash scripts/setup-cluster.sh
 kubectl get nodes                     # erwartet: 2 Nodes Ready
 
-# 3. Argo CD installieren und initiale Application erstellen
-./scripts/bootstrap-argocd.sh
-kubectl -n argocd port-forward svc/argocd-server 8080:443
+# 3. Argo CD installieren
+bash scripts/setup-argocd.sh
 
-# 4. Status prüfen
-kubectl get applications -n argocd
-kubectl get pods -n price-watch
+# 4. Argo CD Application registrieren
+kubectl apply -f app/argocd/price-watch.app.yaml
+
+# 5. Argo CD UI aufrufen (Port Forward offen lassen)
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+# Browser: https://localhost:8080
+
+# 6. Status prüfen
+kubectl get application -n argocd price-watch
+kubectl get pods
 ```
-
-Eine vollständige Schritt für Schritt Anleitung mit Screenshots befindet sich im [Runbook 01: Plattform Initial Setup](runbooks/01_plattform_initial_setup.md).
 
 ---
 
@@ -183,7 +191,7 @@ Die 4. Semesterarbeit ist als Referenzprojekt verlinkt und dient als Nachweis f�
 - **Dokumentation Sem 4:** [https://cancani.com/geraeteausleihe-sem4/dokumentation/](https://cancani.com/geraeteausleihe-sem4/dokumentation/)
 - **Projektseite Sem 4:** [https://cancani.com/geraeteausleihe-sem4](https://cancani.com/geraeteausleihe-sem4)
 
-Die neue Semesterarbeit ist keine Wiederholung, sondern eine fachliche Erweiterung in Richtung Kubernetes, GitOps, Helm, Argo CD und Cloud Native Plattform Engineering. Details und Lerntransfer siehe [Dokumentation Kapitel 12](dokumentation.md#12-lerntransfer-aus-fruherer-semesterarbeit).
+Die neue Semesterarbeit ist keine Wiederholung, sondern eine fachliche Erweiterung in Richtung Kubernetes, GitOps, Helm, Argo CD und Cloud Native Plattform Engineering. Details und Lerntransfer sind in der [Dokumentation](dokumentation.md) im Abschnitt Reflexion beschrieben.
 
 ---
 
