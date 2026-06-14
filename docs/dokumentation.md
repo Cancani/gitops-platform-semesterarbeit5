@@ -71,8 +71,7 @@
         - [Less of (weniger davon)](#less-of-weniger-davon-1)
         - [Aktionen für Sprint 3](#aktionen-für-sprint-3)
         - [Risikobewertung am Sprint 2 Ende](#risikobewertung-am-sprint-2-ende)
-      - [3.6.7 Sprint 3 Planung](#367-sprint-3-planung)
-      - [Sprint 3 Review](#sprint-3-review)
+      - [Sprint 3 Planung](#sprint-3-planung)
       - [3.6.9 Sprint 3 Retrospektive](#369-sprint-3-retrospektive)
     - [Branching Strategie](#branching-strategie)
     - [Repository Strategie: Monorepo](#repository-strategie-monorepo)
@@ -799,23 +798,24 @@ Die Retrospektive folgt dem Starfish Modell. Beobachtungen aus Sprint 2 werden i
 
 ---
 
-#### 3.6.7 Sprint 3 Planung
+#### Sprint 3 Planung
 
 **Sprint Zeitraum**
 
-Woche 7 bis 9 der Semesterarbeit.
+Woche 7 bis 9 der Semesterarbeit, 14.06.2026 bis 08.07.2026.
 
 **Sprint Ziel**
 
-Plattform und Dokumentation sind prüfbar abgeschlossen. Rollback Szenario ist nachgewiesen, Runbooks sind getestet, Tests laufen in der Pipeline, alle Doku Bestandteile sind vollständig. Schlussdemo ist vorbereitet.
+Plattform und Dokumentation sind prüfbar abgeschlossen. Helm Chart ist mit PVC und CronJob vollständig, Rollback Szenario ist live nachgewiesen, drei Runbooks sind getestet und auf Pages sichtbar, Tests und Lint laufen automatisiert in der Pipeline, alle Doku-Bestandteile sind komplett. Die Schlussdemo ist vorbereitet und generalprobt.
 
 **Sprint 3 Scope**
 
-- Rollback Szenario praktisch durchführen und dokumentieren
-- Drei Runbooks finalisieren und testen
-- Pipeline um Tests und Lint Schritte erweitern
-- Architekturdiagramme, Quellen, Abbildungsverzeichnis, Glossar finalisieren
-- Management Summary, Reflexion und Demo Skript schreiben
+- Helm Chart um PVC, ConfigMap und CronJob erweitern (US09 Abschluss)
+- Rollback Szenario praktisch durchführen und in Runbook 03 dokumentieren
+- Drei Runbooks erstellen, testen und in MkDocs Navigation einbinden
+- CI Pipeline um pytest, ruff, helm lint und kubectl dry-run erweitern
+- Vier Mermaid Architekturdiagramme, Quellenverzeichnis, Abbildungsverzeichnis und Glossar finalisieren
+- Management Summary finalisieren, Reflexion und Demo Skript schreiben
 - Generalprobe der Schlussdemo
 
 ![Sprint 3: Milestone und Issues](./img/image-3.png)
@@ -835,51 +835,65 @@ Plattform und Dokumentation sind prüfbar abgeschlossen. Rollback Szenario ist n
 
 **Geplanter Aufwand Sprint 3:** **12 Story Points**
 
+Sprint 3 schliesst die Plattform ab und fokussiert auf Nachweisbarkeit und Dokumentation. US09 (Helm Chart PVC und CronJob) wird als technische Grundlage zu Beginn von Sprint 3 fertiggestellt, bevor die Runbooks und der Rollback-Nachweis erarbeitet werden.
+
+**Abhängigkeiten zwischen den Stories**
+
+US13 und US12 sind direkt verknüpft: Runbook 03 (Rollback) enthält den Nachweis aus US12. Beide werden daher parallel erarbeitet. US15 und US16 laufen in der letzten Woche parallel, da US16 auf einem vollständigen technischen Stand aufbaut.
+
 **WIP Regel**
 
-In Progress maximal 2 parallel laufende Issues. Doku Stories (US15, US16) laufen parallel zu den technischen Stories.
+In Progress maximal 2 parallel laufende Issues. US12 und US13 laufen in Woche 8 gleichzeitig. US15 und US16 laufen in Woche 9 gleichzeitig.
+
+**Empfohlene Reihenfolge**
+
+| Woche | Stories | Fokus |
+| --- | --- | --- |
+| Woche 7 (14.06 bis 22.06) | US09 Abschluss, US14 | PVC und CronJob, Tests und Lint in CI |
+| Woche 8 (23.06 bis 29.06) | US12, US13 | Rollback Szenario, drei Runbooks |
+| Woche 9 (30.06 bis 08.07) | US15, US16 | Doku Abschluss, Reflexion, Generalprobe |
+
+**Runbooks Übersicht (US13)**
+
+| Runbook | Titel | Anwendungsfall |
+| --- | --- | --- |
+| RB-01 | Plattform Initial Setup | Cluster und Argo CD von Null aufsetzen, price-watch deployen |
+| RB-02 | Neue Version deployen via Git Commit | Code ändern, PR mergen, CI und Argo CD beobachten |
+| RB-03 | Rollback eines fehlerhaften Releases | Fehlerhafter Commit auf main, git revert, Cluster erholt sich automatisch |
+
+Jedes Runbook enthält: Voraussetzungen, Schritt-für-Schritt-Anleitung, Erfolgskriterium und Nachweis. Alle drei Runbooks werden mindestens einmal live durchgespielt und in `docs/runbooks/` abgelegt.
+
+**Tests und Lint in der CI Pipeline (US14)**
+
+Die bestehende CI Pipeline (`ci.yaml`) wird um folgende Schritte erweitert, die vor dem Image-Build laufen:
+
+| Schritt | Tool | Zweck |
+| --- | --- | --- |
+| Lint | ruff | Python Code Qualität und Format |
+| Tests | pytest mit httpx | Vier Endpoint-Tests gegen die FastAPI App |
+| Helm Lint | helm lint | Statische Prüfung des Helm Charts |
+| Kubernetes Dry-Run | kubectl apply --dry-run=client | Valides Manifest aus dem Helm Output |
+
+Ein fehlgeschlagener Schritt verhindert den Image-Build. Damit ist die Pipeline ein vollständiges Build → Test → Lint → Push Konstrukt. Mindestens ein roter und ein grüner Lauf werden als Screenshot dokumentiert.
 
 **Evidence Standard für Sprint 3**
 
 Für Sprint 3 werden mindestens folgende Nachweise geplant:
 
-- Screenshot bad Commit, der CrashLoopBackoff verursacht
-- Screenshot `git log` mit Revert Commit
-- Screenshot Argo CD History und Rollback Ansicht
-- Screenshot Pods vor und nach Rollback
-- Drei Runbooks unter `docs/runbooks/` final und auf Pages sichtbar
-- Screenshot CI Pipeline mit allen Test- und Lint Steps grün
-- Screenshot fehlgeschlagener Pipeline Lauf mit nachfolgender Korrektur
+- Screenshot `kubectl get pods` und `kubectl get cronjob` mit laufendem CronJob
+- Screenshot CronJob Ausführung und Preis-Update im Frontend ohne manuellen Trigger
+- Screenshot bad Commit der CrashLoopBackOff oder ImagePullBackOff verursacht
+- Screenshot `git log` mit dem Revert Commit und dem dazugehörigen SHA
+- Screenshot Argo CD History mit Sync vor und nach dem Rollback
+- Screenshot `kubectl get pods` vor und nach dem Rollback
+- Drei Runbooks unter `docs/runbooks/` auf Pages sichtbar mit URL
+- Screenshot CI Pipeline mit allen Steps grün (Lint, Tests, Helm Lint, Dry-Run, Build, Push)
+- Screenshot eines fehlgeschlagenen Lint oder Test Laufs mit nachfolgender Korrektur
+- Vier Mermaid Diagramme in der Doku auf Pages sichtbar
 - Vollständiges Quellenverzeichnis und Abbildungsverzeichnis
-- Generalprobe Notizen oder Demo Video Recording
+- Demo Skript oder Generalprobe Notizen
 
----
 
-#### Sprint 3 Review
-
-**Review Ergebnis**
-
-_Wird nach Abschluss von Sprint 3 ergänzt._
-
-| Review Punkt | Ergebnis |
-| --- | --- |
-| Rollback durchgeführt und dokumentiert | _offen_ |
-| Drei Runbooks vollständig | _offen_ |
-| Tests und Lint in Pipeline | _offen_ |
-| Doku vollständig und auf Pages aktuell | _offen_ |
-| Schlussdemo Skript fertig und einmal generalprobenweise durchgespielt | _offen_ |
-
-**Umgesetzter Aufwand:** _X von 12 Story Points_
-
-_Platzhalter Abbildung: Abgeschlossene Tasks in Sprint 3_
-
-**Board und Planung**
-
-_Platzhalter Abbildung: Project Board Sprint 3_
-
-**Offene Punkte und nächste Schritte**
-
-_Wird am Sprint Ende ausgefüllt: was bleibt offen, was wird bei der Abgabe nachgereicht, was ist Ausblick für eine mögliche Sem 6._
 
 ---
 
