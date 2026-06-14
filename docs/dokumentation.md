@@ -72,7 +72,7 @@
         - [Aktionen für Sprint 3](#aktionen-für-sprint-3)
         - [Risikobewertung am Sprint 2 Ende](#risikobewertung-am-sprint-2-ende)
       - [Sprint 3 Planung](#sprint-3-planung)
-      - [3.6.9 Sprint 3 Retrospektive](#369-sprint-3-retrospektive)
+      - [Sprint 3 Retrospektive](#sprint-3-retrospektive)
     - [Branching Strategie](#branching-strategie)
     - [Repository Strategie: Monorepo](#repository-strategie-monorepo)
     - [Definition of Done](#definition-of-done)
@@ -897,7 +897,7 @@ Für Sprint 3 werden mindestens folgende Nachweise geplant:
 
 ---
 
-#### 3.6.9 Sprint 3 Retrospektive
+#### Sprint 3 Retrospektive
 
 _Platzhalter Abbildung: Starfish Retrospektive Sprint 3_
 
@@ -1280,11 +1280,11 @@ Die ADRs sind versioniert und werden im Verlauf der Arbeit ergänzt, wenn neue E
 
 | ADR | Titel |
 | --- | --- |
-| [ADR-001](#42-adr-001-fastapi-statt-flask-für-das-backend) | FastAPI statt Flask für das Backend |
-| [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube) | Lokaler Cluster mit kind statt minikube |
-| [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank) | SQLite statt PostgreSQL als Datenbank |
-| [ADR-004](#45-adr-004-monorepo-statt-multi-repo) | Monorepo statt Multi Repo |
-| [ADR-005](#46-adr-005-squash-merge-statt-merge-commit) | Squash Merge statt Merge Commit | 
+| [ADR-001](#adr-001-fastapi-statt-flask-für-das-backend) | FastAPI statt Flask für das Backend |
+| [ADR-002](#adr-002-lokaler-cluster-mit-kind-statt-minikube) | Lokaler Cluster mit kind statt minikube |
+| [ADR-003](#adr-003-sqlite-statt-postgresql-als-datenbank) | SQLite statt PostgreSQL als Datenbank |
+| [ADR-004](#adr-004-monorepo-statt-multi-repo) | Monorepo statt Multi Repo |
+| [ADR-005](#adr-005-squash-merge-statt-merge-commit) | Squash Merge statt Merge Commit | 
 
 ### ADR-001: FastAPI statt Flask für das Backend
 
@@ -1588,7 +1588,7 @@ Dieses Kapitel beschreibt die technische Umsetzung der Plattform: vom lokalen Cl
 
 ### Lokaler Cluster mit kind
 
-Der lokale Kubernetes Cluster wird mit kind aufgesetzt. Die Wahl von kind gegenüber minikube, k3s und k3d ist in [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube) dokumentiert.
+Der lokale Kubernetes Cluster wird mit kind aufgesetzt. Die Wahl von kind gegenüber minikube, k3s und k3d ist in [ADR-002](#adr-002-lokaler-cluster-mit-kind-statt-minikube) dokumentiert.
 
 #### Cluster Topologie
 
@@ -1655,9 +1655,9 @@ Sind beide Nodes `Ready`, ist das Messkriterium aus Ziel 1 (Kapitel 2.3) erfüll
 
 ### Backend Anwendung (FastAPI)
 
-Das Backend wird als FastAPI Anwendung implementiert. Die Wahl von FastAPI gegenüber Flask ist in [ADR-001](#42-adr-001-fastapi-statt-flask-für-das-backend) dokumentiert.
+Das Backend wird als FastAPI Anwendung implementiert. Die Wahl von FastAPI gegenüber Flask ist in [ADR-001](#adr-001-fastapi-statt-flask-für-das-backend) dokumentiert.
 
-In Sprint 1 (US04) wird das Backend als minimales Skelett aufgebaut, das die spätere Plattform Integration ermöglicht (Health Probes, OpenAPI Schema), aber noch keine fachliche Logik enthält. Preisabruf, Persistenz und CronJob Anbindung folgen in Sprint 2.
+In Sprint 1 (US04) wurde das Backend als minimales Skelett aufgebaut, das die Plattform Integration ermöglicht (Health Probes, OpenAPI Schema). In Sprint 2 wurde die Anwendungslogik mit Pydantic Modellen, SQLite Persistenz und der Preisquelle erweitert (US06, US07).
 
 #### Projektstruktur
 
@@ -1669,7 +1669,7 @@ Der Backend Code liegt unter `app/backend/`:
 | `app/backend/requirements.txt` | Python Abhängigkeiten mit Versionsranges |
 | `app/backend/README.md` | Setup Anleitung für lokale Entwicklung |
 
-Die Trennung in `app/backend/` reflektiert die Monorepo Struktur (siehe [ADR-004](#45-adr-004-monorepo-statt-multi-repo)) und macht die Helm Chart Konfiguration in Sprint 2 für die jeweilige Komponente eindeutig adressierbar.
+Die Trennung in `app/backend/` reflektiert die Monorepo Struktur (siehe [ADR-004](#adr-004-monorepo-statt-multi-repo)) und macht die Helm Chart Konfiguration eindeutig adressierbar.
 
 #### Endpoints im Skelett
 
@@ -1705,7 +1705,7 @@ Der Server reagiert auf Code-Änderungen mit Auto-Reload, was die Iteration beim
 Die beiden Health Endpoints werden in Sprint 2 als Kubernetes Liveness und Readiness Probes im Helm Chart konfiguriert:
 
 - `/healthz` antwortet, solange der FastAPI Prozess lebt. Wird von Kubernetes verwendet, um abgestürzte Pods neu zu starten (Liveness Probe).
-- `/ready` antwortet, sobald der Service Anfragen annehmen kann. Im Skelett immer "ready", in Sprint 2 wird hier zusätzlich die SQLite Verbindung geprüft (siehe [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank)). Diese Probe entscheidet, ob ein Pod Traffic vom Service erhält (Readiness Probe).
+- `/ready` antwortet, sobald der Service Anfragen annehmen kann. Die Readiness Probe prüft zusätzlich die SQLite Datenbankverbindung (siehe [ADR-003](#adr-003-sqlite-statt-postgresql-als-datenbank)). Diese Probe entscheidet, ob ein Pod Traffic vom Service erhält.
 
 Die Trennung in zwei Probes folgt der Kubernetes Best Practice und vermeidet, dass langsame Initialisierungen (zum Beispiel ein Schema-Load in Sprint 2) zu falschen Pod Restarts führen.
 
@@ -1714,7 +1714,7 @@ Die Trennung in zwei Probes folgt der Kubernetes Best Practice und vermeidet, da
 
 ### Containerisierung (Dockerfile)
 
-Das FastAPI Backend wird als Container Image paketiert, das später per CI Pipeline gebaut und in die GitHub Container Registry (GHCR) gepusht wird (siehe Sprint 2, US14). Das Dockerfile liegt unter `app/backend/Dockerfile`.
+Das FastAPI Backend wird als Container Image paketiert und über die CI Pipeline gebaut und in die GitHub Container Registry (GHCR) gepusht (Sprint 2, US08). Das Dockerfile liegt unter `app/backend/Dockerfile`.
 
 #### Multi-Stage Build
 
@@ -1796,7 +1796,7 @@ docker images price-watch-backend
 
 #### Image in kind Cluster laden
 
-Solange noch keine CI Pipeline existiert (kommt in Sprint 2, US14), kann das lokal gebaute Image direkt in den kind Cluster geladen werden (siehe [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube)):
+Für lokale Tests vor der CI Pipeline kann das lokal gebaute Image direkt in den kind Cluster geladen werden (siehe [ADR-002](#adr-002-lokaler-cluster-mit-kind-statt-minikube)):
 
 ```bash
 kind load docker-image price-watch-backend:dev --name gitops-platform
@@ -1809,7 +1809,7 @@ Damit ist das Image im Cluster verfügbar, ohne über eine Registry gehen zu mü
 
 ### Helm Chart
 
-Das Backend wird über ein Helm Chart in den Kubernetes Cluster deployed. Das Chart liegt unter `helm/price-watch/`. In Sprint 2 (US06) wird die Skelett-Version mit Deployment und Service aufgebaut. PVC, ConfigMap und CronJob für die SQLite Persistenz folgen in US07.
+Das Backend wird über ein Helm Chart in den Kubernetes Cluster deployed. Das Chart liegt unter `helm/price-watch/`. In Sprint 2 (US09) wurde das Chart mit Deployment, Service und Security Context aufgebaut. ConfigMap, PVC und CronJob folgen in Sprint 3 als Abschluss von US09.
 
 #### Chart Struktur
 
@@ -1839,8 +1839,8 @@ Die `values.yaml` Datei enthält alle Parameter, die per `--values` Datei, `--se
 
 Bewusste Voreinstellungen:
 
-- `replicaCount: 1`: Single Replica wegen SQLite Single Writer (siehe [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank)). Skalierung würde eine Multi-Pod taugliche DB voraussetzen.
-- `image.pullPolicy: IfNotPresent`: Für lokale Tests via `kind load docker-image`. Beim Wechsel auf GHCR in US10 wird das auf `Always` umgestellt.
+- `replicaCount: 1`: Single Replica wegen SQLite Single Writer (siehe [ADR-003](#adr-003-sqlite-statt-postgresql-als-datenbank)). Skalierung würde eine Multi-Pod taugliche DB voraussetzen.
+- `image.pullPolicy: Always`: Die CI Pipeline setzt pullPolicy automatisch auf Always, da das Image von GHCR gezogen wird (seit US08).
 - `service.nodePort: 30080`: Matched die `extraPortMappings` in `kind/cluster.yaml`, damit das Backend ohne Ingress Controller vom Host erreichbar ist.
 
 #### Health Probes Konfiguration
@@ -2121,7 +2121,7 @@ Die Application ist in `app/argocd/price-watch.app.yaml` deklariert:
 | --- | --- | --- |
 | `source.repoURL` | Repository URL | Beobachtetes Git Repository |
 | `source.targetRevision` | `main` | Beobachteter Branch |
-| `source.path` | `helm/price-watch` | Pfad zum Helm Chart im Monorepo (siehe [ADR-004](#45-adr-004-monorepo-statt-multi-repo)) |
+| `source.path` | `helm/price-watch` | Pfad zum Helm Chart im Monorepo (siehe [ADR-004](#adr-004-monorepo-statt-multi-repo)) |
 | `destination.server` | `https://kubernetes.default.svc` | Ziel-Cluster (lokaler Cluster) |
 | `destination.namespace` | `default` | Ziel-Namespace für die Anwendung |
 
@@ -2155,7 +2155,7 @@ Erwartetes Ergebnis nach 1 bis 2 Minuten: `SYNC STATUS: Synced`, `HEALTH STATUS:
 
 
 
-####  Der vollständige GitOps Loop
+#### Der vollständige GitOps Loop
 
 Mit der Application ist der Loop geschlossen. Eine Code-Änderung durchläuft folgende Stationen vollautomatisch:
 
@@ -2170,7 +2170,7 @@ Mit der Application ist der Loop geschlossen. Eine Code-Änderung durchläuft fo
 
 Kein manuelles `kubectl` oder `helm` ist nach dem Merge mehr nötig. Der Soll-Zustand im Git Repository wird automatisch zum Ist-Zustand im Cluster.
 
-####  Verifikation
+#### Verifikation
 
 ```bash
 # Application Status
