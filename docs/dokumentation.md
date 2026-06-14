@@ -13,148 +13,7 @@
 | Geplanter Aufwand | ca. 50 Stunden über 9 Wochen |
 | Repository | https://github.com/Cancani/gitops-platform-semesterarbeit5 |
 | Pages | https://cancani.com/gitops-platform-sem5/ |
-| Version | 0.2, Stand nach Kickoff Anpassung |
 
-## Inhaltsverzeichnis
-
-- [Semesterarbeit 5: Aufbau einer GitOps basierten Kubernetes Plattform mit Preisüberwachungs WebApp](#semesterarbeit-5-aufbau-einer-gitops-basierten-kubernetes-plattform-mit-preisüberwachungs-webapp)
-  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
-  - [Management Summary](#management-summary)
-  - [Einleitung](#einleitung)
-    - [Ausgangslage](#ausgangslage)
-    - [Zielgruppe](#zielgruppe)
-    - [Zielsetzung und Messkriterien](#zielsetzung-und-messkriterien)
-    - [SMART Ziele](#smart-ziele)
-    - [Abgrenzung](#abgrenzung)
-    - [Themenfeldabdeckung](#themenfeldabdeckung)
-  - [Projektmanagement](#projektmanagement)
-    - [Projektmethodik](#projektmethodik)
-    - [Sprintstruktur im Detail](#sprintstruktur-im-detail)
-    - [Projektphasen und Meilensteine](#projektphasen-und-meilensteine)
-    - [Anpassung der Projektdauer nach Kickoff Präsentation](#anpassung-der-projektdauer-nach-kickoff-präsentation)
-    - [Issues und User Stories](#issues-und-user-stories)
-      - [Standards pro Issue](#standards-pro-issue)
-      - [Project Board Felder](#project-board-felder)
-      - [Board Workflow](#board-workflow)
-      - [Aufwandsschätzung und Story Points](#aufwandsschätzung-und-story-points)
-      - [Verwendete Story-Point-Skala](#verwendete-story-point-skala)
-      - [Priorisierung](#priorisierung)
-    - [Sprint Planungen, Reviews und Retrospektiven](#sprint-planungen-reviews-und-retrospektiven)
-      - [Sprint 1 Planung](#sprint-1-planung)
-        - [Erledigte User Stories](#erledigte-user-stories)
-      - [Sprint 1 Review](#sprint-1-review)
-        - [Erledigte User Stories](#erledigte-user-stories-1)
-        - [Demo-fähige Artefakte](#demo-fähige-artefakte)
-        - [Definition of Done Check](#definition-of-done-check)
-        - [Zielerreichung gegen SMART Tabelle](#zielerreichung-gegen-smart-tabelle)
-        - [Stakeholder Abnahme](#stakeholder-abnahme)
-      - [Sprint 1 Retrospektive](#sprint-1-retrospektive)
-        - [Keep (lief gut)](#keep-lief-gut)
-        - [Stop (sollte nicht mehr passieren)](#stop-sollte-nicht-mehr-passieren)
-        - [Start (sollte ab jetzt gemacht werden)](#start-sollte-ab-jetzt-gemacht-werden)
-        - [More of (mehr davon)](#more-of-mehr-davon)
-        - [Less of (weniger davon)](#less-of-weniger-davon)
-        - [Risikobewertung am Sprint 1 Ende (siehe Risikomatrix)](#risikobewertung-am-sprint-1-ende-siehe-risikomatrix)
-      - [Sprint 2 Planung](#sprint-2-planung)
-      - [3.6.5 Sprint 2 Review](#365-sprint-2-review)
-      - [3.6.6 Sprint 2 Retrospektive](#366-sprint-2-retrospektive)
-      - [3.6.7 Sprint 3 Planung](#367-sprint-3-planung)
-      - [Sprint 3 Review](#sprint-3-review)
-      - [3.6.9 Sprint 3 Retrospektive](#369-sprint-3-retrospektive)
-    - [Branching Strategie](#branching-strategie)
-    - [Repository Strategie: Monorepo](#repository-strategie-monorepo)
-    - [Definition of Done](#definition-of-done)
-    - [SWOT Analyse](#swot-analyse)
-      - [Stärken](#stärken)
-      - [Schwächen](#schwächen)
-      - [Chancen](#chancen)
-      - [Risiken](#risiken)
-      - [Fazit der SWOT Analyse](#fazit-der-swot-analyse)
-  - [Use Case Diagramm](#use-case-diagramm)
-    - [Akteure](#akteure)
-    - [Use Case Diagramm](#use-case-diagramm-1)
-    - [Use Cases im Detail](#use-cases-im-detail)
-      - [UC1: Code oder Helm Werte ändern](#uc1-code-oder-helm-werte-ändern)
-      - [UC2: Image bauen und pushen](#uc2-image-bauen-und-pushen)
-      - [UC3: Doku auf Pages bereitstellen](#uc3-doku-auf-pages-bereitstellen)
-      - [UC4: Sync aus Repository auf Cluster](#uc4-sync-aus-repository-auf-cluster)
-      - [UC5: Rollback per Git Revert](#uc5-rollback-per-git-revert)
-      - [UC6: Aktuelle Preise abrufen](#uc6-aktuelle-preise-abrufen)
-      - [UC7: Preisverlauf anzeigen](#uc7-preisverlauf-anzeigen)
-      - [UC8: Preise regelmässig abrufen](#uc8-preise-regelmässig-abrufen)
-      - [UC9: Plattform Status prüfen](#uc9-plattform-status-prüfen)
-    - [Geschäftsregeln und technische Constraints](#geschäftsregeln-und-technische-constraints)
-  - [Risikomatrix](#risikomatrix)
-    - [Achsenbeschreibung](#achsenbeschreibung)
-    - [Farbbedeutung](#farbbedeutung)
-    - [Risiken im Detail](#risiken-im-detail)
-    - [Einordnung in die Risikomatrix](#einordnung-in-die-risikomatrix)
-    - [Risikobehandlung über die Sprints](#risikobehandlung-über-die-sprints)
-    - [Fazit zur Risikomatrix](#fazit-zur-risikomatrix)
-    - [Status am Projektende](#status-am-projektende)
-  - [Architekturentscheide (ADRs)](#architekturentscheide-adrs)
-    - [ADR Übersicht](#adr-übersicht)
-    - [ADR-001: FastAPI statt Flask für das Backend](#adr-001-fastapi-statt-flask-für-das-backend)
-    - [ADR-002: Lokaler Cluster mit kind statt minikube](#adr-002-lokaler-cluster-mit-kind-statt-minikube)
-    - [ADR-003: SQLite statt PostgreSQL als Datenbank](#adr-003-sqlite-statt-postgresql-als-datenbank)
-    - [ADR-004: Monorepo statt Multi Repo](#adr-004-monorepo-statt-multi-repo)
-    - [ADR-005: Squash Merge statt Merge Commit](#adr-005-squash-merge-statt-merge-commit)
-  - [Plattformaufbau](#plattformaufbau)
-    - [Lokaler Cluster mit kind](#lokaler-cluster-mit-kind)
-      - [Cluster Topologie](#cluster-topologie)
-      - [Voraussetzungen](#voraussetzungen)
-      - [Setup und Teardown](#setup-und-teardown)
-      - [Verifikation nach Setup](#verifikation-nach-setup)
-    - [Backend Anwendung (FastAPI)](#backend-anwendung-fastapi)
-      - [Projektstruktur](#projektstruktur)
-      - [Endpoints im Skelett](#endpoints-im-skelett)
-      - [Lokale Ausführung](#lokale-ausführung)
-      - [Health Probes](#health-probes)
-    - [Containerisierung (Dockerfile)](#containerisierung-dockerfile)
-      - [Multi-Stage Build](#multi-stage-build)
-      - [Sicherheitsmerkmale](#sicherheitsmerkmale)
-      - [.dockerignore](#dockerignore)
-      - [Lokales Build und Test](#lokales-build-und-test)
-      - [Image in kind Cluster laden](#image-in-kind-cluster-laden)
-    - [Helm Chart](#helm-chart)
-      - [Chart Struktur](#chart-struktur)
-      - [Konfigurierbarkeit über values.yaml](#konfigurierbarkeit-über-valuesyaml)
-      - [Health Probes Konfiguration](#health-probes-konfiguration)
-      - [Security Context und Härtung](#security-context-und-härtung)
-      - [Service Exposition via NodePort](#service-exposition-via-nodeport)
-      - [Lokales Deployment und Verifikation](#lokales-deployment-und-verifikation)
-    - [CI Pipeline (GitHub Actions)](#ci-pipeline-github-actions)
-      - [Workflow Überblick](#workflow-überblick)
-      - [Trigger und Path Filter](#trigger-und-path-filter)
-      - [Image Tag Strategie](#image-tag-strategie)
-      - [Values Update für den GitOps Loop](#values-update-für-den-gitops-loop)
-      - [Layer Caching](#layer-caching)
-      - [Einmalige Setup-Schritte](#einmalige-setup-schritte)
-      - [Verifikation nach erstem CI Run](#verifikation-nach-erstem-ci-run)
-    - [Argo CD Installation](#argo-cd-installation)
-      - [Installation](#installation)
-      - [Komponenten im Cluster](#komponenten-im-cluster)
-      - [UI Zugang](#ui-zugang)
-      - [Warum kubectl apply statt Helm Chart](#warum-kubectl-apply-statt-helm-chart)
-    - [Argo CD Application und GitOps Loop](#argo-cd-application-und-gitops-loop)
-      - [Application Definition](#application-definition)
-      - [Sync Policy](#sync-policy)
-      - [Deployment der Application](#deployment-der-application)
-      - [Der vollständige GitOps Loop](#der-vollständige-gitops-loop)
-      - [Verifikation](#verifikation)
-    - [Anwendungslogik und Datenmodelle](#anwendungslogik-und-datenmodelle)
-      - [Datenmodelle (Pydantic)](#datenmodelle-pydantic)
-      - [Persistenz (SQLite)](#persistenz-sqlite)
-      - [Preisquelle](#preisquelle)
-      - [API Endpoints](#api-endpoints)
-      - [Lokale Verifikation](#lokale-verifikation)
-    - [Frontend (Preisübersicht und Verlauf)](#frontend-preisübersicht-und-verlauf)
-      - [Aufbau und Auslieferung](#aufbau-und-auslieferung)
-      - [Technische Wahl: kein Frontend Framework](#technische-wahl-kein-frontend-framework)
-      - [Funktionen](#funktionen)
-      - [Echte Skin Bilder](#echte-skin-bilder)
-      - [Farbcodierung nach Seltenheit](#farbcodierung-nach-seltenheit)
-      - [Lokale Verifikation](#lokale-verifikation-1)
 ---
 
 ## Management Summary
@@ -532,8 +391,25 @@ Die folgenden User Stories gehören zu Sprint 1:
 
 ##### Stakeholder Abnahme
 
-Die Sprint 1 Ergebnisse werden in der Zwischenpräsentation am 05.06.2026 dem Fachexperten Marcel Bernet und dem Fachexperten Projektmanagement Thanam Pangri präsentiert. Die formelle Abnahme erfolgt im Rahmen dieser Präsentation.
+Die Zwischenpräsentation 1 fand am 05.06.2026 um 19:00 Uhr statt. Präsentiert wurde gegenüber Marcel Bernet (IaCA, CNC, CNA) und Thanam Pangri (Projektmanagement).
 
+**Meeting Minutes Zwischenpräsentation 1**
+
+| Feedback | Art |
+| --- | --- |
+| Gute Einführung ins Projekt | Positiv |
+| Gute Erklärung von IST und SOLL Zustand | Positiv |
+| Ausblick übersichtlich dargestellt | Positiv |
+| Gute Demo | Positiv |
+| Gute Dokumentation und Entscheidungsgrundlagen (ADRs) | Positiv |
+| Reflexion vorhanden | Positiv |
+| Self Review Checkliste entspricht der Definition of Done | Hinweis |
+| Zielerreichung übersichtlich dargestellt, Fortsetzung in Sprint 2 | Positiv |
+| Ausblick sehr übersichtlich | Positiv |
+| Pull Request mit Verweis auf User Story | Sehr positiv |
+| Warum alles in Sprint 2, Anzahl Sprints unklar | Verbesserung |
+
+Die Rückmeldung zum Sprint-Umfang in Sprint 2 wurde aufgenommen. Die Sprint 2 Planung bleibt unverändert, da die Aufteilung inhaltlich korrekt war. Zur Klarheit wurde die Sprint-Struktur mit drei Sprints und den jeweiligen Milestones explizit kommuniziert.
 
 ---
 
@@ -643,31 +519,71 @@ Für Sprint 2 werden mindestens folgende Nachweise geplant:
 
 ---
 
-#### 3.6.5 Sprint 2 Review
+#### Sprint 2 Review
 
-> **Hinweis Reviewgespräch:** Sprint 2 wird am Ende mit der zweiten Zwischenpräsentation gegenüber dem Dozenten abgeschlossen.
+**Datum**: 10.06.2026 (Sprint Abschluss, Zwischenpräsentation 2 folgt)
 
-**Review Ergebnis**
+**Sprintziel**: GitOps Durchstich. Push auf `main` führt automatisch zu Build, Push, Sync und Deployment im Cluster.
 
-_Wird nach Abschluss von Sprint 2 ergänzt._
+##### Erledigte User Stories
 
-| Review Punkt | Ergebnis |
+| ID | Titel | Story Points | Status | Issue |
+| --- | --- | --- | --- | --- |
+| US06 | Preisabruf implementiert und in SQLite persistiert | 3 | erledigt | geschlossen |
+| US07 | API liefert Preise, Frontend zeigt Tabelle und Verlauf | 3 | erledigt | geschlossen |
+| US08 | GitHub Actions baut Image und pusht nach GHCR | 3 | erledigt | geschlossen |
+| US09 | Helm Chart price-watch mit allen Ressourcen | 3 | erledigt | geschlossen |
+| US10 | Argo CD synct Helm Chart aus dem Repository | 3 | erledigt | geschlossen |
+| US11 | Liveness und Readiness Probes konfiguriert | 1 | erledigt | geschlossen |
+
+**Velocity**: 16 von 16 geplanten Story Points abgeschlossen (100 Prozent Sprint Goal Achievement).
+
+##### Demo-fähige Artefakte
+
+- Vollständiger GitOps Loop: Commit auf `main` triggert CI Build, Image Push nach GHCR, automatisches Update von `values.yaml` und Argo CD Sync ohne manuelles kubectl
+- CI Pipeline läuft grün in GitHub Actions, Image unter `ghcr.io/cancani/price-watch-backend` mit SHA Tags und `latest`
+- Argo CD Application `price-watch` im Status `Synced, Healthy`, beobachtet `helm/price-watch` auf Branch `main`
+- Price Watch Frontend unter `http://localhost:30080`: CS2 Skin Grid mit echten Steam CDN Bildern, Live-Suche, prozentuale Preisänderung in grün/rot, Verlaufsdiagramm per Chart.js
+- Vier beobachtete Skins: AK-47 Redline, AWP Asiimov, Desert Eagle Blaze, USP-S Kill Confirmed
+- Kubernetes Pod läuft als Non-Root User (UID 1001) mit `readOnlyRootFilesystem`, Liveness und Readiness Probes aktiv
+- `helm lint` und `helm template` fehlerfrei
+
+##### Definition of Done Check
+
+| Kriterium | Erfüllt |
 | --- | --- |
-| CI Pipeline grün, Image in GHCR | _offen_ |
-| Helm Chart `helm lint` fehlerfrei | _offen_ |
-| Argo CD installiert und konfiguriert | _offen_ |
-| Application `Synced, Healthy` | _offen_ |
-| Commit auf `main` triggert automatischen Sync | _offen_ |
-| WebApp im Cluster zeigt Preise | _offen_ |
-| Probes funktionieren | _offen_ |
+| Code lokal und im Cluster getestet | ja |
+| Doku im selben PR oder direkt danach aktualisiert | ja |
+| Conventional Commits Format eingehalten | ja |
+| User Stories im Project Board geschlossen | ja |
+| Squash Merge auf `main` | ja |
+| CI Pipeline grün nach Merge | ja |
+| Argo CD Application Synced und Healthy | ja |
 
-**Umgesetzter Aufwand:** _X von 16 Story Points_
+##### Zielerreichung gegen SMART Tabelle
 
-_Platzhalter Abbildung: Abgeschlossene Tasks in Sprint 2_
+| SMART Ziel | Sprint 2 Beitrag | Status |
+| --- | --- | --- |
+| Kubernetes Umgebung aufbauen | Cluster aus Sprint 1, in Sprint 2 als Produktionsumgebung für Argo CD genutzt | erreicht |
+| Preisüberwachungs WebApp erstellen | API liefert Preise aus SQLite, Frontend zeigt Tabelle und Verlauf im Browser | erreicht |
+| Anwendung mit Helm paketieren | Helm Chart mit Deployment, Service, Security Context, Probes deployed und via Argo CD synct | erreicht |
+| GitOps mit Argo CD umsetzen | Argo CD synct automatisch nach jedem Commit auf main, selfHeal und prune aktiv | erreicht |
+| CI Build und Push automatisieren | GitHub Actions baut Image, pushed nach GHCR, updated values.yaml automatisch | erreicht |
+| Dokumentation und Runbooks erstellen | Plattformkapitel vollständig, Runbooks folgen in Sprint 3 | im Plan |
 
-**Board und Planung**
+##### Herausforderungen und Lösungen
 
-_Platzhalter Abbildung: Project Board Sprint 2_
+Zwei technische Probleme wurden im Sprint erkannt und gelöst:
+
+**GHCR Lowercase Bug**: Der CI Workflow verwendete `${{ github.repository_owner }}`, was den GitHub Usernamen in Originalschreibweise (`Cancani`) liefert. Die OCI Spezifikation verlangt lowercase Repository Namen. Kubernetes lehnte den Pod mit `InvalidImageName` ab. Lösung: hartkodiertes `cancani` (lowercase) an beiden Stellen im CI Workflow.
+
+**Dockerfile kopierte nur main.py**: Das Dockerfile aus Sprint 1 kopierte ausschliesslich `main.py` ins Container Image. Nach US06 und US07 importiert `main.py` zusätzlich `database.py`, `models.py` und `pricesource.py` und liefert das Frontend aus `static/` aus. Der Container crashte mit `ModuleNotFoundError`. Lösung: `COPY --chown=app:app . .` statt `COPY --chown=app:app main.py ./`.
+
+Beide Bugs wurden per Git Commit auf main gefixt, Argo CD hat nach dem Sync automatisch den gesunden Stand hergestellt. Das illustriert den Vorteil des GitOps Ansatzes: ein Fehler im Cluster wird durch einen Commit behoben, nicht durch manuelles Eingreifen.
+
+##### Stakeholder Abnahme
+
+Die Sprint 2 Ergebnisse werden in der Zwischenpräsentation 2 dem Fachexperten Marcel Bernet und dem Fachexperten Projektmanagement Thanam Pangri präsentiert.
 
 **Dozentenfeedback aus Zwischenpräsentation 2**
 
@@ -675,57 +591,78 @@ _Wird nach der Präsentation ergänzt._
 
 ---
 
-#### 3.6.6 Sprint 2 Retrospektive
+#### Sprint 2 Retrospektive
 
-_Platzhalter Abbildung: Starfish Retrospektive Sprint 2_
+**Datum**: 10.06.2026
 
-**Start Doing**
+Die Retrospektive folgt dem Starfish Modell. Beobachtungen aus Sprint 2 werden in fünf Kategorien einsortiert und in konkrete Aktionen für Sprint 3 überführt.
 
-- ...
+##### Keep (lief gut, bitte beibehalten)
 
-**Stop Doing**
+- **Doku parallel zum Code**: Die Massnahme aus Sprint 1 wurde beibehalten. Jede Story hatte ein Doku Update im selben PR oder direkt danach. R10 (Doku rückständig) ist erneut nicht eingetreten.
+- **Velocity 100 Prozent**: 16 von 16 Story Points abgeschlossen. Der schwerste Sprint war planbar und durchführbar trotz hohem Komplexitätsgrad.
+- **Probleme transparent festhalten**: Die beiden Bugs (GHCR Lowercase, Dockerfile COPY) wurden nicht kaschiert, sondern im Sprint Review dokumentiert und erklärt. Das zeigt echte Problemlösekompetenz und stärkt die Argumentation gegenüber den Fachexperten.
+- **GitOps Loop zuerst**: Die Entscheidung, den Loop (US08, US09, US10) vor der Anwendungslogik (US06, US07) fertigzustellen, hat sich bewährt. US06 und US07 flossen danach sauber durch den bereits aktiven Loop.
 
-- ...
+##### Stop (sollte nicht mehr passieren)
 
-**Keep Doing**
+- **Direkte Commits auf main**: Für den GHCR-Fix wurde die Branch Protection kurz deaktiviert und direkt auf main committed. Das umgeht den eigenen Prozess und bricht ADR-005. Ab Sprint 3 gilt: auch Hotfixes kommen als PR, selbst wenn es eine Zeile ist.
+- **CI Workflow mit `github.repository_owner`**: Variablen aus dem GitHub Context ohne Normalisierung direkt in OCI Image Namen verwenden. Lesson Learned dokumentiert in den Sprint Review Herausforderungen.
 
-- ...
+##### Start (sollte ab jetzt gemacht werden)
 
-**More Of**
+- **CI Variablen defensiv behandeln**: Bei Werten die in Image Namen, Tags oder Registry Pfade fliessen, immer eine Normalisierung (lowercase, trim) vornehmen. Nicht auf die Schreibweise externer Variablen vertrauen.
+- **Akzeptanzkriterien in Issues vor Sprint Start vollständig prüfen**: US09 hatte Akzeptanzkriterien (ConfigMap, Secret, PVC, CronJob) die im Sprint nicht umgesetzt wurden. Das hätte vor Sprint Start angepasst werden sollen.
 
-- ...
+##### More of (mehr davon)
 
-**Less Of**
+- **Fehler als Lernnachweis**: Die zwei Bugs aus Sprint 2 sind konkrete Belege für technisches Verständnis. Solche Debugging-Geschichten explizit in Präsentation und Doku einbauen, nicht wegoptimieren.
+- **End-to-End Verifikation vor Issue-Schliessung**: Den vollständigen Loop (Commit → CI → GHCR → Argo CD → Pod) einmal komplett durchlaufen lassen, bevor Stories als done markiert werden.
 
-- ...
+##### Less of (weniger davon)
 
-**Zusammenfassung**
+- **Umwege beim Debugging**: Der GHCR Lowercase Bug hat mehrere Runden Debugging benötigt, weil lokale und remote values.yaml unterschiedliche Stände hatten. Früher zwischen `git show origin/main:` und lokaler Datei unterscheiden.
 
-_Wird nach Abschluss von Sprint 2 ergänzt._
+##### Aktionen für Sprint 3
 
-**Empfehlungen für Sprint 3**
+| Aktion | Frist |
+| --- | --- |
+| Direkte Main Commits vermeiden, auch Hotfixes als PR | laufend |
+| CI Workflow Variablen mit Lowercase-Normalisierung absichern (falls weitere Variablen dazukommen) | Sprint 3 Start |
+| US09 Akzeptanzkriterien (ConfigMap, PVC, CronJob) als Sprint 3 Ergänzung oder explizit aus Scope gestrichen dokumentieren | Sprint 3 Start |
 
-_Wird abgeleitet aus der Retro und der Zwischenpräsentation._
+##### Risikobewertung am Sprint 2 Ende
+
+| Risiko | Status nach Sprint 2 | Nächste Massnahme |
+| --- | --- | --- |
+| R2 Preisquelle instabil | Mock Quelle aktiv, keine externe Abhängigkeit | bleibt als Mock, echte Preise als optionale Erweiterung |
+| R4 Argo CD und Helm Setup | nicht eingetreten, Loop läuft stabil | weiter beobachten |
+| R6 GHCR Push fehlerhaft | eingetreten (Lowercase Bug), behoben | CI Workflow nachgebessert |
+| R9 Sprint 2 Durchstich verfehlt | nicht eingetreten, 100 Prozent Velocity | nicht mehr aktiv |
+| R10 Doku rückständig | nicht eingetreten, parallele Pflege wirkt | Massnahme beibehalten |
+| R1 Scope zu gross | nicht eingetreten | Sprint 3 Scope im Blick behalten |
+
 
 ---
 
-#### 3.6.7 Sprint 3 Planung
+#### Sprint 3 Planung
 
 **Sprint Zeitraum**
 
-Woche 7 bis 9 der Semesterarbeit.
+Woche 7 bis 9 der Semesterarbeit, 14.06.2026 bis 08.07.2026.
 
 **Sprint Ziel**
 
-Plattform und Dokumentation sind prüfbar abgeschlossen. Rollback Szenario ist nachgewiesen, Runbooks sind getestet, Tests laufen in der Pipeline, alle Doku Bestandteile sind vollständig. Schlussdemo ist vorbereitet.
+Plattform und Dokumentation sind prüfbar abgeschlossen. Helm Chart ist mit PVC und CronJob vollständig, Rollback Szenario ist live nachgewiesen, drei Runbooks sind getestet und auf Pages sichtbar, Tests und Lint laufen automatisiert in der Pipeline, alle Doku-Bestandteile sind komplett. Die Schlussdemo ist vorbereitet und generalprobt.
 
 **Sprint 3 Scope**
 
-- Rollback Szenario praktisch durchführen und dokumentieren
-- Drei Runbooks finalisieren und testen
-- Pipeline um Tests und Lint Schritte erweitern
-- Architekturdiagramme, Quellen, Abbildungsverzeichnis, Glossar finalisieren
-- Management Summary, Reflexion und Demo Skript schreiben
+- Helm Chart um PVC, ConfigMap und CronJob erweitern (US09 Abschluss)
+- Rollback Szenario praktisch durchführen und in Runbook 03 dokumentieren
+- Drei Runbooks erstellen, testen und in MkDocs Navigation einbinden
+- CI Pipeline um pytest, ruff, helm lint und kubectl dry-run erweitern
+- Vier Mermaid Architekturdiagramme, Quellenverzeichnis, Abbildungsverzeichnis und Glossar finalisieren
+- Management Summary finalisieren, Reflexion und Demo Skript schreiben
 - Generalprobe der Schlussdemo
 
 ![Sprint 3: Milestone und Issues](./img/image-3.png)
@@ -745,55 +682,69 @@ Plattform und Dokumentation sind prüfbar abgeschlossen. Rollback Szenario ist n
 
 **Geplanter Aufwand Sprint 3:** **12 Story Points**
 
+Sprint 3 schliesst die Plattform ab und fokussiert auf Nachweisbarkeit und Dokumentation. US09 (Helm Chart PVC und CronJob) wird als technische Grundlage zu Beginn von Sprint 3 fertiggestellt, bevor die Runbooks und der Rollback-Nachweis erarbeitet werden.
+
+**Abhängigkeiten zwischen den Stories**
+
+US13 und US12 sind direkt verknüpft: Runbook 03 (Rollback) enthält den Nachweis aus US12. Beide werden daher parallel erarbeitet. US15 und US16 laufen in der letzten Woche parallel, da US16 auf einem vollständigen technischen Stand aufbaut.
+
 **WIP Regel**
 
-In Progress maximal 2 parallel laufende Issues. Doku Stories (US15, US16) laufen parallel zu den technischen Stories.
+In Progress maximal 2 parallel laufende Issues. US12 und US13 laufen in Woche 8 gleichzeitig. US15 und US16 laufen in Woche 9 gleichzeitig.
+
+**Empfohlene Reihenfolge**
+
+| Woche | Stories | Fokus |
+| --- | --- | --- |
+| Woche 7 (14.06 bis 22.06) | US09 Abschluss, US14 | PVC und CronJob, Tests und Lint in CI |
+| Woche 8 (23.06 bis 29.06) | US12, US13 | Rollback Szenario, drei Runbooks |
+| Woche 9 (30.06 bis 08.07) | US15, US16 | Doku Abschluss, Reflexion, Generalprobe |
+
+**Runbooks Übersicht (US13)**
+
+| Runbook | Titel | Anwendungsfall |
+| --- | --- | --- |
+| RB-01 | Plattform Initial Setup | Cluster und Argo CD von Null aufsetzen, price-watch deployen |
+| RB-02 | Neue Version deployen via Git Commit | Code ändern, PR mergen, CI und Argo CD beobachten |
+| RB-03 | Rollback eines fehlerhaften Releases | Fehlerhafter Commit auf main, git revert, Cluster erholt sich automatisch |
+
+Jedes Runbook enthält: Voraussetzungen, Schritt-für-Schritt-Anleitung, Erfolgskriterium und Nachweis. Alle drei Runbooks werden mindestens einmal live durchgespielt und in `docs/runbooks/` abgelegt.
+
+**Tests und Lint in der CI Pipeline (US14)**
+
+Die bestehende CI Pipeline (`ci.yaml`) wird um folgende Schritte erweitert, die vor dem Image-Build laufen:
+
+| Schritt | Tool | Zweck |
+| --- | --- | --- |
+| Lint | ruff | Python Code Qualität und Format |
+| Tests | pytest mit httpx | Vier Endpoint-Tests gegen die FastAPI App |
+| Helm Lint | helm lint | Statische Prüfung des Helm Charts |
+| Kubernetes Dry-Run | kubectl apply --dry-run=client | Valides Manifest aus dem Helm Output |
+
+Ein fehlgeschlagener Schritt verhindert den Image-Build. Damit ist die Pipeline ein vollständiges Build → Test → Lint → Push Konstrukt. Mindestens ein roter und ein grüner Lauf werden als Screenshot dokumentiert.
 
 **Evidence Standard für Sprint 3**
 
 Für Sprint 3 werden mindestens folgende Nachweise geplant:
 
-- Screenshot bad Commit, der CrashLoopBackoff verursacht
-- Screenshot `git log` mit Revert Commit
-- Screenshot Argo CD History und Rollback Ansicht
-- Screenshot Pods vor und nach Rollback
-- Drei Runbooks unter `docs/runbooks/` final und auf Pages sichtbar
-- Screenshot CI Pipeline mit allen Test- und Lint Steps grün
-- Screenshot fehlgeschlagener Pipeline Lauf mit nachfolgender Korrektur
+- Screenshot `kubectl get pods` und `kubectl get cronjob` mit laufendem CronJob
+- Screenshot CronJob Ausführung und Preis-Update im Frontend ohne manuellen Trigger
+- Screenshot bad Commit der CrashLoopBackOff oder ImagePullBackOff verursacht
+- Screenshot `git log` mit dem Revert Commit und dem dazugehörigen SHA
+- Screenshot Argo CD History mit Sync vor und nach dem Rollback
+- Screenshot `kubectl get pods` vor und nach dem Rollback
+- Drei Runbooks unter `docs/runbooks/` auf Pages sichtbar mit URL
+- Screenshot CI Pipeline mit allen Steps grün (Lint, Tests, Helm Lint, Dry-Run, Build, Push)
+- Screenshot eines fehlgeschlagenen Lint oder Test Laufs mit nachfolgender Korrektur
+- Vier Mermaid Diagramme in der Doku auf Pages sichtbar
 - Vollständiges Quellenverzeichnis und Abbildungsverzeichnis
-- Generalprobe Notizen oder Demo Video Recording
+- Demo Skript oder Generalprobe Notizen
+
+
 
 ---
 
-#### Sprint 3 Review
-
-**Review Ergebnis**
-
-_Wird nach Abschluss von Sprint 3 ergänzt._
-
-| Review Punkt | Ergebnis |
-| --- | --- |
-| Rollback durchgeführt und dokumentiert | _offen_ |
-| Drei Runbooks vollständig | _offen_ |
-| Tests und Lint in Pipeline | _offen_ |
-| Doku vollständig und auf Pages aktuell | _offen_ |
-| Schlussdemo Skript fertig und einmal generalprobenweise durchgespielt | _offen_ |
-
-**Umgesetzter Aufwand:** _X von 12 Story Points_
-
-_Platzhalter Abbildung: Abgeschlossene Tasks in Sprint 3_
-
-**Board und Planung**
-
-_Platzhalter Abbildung: Project Board Sprint 3_
-
-**Offene Punkte und nächste Schritte**
-
-_Wird am Sprint Ende ausgefüllt: was bleibt offen, was wird bei der Abgabe nachgereicht, was ist Ausblick für eine mögliche Sem 6._
-
----
-
-#### 3.6.9 Sprint 3 Retrospektive
+#### Sprint 3 Retrospektive
 
 _Platzhalter Abbildung: Starfish Retrospektive Sprint 3_
 
@@ -1176,11 +1127,11 @@ Die ADRs sind versioniert und werden im Verlauf der Arbeit ergänzt, wenn neue E
 
 | ADR | Titel |
 | --- | --- |
-| [ADR-001](#42-adr-001-fastapi-statt-flask-für-das-backend) | FastAPI statt Flask für das Backend |
-| [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube) | Lokaler Cluster mit kind statt minikube |
-| [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank) | SQLite statt PostgreSQL als Datenbank |
-| [ADR-004](#45-adr-004-monorepo-statt-multi-repo) | Monorepo statt Multi Repo |
-| [ADR-005](#46-adr-005-squash-merge-statt-merge-commit) | Squash Merge statt Merge Commit | 
+| [ADR-001](#adr-001-fastapi-statt-flask-für-das-backend) | FastAPI statt Flask für das Backend |
+| [ADR-002](#adr-002-lokaler-cluster-mit-kind-statt-minikube) | Lokaler Cluster mit kind statt minikube |
+| [ADR-003](#adr-003-sqlite-statt-postgresql-als-datenbank) | SQLite statt PostgreSQL als Datenbank |
+| [ADR-004](#adr-004-monorepo-statt-multi-repo) | Monorepo statt Multi Repo |
+| [ADR-005](#adr-005-squash-merge-statt-merge-commit) | Squash Merge statt Merge Commit | 
 
 ### ADR-001: FastAPI statt Flask für das Backend
 
@@ -1484,7 +1435,7 @@ Dieses Kapitel beschreibt die technische Umsetzung der Plattform: vom lokalen Cl
 
 ### Lokaler Cluster mit kind
 
-Der lokale Kubernetes Cluster wird mit kind aufgesetzt. Die Wahl von kind gegenüber minikube, k3s und k3d ist in [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube) dokumentiert.
+Der lokale Kubernetes Cluster wird mit kind aufgesetzt. Die Wahl von kind gegenüber minikube, k3s und k3d ist in [ADR-002](#adr-002-lokaler-cluster-mit-kind-statt-minikube) dokumentiert.
 
 #### Cluster Topologie
 
@@ -1551,9 +1502,9 @@ Sind beide Nodes `Ready`, ist das Messkriterium aus Ziel 1 (Kapitel 2.3) erfüll
 
 ### Backend Anwendung (FastAPI)
 
-Das Backend wird als FastAPI Anwendung implementiert. Die Wahl von FastAPI gegenüber Flask ist in [ADR-001](#42-adr-001-fastapi-statt-flask-für-das-backend) dokumentiert.
+Das Backend wird als FastAPI Anwendung implementiert. Die Wahl von FastAPI gegenüber Flask ist in [ADR-001](#adr-001-fastapi-statt-flask-für-das-backend) dokumentiert.
 
-In Sprint 1 (US04) wird das Backend als minimales Skelett aufgebaut, das die spätere Plattform Integration ermöglicht (Health Probes, OpenAPI Schema), aber noch keine fachliche Logik enthält. Preisabruf, Persistenz und CronJob Anbindung folgen in Sprint 2.
+In Sprint 1 (US04) wurde das Backend als minimales Skelett aufgebaut, das die Plattform Integration ermöglicht (Health Probes, OpenAPI Schema). In Sprint 2 wurde die Anwendungslogik mit Pydantic Modellen, SQLite Persistenz und der Preisquelle erweitert (US06, US07).
 
 #### Projektstruktur
 
@@ -1565,7 +1516,7 @@ Der Backend Code liegt unter `app/backend/`:
 | `app/backend/requirements.txt` | Python Abhängigkeiten mit Versionsranges |
 | `app/backend/README.md` | Setup Anleitung für lokale Entwicklung |
 
-Die Trennung in `app/backend/` reflektiert die Monorepo Struktur (siehe [ADR-004](#45-adr-004-monorepo-statt-multi-repo)) und macht die Helm Chart Konfiguration in Sprint 2 für die jeweilige Komponente eindeutig adressierbar.
+Die Trennung in `app/backend/` reflektiert die Monorepo Struktur (siehe [ADR-004](#adr-004-monorepo-statt-multi-repo)) und macht die Helm Chart Konfiguration eindeutig adressierbar.
 
 #### Endpoints im Skelett
 
@@ -1601,7 +1552,7 @@ Der Server reagiert auf Code-Änderungen mit Auto-Reload, was die Iteration beim
 Die beiden Health Endpoints werden in Sprint 2 als Kubernetes Liveness und Readiness Probes im Helm Chart konfiguriert:
 
 - `/healthz` antwortet, solange der FastAPI Prozess lebt. Wird von Kubernetes verwendet, um abgestürzte Pods neu zu starten (Liveness Probe).
-- `/ready` antwortet, sobald der Service Anfragen annehmen kann. Im Skelett immer "ready", in Sprint 2 wird hier zusätzlich die SQLite Verbindung geprüft (siehe [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank)). Diese Probe entscheidet, ob ein Pod Traffic vom Service erhält (Readiness Probe).
+- `/ready` antwortet, sobald der Service Anfragen annehmen kann. Die Readiness Probe prüft zusätzlich die SQLite Datenbankverbindung (siehe [ADR-003](#adr-003-sqlite-statt-postgresql-als-datenbank)). Diese Probe entscheidet, ob ein Pod Traffic vom Service erhält.
 
 Die Trennung in zwei Probes folgt der Kubernetes Best Practice und vermeidet, dass langsame Initialisierungen (zum Beispiel ein Schema-Load in Sprint 2) zu falschen Pod Restarts führen.
 
@@ -1610,7 +1561,7 @@ Die Trennung in zwei Probes folgt der Kubernetes Best Practice und vermeidet, da
 
 ### Containerisierung (Dockerfile)
 
-Das FastAPI Backend wird als Container Image paketiert, das später per CI Pipeline gebaut und in die GitHub Container Registry (GHCR) gepusht wird (siehe Sprint 2, US14). Das Dockerfile liegt unter `app/backend/Dockerfile`.
+Das FastAPI Backend wird als Container Image paketiert und über die CI Pipeline gebaut und in die GitHub Container Registry (GHCR) gepusht (Sprint 2, US08). Das Dockerfile liegt unter `app/backend/Dockerfile`.
 
 #### Multi-Stage Build
 
@@ -1692,7 +1643,7 @@ docker images price-watch-backend
 
 #### Image in kind Cluster laden
 
-Solange noch keine CI Pipeline existiert (kommt in Sprint 2, US14), kann das lokal gebaute Image direkt in den kind Cluster geladen werden (siehe [ADR-002](#43-adr-002-lokaler-cluster-mit-kind-statt-minikube)):
+Für lokale Tests vor der CI Pipeline kann das lokal gebaute Image direkt in den kind Cluster geladen werden (siehe [ADR-002](#adr-002-lokaler-cluster-mit-kind-statt-minikube)):
 
 ```bash
 kind load docker-image price-watch-backend:dev --name gitops-platform
@@ -1705,7 +1656,7 @@ Damit ist das Image im Cluster verfügbar, ohne über eine Registry gehen zu mü
 
 ### Helm Chart
 
-Das Backend wird über ein Helm Chart in den Kubernetes Cluster deployed. Das Chart liegt unter `helm/price-watch/`. In Sprint 2 (US06) wird die Skelett-Version mit Deployment und Service aufgebaut. PVC, ConfigMap und CronJob für die SQLite Persistenz folgen in US07.
+Das Backend wird über ein Helm Chart in den Kubernetes Cluster deployed. Das Chart liegt unter `helm/price-watch/`. In Sprint 2 (US09) wurde das Chart mit Deployment, Service und Security Context aufgebaut. ConfigMap, PVC und CronJob folgen in Sprint 3 als Abschluss von US09.
 
 #### Chart Struktur
 
@@ -1735,8 +1686,8 @@ Die `values.yaml` Datei enthält alle Parameter, die per `--values` Datei, `--se
 
 Bewusste Voreinstellungen:
 
-- `replicaCount: 1`: Single Replica wegen SQLite Single Writer (siehe [ADR-003](#44-adr-003-sqlite-statt-postgresql-als-datenbank)). Skalierung würde eine Multi-Pod taugliche DB voraussetzen.
-- `image.pullPolicy: IfNotPresent`: Für lokale Tests via `kind load docker-image`. Beim Wechsel auf GHCR in US10 wird das auf `Always` umgestellt.
+- `replicaCount: 1`: Single Replica wegen SQLite Single Writer (siehe [ADR-003](#adr-003-sqlite-statt-postgresql-als-datenbank)). Skalierung würde eine Multi-Pod taugliche DB voraussetzen.
+- `image.pullPolicy: Always`: Die CI Pipeline setzt pullPolicy automatisch auf Always, da das Image von GHCR gezogen wird (seit US08).
 - `service.nodePort: 30080`: Matched die `extraPortMappings` in `kind/cluster.yaml`, damit das Backend ohne Ingress Controller vom Host erreichbar ist.
 
 #### Health Probes Konfiguration
@@ -2017,7 +1968,7 @@ Die Application ist in `app/argocd/price-watch.app.yaml` deklariert:
 | --- | --- | --- |
 | `source.repoURL` | Repository URL | Beobachtetes Git Repository |
 | `source.targetRevision` | `main` | Beobachteter Branch |
-| `source.path` | `helm/price-watch` | Pfad zum Helm Chart im Monorepo (siehe [ADR-004](#45-adr-004-monorepo-statt-multi-repo)) |
+| `source.path` | `helm/price-watch` | Pfad zum Helm Chart im Monorepo (siehe [ADR-004](#adr-004-monorepo-statt-multi-repo)) |
 | `destination.server` | `https://kubernetes.default.svc` | Ziel-Cluster (lokaler Cluster) |
 | `destination.namespace` | `default` | Ziel-Namespace für die Anwendung |
 
@@ -2051,7 +2002,7 @@ Erwartetes Ergebnis nach 1 bis 2 Minuten: `SYNC STATUS: Synced`, `HEALTH STATUS:
 
 
 
-####  Der vollständige GitOps Loop
+#### Der vollständige GitOps Loop
 
 Mit der Application ist der Loop geschlossen. Eine Code-Änderung durchläuft folgende Stationen vollautomatisch:
 
@@ -2066,7 +2017,7 @@ Mit der Application ist der Loop geschlossen. Eine Code-Änderung durchläuft fo
 
 Kein manuelles `kubectl` oder `helm` ist nach dem Merge mehr nötig. Der Soll-Zustand im Git Repository wird automatisch zum Ist-Zustand im Cluster.
 
-####  Verifikation
+#### Verifikation
 
 ```bash
 # Application Status
