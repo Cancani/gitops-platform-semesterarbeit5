@@ -1941,21 +1941,6 @@ $pw = kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.da
 
 Argo CD kann sich nicht selbst via GitOps verwalten (Chicken-and-Egg Problem). Das offizielle Manifest via `kubectl apply` ist deshalb der empfohlene Bootstrap-Weg und wird in der offiziellen Argo CD Dokumentation so beschrieben. Für Production wäre ein eigener Argo CD Helm Chart mit App-of-Apps Pattern denkbar, sprengt aber den Scope dieser Semesterarbeit.
 
-<!--
-Einfügeposition: Diesen Inhalt nach Kapitel 5.6.4 in docs/dokumentation.md
-anhängen.
-
-Inhaltsverzeichnis Erweiterung: Im bestehenden TOC nach dem 5.6 Block
-ergänzen:
-
-    - [5.7 Argo CD Application und GitOps Loop](#57-argo-cd-application-und-gitops-loop)
-      - [5.7.1 Application Definition](#571-application-definition)
-      - [5.7.2 Sync Policy](#572-sync-policy)
-      - [5.7.3 Deployment der Application](#573-deployment-der-application)
-      - [5.7.4 Der vollständige GitOps Loop](#574-der-vollständige-gitops-loop)
-      - [5.7.5 Verifikation](#575-verifikation)
--->
-
 ### Argo CD Application und GitOps Loop
 
 Die Argo CD Application verbindet das Git Repository mit dem Cluster und schliesst damit den GitOps Loop. Argo CD beobachtet den Pfad `helm/price-watch` auf dem Branch `main` und synchronisiert Änderungen automatisch in den Cluster.
@@ -2118,12 +2103,6 @@ Die interaktive OpenAPI Doku unter `http://localhost:8000/docs` zeigt den neuen 
 
 ![Price Refresh Endpoint](./img/appbackend3sq.png)
 
-<!--
-Einfügeposition: Als Unterkapitel im technischen Teil von docs/dokumentation.md,
-passend bei der Backend Anwendung bzw. nach der Anwendungslogik einsortieren.
-
-Gehoert zu US07 (#39): API liefert Preise, Frontend zeigt Tabelle und Verlauf.
--->
 
 ### Frontend (Preisübersicht und Verlauf)
 
@@ -2190,3 +2169,5 @@ Browser auf `http://localhost:8000/` öffnen. Beim ersten Start ist die Übersic
 Die API bleibt unter `http://localhost:8000/api/prices` und die OpenAPI Doku unter `http://localhost:8000/docs` erreichbar.
 
 ![Frontend lokal Preise](./img/lokalpreis2.png)
+
+---

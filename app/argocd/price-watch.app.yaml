@@ -21,3 +21,5 @@ spec:
       selfHeal: true   # manuelle cluster Änderungen werden zurückgesetzt
     syncOptions:
       - CreateNamespace=false
+
+#Test
