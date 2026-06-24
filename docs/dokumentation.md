@@ -2209,5 +2209,7 @@ Die vier Schritte laufen im Job `lint-and-test`. Der Job `build-and-push` ist ü
 
 Der Path-Filter ist auf `app/backend/**` und `helm/**` erweitert, sodass Helm-Änderungen ebenfalls eine Prüfung auslösen.
 
+Beim Aufbau der Tests traten zwei Probleme auf. Erstens öffnet `database.py` die SQLite-Verbindung auf einen konfigurierten Pfad, der im Test-Kontext nicht existiert. Gelöst wird das mit einem temporären Verzeichnis via `tempfile.mkdtemp()`, dessen Pfad vor dem Import von `main` als Umgebungsvariable `DATABASE_PATH` gesetzt wird. Zweitens muss `init_db()` explizit aufgerufen werden, bevor die Tests laufen, da die Tabelle sonst fehlt. Beide Massnahmen sind in `tests/test_api.py` umgesetzt.
+
 ---
 
