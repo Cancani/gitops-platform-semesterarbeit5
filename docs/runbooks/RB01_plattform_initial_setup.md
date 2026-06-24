@@ -1,0 +1,74 @@
+## Runbook 01: Plattform Initial Setup
+
+**Zweck**
+
+Dieses Runbook beschreibt den vollständigen Aufbau der Plattform ab einem leeren Rechner
+bis zu einem laufenden kind-Cluster mit Argo CD und der price-watch Applikation.
+
+**Voraussetzungen**
+
+- Docker Desktop installiert und gestartet
+- kind installiert (`winget install kind` oder via Binary)
+- kubectl installiert
+- helm installiert
+- Git installiert
+- Repository geklont: `git clone https://github.com/Cancani/gitops-platform-semesterarbeit5`
+
+**Schritte**
+
+1. Cluster erstellen
+
+```bash
+bash scripts/setup-cluster.sh
+```
+
+Prüfen ob der Cluster läuft:
+
+```bash
+kubectl cluster-info --context kind-kind
+```
+
+2. Argo CD installieren
+
+```bash
+bash scripts/setup-argocd.sh
+```
+
+Das Skript gibt das initiale Admin-Passwort aus. Notieren.
+
+3. Argo CD UI erreichbar machen
+
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+UI erreichbar unter `https://localhost:8080`. Login: `admin` / Passwort aus Schritt 2.
+
+4. price-watch Applikation registrieren
+
+```bash
+kubectl apply -f app/argocd/price-watch.app.yaml
+```
+
+5. Sync abwarten
+
+In der Argo CD UI erscheint die Applikation `price-watch` und wechselt nach ca. 30 Sekunden
+auf `Synced` und `Healthy`.
+
+6. Applikation erreichbar machen
+
+```bash
+kubectl port-forward svc/price-watch 8000:8000
+```
+
+UI erreichbar unter `http://localhost:8000`.
+
+**Erfolgskriterium**
+
+- Argo CD UI zeigt `price-watch` als `Synced` und `Healthy`
+- `http://localhost:8000` zeigt die price-watch Weboberfläche
+- `kubectl get pods` zeigt einen laufenden Pod
+
+**Nachweis**
+
+Screenshot Argo CD UI mit grünem Status und laufendem Pod.
