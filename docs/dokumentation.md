@@ -2195,3 +2195,19 @@ Die API bleibt unter `http://localhost:8000/api/prices` und die OpenAPI Doku unt
 ![Frontend lokal Preise](./img/lokalpreis2.png)
 
 ---
+
+## Tests und Lint in der CI-Pipeline
+
+Die CI-Pipeline wird um eine Qualitätssicherungsstufe erweitert, die vor jedem Image-Build vier Prüfschritte ausführt.
+
+**ruff** prüft den Python-Code statisch auf Stil- und Logikfehler.
+**pytest** führt vier Integrationstests gegen die FastAPI-Endpunkte aus: `/healthz`, `/ready`, `POST /api/prices/refresh` und `GET /api/prices`. Die Tests verwenden `TestClient` aus dem FastAPI-Testpaket und laufen in-process ohne laufenden Server.
+**helm lint** validiert das Helm Chart statisch auf syntaktische Korrektheit.
+**kubectl apply --dry-run=client** rendert die Helm-Templates und prüft die resultierenden Kubernetes-Manifeste lokal ohne Cluster-Verbindung.
+
+Die vier Schritte laufen im Job `lint-and-test`. Der Job `build-and-push` ist über `needs: lint-and-test` blockiert -- schlägt ein Schritt fehl, wird kein Image gebaut und kein Deployment ausgelöst. Damit ist sichergestellt, dass nur geprüfter Code den GitOps-Loop erreicht.
+
+Der Path-Filter ist auf `app/backend/**` und `helm/**` erweitert, sodass Helm-Änderungen ebenfalls eine Prüfung auslösen.
+
+---
+
