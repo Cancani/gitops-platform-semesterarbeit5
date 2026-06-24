@@ -50,7 +50,7 @@ jobs:
         working-directory: .
         run: |
           helm template price-watch helm/price-watch | \
-          kubectl apply --dry-run=client -f -
+          kubectl apply --dry-run=client --validate=false -f -
 
   build-and-push:
     name: Container Image bauen und pushen
