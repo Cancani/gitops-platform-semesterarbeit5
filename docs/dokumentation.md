@@ -521,7 +521,7 @@ Für Sprint 2 werden mindestens folgende Nachweise geplant:
 
 #### Sprint 2 Review
 
-**Datum**: 10.06.2026 (Sprint Abschluss, Zwischenpräsentation 2 folgt)
+**Datum**: 22.06.2026 (Zwischenpräsentation 2)
 
 **Sprintziel**: GitOps Durchstich. Push auf `main` führt automatisch zu Build, Push, Sync und Deployment im Cluster.
 
@@ -583,53 +583,77 @@ Beide Bugs wurden per Git Commit auf main gefixt, Argo CD hat nach dem Sync auto
 
 ##### Stakeholder Abnahme
 
-Die Sprint 2 Ergebnisse werden in der Zwischenpräsentation 2 dem Fachexperten Marcel Bernet und dem Fachexperten Projektmanagement Thanam Pangri präsentiert.
+Die Zwischenpräsentation 2 fand am 22.06.2026 statt. Präsentiert wurde gegenüber Marcel Bernet (IaCA, CNC, CNA) und Thanam Pangri (Projektmanagement). Präsentationsdauer: 18 Minuten.
 
-**Dozentenfeedback aus Zwischenpräsentation 2**
+**Feedback Thanam Pangri (Projektmanagement)**
 
-_Wird nach der Präsentation ergänzt._
+| Feedback | Art |
+| --- | --- |
+| Guter Einstieg und Agenda, Projekt klar eingeführt | Positiv |
+| Sprintziel und Umsetzung vom letzten zum neuen Sprint nachvollziehbar und verständlich | Positiv |
+| Guter Gesamteindruck der Arbeit und Vorgehensweise | Positiv |
+| Demo-Fehler ab Minute 9, Use Case nicht vollständig vorbereitet | Verbesserung |
+| Problem wurde schnell erkannt und unter Druck gelöst | Positiv |
+| Sprint Retrospektive zu wenig klar erklärt | Verbesserung |
+| Gesamturteil positiv, Sprint-Abschluss gut dargestellt | Positiv |
+
+**Feedback Marcel Bernet (IaCA, CNC, CNA)**
+
+| Feedback | Art |
+| --- | --- |
+| Gut gerettet nach Demo-Problem | Positiv |
+| Umstellung von manuell zu IaC und deklarativem Ansatz klar rübergekommen | Positiv |
+| Gesamturteil: tiptop | Positiv |
+
+**Massnahmen aus dem Feedback**
+
+Der Demo-Fehler trat auf weil ein Use Case nicht vollständig durchgespielt wurde. Für die Schlusspräsentation wird jeder Demo-Schritt mindestens einmal komplett und in Reihenfolge generalprobt. Die Sprint Retrospektive wird mit dem Starfish-Diagramm visuell unterstützt und klarer erklärt.
 
 ---
 
 #### Sprint 2 Retrospektive
 
-**Datum**: 10.06.2026
+**Datum**: 22.06.2026
 
-Die Retrospektive folgt dem Starfish Modell. Beobachtungen aus Sprint 2 werden in fünf Kategorien einsortiert und in konkrete Aktionen für Sprint 3 überführt.
+Die Retrospektive folgt dem Starfish Modell und ist als Diagramm festgehalten.
+
+![Starfish Retrospektive Sprint 2](./img/retro-sprint2-starfish.png)
+<small><em>Abbildung: Starfish Retrospektive Sprint 2</em></small>
 
 ##### Keep (lief gut, bitte beibehalten)
 
-- **Doku parallel zum Code**: Die Massnahme aus Sprint 1 wurde beibehalten. Jede Story hatte ein Doku Update im selben PR oder direkt danach. R10 (Doku rückständig) ist erneut nicht eingetreten.
-- **Velocity 100 Prozent**: 16 von 16 Story Points abgeschlossen. Der schwerste Sprint war planbar und durchführbar trotz hohem Komplexitätsgrad.
-- **Probleme transparent festhalten**: Die beiden Bugs (GHCR Lowercase, Dockerfile COPY) wurden nicht kaschiert, sondern im Sprint Review dokumentiert und erklärt. Das zeigt echte Problemlösekompetenz und stärkt die Argumentation gegenüber den Fachexperten.
-- **GitOps Loop zuerst**: Die Entscheidung, den Loop (US08, US09, US10) vor der Anwendungslogik (US06, US07) fertigzustellen, hat sich bewährt. US06 und US07 flossen danach sauber durch den bereits aktiven Loop.
+- Doku parallel zum Code
+- Velocity 100%, schwerster Sprint fertig
+- Bugs transparent dokumentieren
 
 ##### Stop (sollte nicht mehr passieren)
 
-- **Direkte Commits auf main**: Für den GHCR-Fix wurde die Branch Protection kurz deaktiviert und direkt auf main committed. Das umgeht den eigenen Prozess und bricht ADR-005. Ab Sprint 3 gilt: auch Hotfixes kommen als PR, selbst wenn es eine Zeile ist.
-- **CI Workflow mit `github.repository_owner`**: Variablen aus dem GitHub Context ohne Normalisierung direkt in OCI Image Namen verwenden. Lesson Learned dokumentiert in den Sprint Review Herausforderungen.
+- Direkte Commits auf main
+- Demo ohne Generalprobe der Use Cases
 
 ##### Start (sollte ab jetzt gemacht werden)
 
-- **CI Variablen defensiv behandeln**: Bei Werten die in Image Namen, Tags oder Registry Pfade fliessen, immer eine Normalisierung (lowercase, trim) vornehmen. Nicht auf die Schreibweise externer Variablen vertrauen.
-- **Akzeptanzkriterien in Issues vor Sprint Start vollständig prüfen**: US09 hatte Akzeptanzkriterien (ConfigMap, Secret, PVC, CronJob) die im Sprint nicht umgesetzt wurden. Das hätte vor Sprint Start angepasst werden sollen.
+- Demo komplett testen
+- CI-Variablen auf lowercase normalisieren
 
 ##### More of (mehr davon)
 
-- **Fehler als Lernnachweis**: Die zwei Bugs aus Sprint 2 sind konkrete Belege für technisches Verständnis. Solche Debugging-Geschichten explizit in Präsentation und Doku einbauen, nicht wegoptimieren.
-- **End-to-End Verifikation vor Issue-Schliessung**: Den vollständigen Loop (Commit → CI → GHCR → Argo CD → Pod) einmal komplett durchlaufen lassen, bevor Stories als done markiert werden.
+- Bugs und Debugging in Präsentation zeigen
+- Kontrast manuell vs. deklarativ betonen
+- End-to-End Verifikation vor Issue-Schliessung
 
 ##### Less of (weniger davon)
 
-- **Umwege beim Debugging**: Der GHCR Lowercase Bug hat mehrere Runden Debugging benötigt, weil lokale und remote values.yaml unterschiedliche Stände hatten. Früher zwischen `git show origin/main:` und lokaler Datei unterscheiden.
+- Umwege beim Debugging
+- Zu lange Präsentation
 
 ##### Aktionen für Sprint 3
 
 | Aktion | Frist |
 | --- | --- |
+| Generalprobe der Schlussdemo vollständig und in Reihenfolge | vor Kolloquium 08.07.2026 |
 | Direkte Main Commits vermeiden, auch Hotfixes als PR | laufend |
-| CI Workflow Variablen mit Lowercase-Normalisierung absichern (falls weitere Variablen dazukommen) | Sprint 3 Start |
-| US09 Akzeptanzkriterien (ConfigMap, PVC, CronJob) als Sprint 3 Ergänzung oder explizit aus Scope gestrichen dokumentieren | Sprint 3 Start |
+| CI Workflow Variablen mit Lowercase-Normalisierung absichern | Sprint 3 Start |
 
 ##### Risikobewertung am Sprint 2 Ende
 
