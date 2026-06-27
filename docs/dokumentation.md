@@ -2213,3 +2213,45 @@ Beim Aufbau der Tests traten zwei Probleme auf. Erstens öffnet `database.py` di
 
 ---
 
+## Rollback Szenario per Git Revert
+
+Der GitOps Rollback wird durch einen `git revert` auf dem fehlerhaften Commit ausgelöst.
+Kein manueller Eingriff im Cluster ist nötig -- Git ist die einzige Source of Truth.
+
+**Ablauf**
+
+Ein bewusst fehlerhafter Image Tag (`sha-000000`) wird via Pull Request auf main gemergt.
+Argo CD erkennt die Änderung in `values.yaml` und versucht das neue Image zu pullen.
+Da der Tag nicht in GHCR existiert, wechselt der neue Pod in `ImagePullBackOff`. Der
+ursprüngliche Pod bleibt unterdessen laufend.
+
+Der Revert wird auf einem neuen Branch durchgeführt:
+
+```bash
+git revert 4563f45 --no-edit
+```
+
+Nach dem Merge des Revert-PRs auf main aktualisiert Argo CD `values.yaml` auf den
+vorherigen Tag `sha-c68ccb0`. Der fehlerhafte Pod wird terminiert, der Pod läuft
+wieder mit Status `Running`.
+
+**Nachweise**
+
+- Bad Commit SHA: `4563f45`
+- Pod in `ErrImagePull` und `ImagePullBackOff` (siehe Anhang)
+- Pod wieder `Running` nach Revert (siehe Anhang)
+
+## Runbooks
+
+Drei Runbooks dokumentieren den Betrieb der Plattform von Grund auf bis zum Rollback.
+Jedes Runbook enthält Zweck, Voraussetzungen, Schritt-für-Schritt Anleitung,
+Erfolgskriterium und Nachweis.
+
+| Runbook | Titel |
+| --- | --- |
+| RB-01 | Plattform Initial Setup |
+| RB-02 | Neue Version deployen |
+| RB-03 | Rollback eines fehlerhaften Releases |
+
+Die Runbooks sind unter `docs/runbooks/` abgelegt und in der MkDocs Navigation verlinkt.
+RB-03 basiert auf dem durchgeführten Rollback Szenario aus US12.
