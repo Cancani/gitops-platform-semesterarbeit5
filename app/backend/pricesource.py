@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 STEAM_CDN = "https://community.cloudflare.steamstatic.com/economy/image"
 STEAM_API = "https://steamcommunity.com/market/priceoverview/"
-EUR_TO_CHF = 0.96
 
 _ICON_AK47 = (
     "i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3Uql"
@@ -58,7 +57,7 @@ def _fetch_steam_price(name: str) -> float | None:
     try:
         response = httpx.get(
             STEAM_API,
-            params={"currency": 3, "appid": 730, "market_hash_name": name},
+            params={"currency": 4, "appid": 730, "market_hash_name": name},
             timeout=5.0,
         )
         response.raise_for_status()
@@ -66,7 +65,7 @@ def _fetch_steam_price(name: str) -> float | None:
         if not data.get("success"):
             return None
         raw = data.get("lowest_price", "")
-        price_str = raw.replace("CHF", "").replace(",", ".").strip()
+        price_str = raw.replace("CHF", "").replace(",", "").replace("--", "00").strip()
         return round(float(price_str), 2)
     except Exception:
         return None

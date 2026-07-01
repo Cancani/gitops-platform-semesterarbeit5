@@ -24,14 +24,14 @@
 
 Die laufende Projektdokumentation ist auf GitHub Pages verfügbar:
 
-**GitHub Pages:** [https://cancani.com/gitops-platform-semesterarbeit5/](https://cancani.com/gitops-platform-semesterarbeit5/)
+**GitHub Pages:** [https://cancani.com/gitops-platform-sem5/](https://cancani.com/gitops-platform-sem5/)
 
 | Dokument | Inhalt |
 | --- | --- |
 | [Dokumentation](./docs/dokumentation.md) | Hauptdokument, alle Kapitel von Management Summary bis Reflexion |
-| [Runbook 01: Plattform Initial Setup](runbooks/01_plattform_initial_setup.md) | Cluster und Argo CD initial aufbauen |
-| [Runbook 02: Neue Version deployen](runbooks/02_neue_version_deployen.md) | Standard GitOps Release Workflow |
-| [Runbook 03: Rollback Release](runbooks/03_rollback_release.md) | Rollback eines fehlerhaften Releases |
+| [Runbook 01: Plattform Initial Setup](docs/runbooks/RB01_plattform_initial_setup.md) | Cluster und Argo CD initial aufbauen |
+| [Runbook 02: Neue Version deployen](docs/runbooks/RB02_neue_version_deployen.md) | Standard GitOps Release Workflow |
+| [Runbook 03: Rollback Release](docs/runbooks/RB03_rollback_release.md) | Rollback eines fehlerhaften Releases |
 
 ---
 
@@ -47,9 +47,9 @@ Diese Semesterarbeit baut eine kleine, aber realistische Cloud Native Plattform 
 
 | Sprint | Wochen | Sprint Ziel | Status |
 | --- | --- | --- | --- |
-| Sprint 1 | 1 bis 3 | Setup, Cluster, WebApp Skelett, Container | ![status](https://img.shields.io/badge/in__progress-yellow?style=flat-square) |
-| Sprint 2 | 4 bis 6 | GitOps Durchstich (CI, Helm, Argo CD) | ![status](https://img.shields.io/badge/planned-lightgrey?style=flat-square) |
-| Sprint 3 | 7 bis 9 | Stabilisierung, Runbooks, Doku, Demo | ![status](https://img.shields.io/badge/planned-lightgrey?style=flat-square) |
+| Sprint 1 | 1 bis 3 | Setup, Cluster, WebApp Skelett, Container | ![status](https://img.shields.io/badge/done-brightgreen?style=flat-square) |
+| Sprint 2 | 4 bis 6 | GitOps Durchstich (CI, Helm, Argo CD) | ![status](https://img.shields.io/badge/done-brightgreen?style=flat-square) |
+| Sprint 3 | 7 bis 9 | Stabilisierung, Runbooks, Doku, Demo | ![status](https://img.shields.io/badge/in__progress-yellow?style=flat-square) |
 
 ---
 
@@ -85,7 +85,7 @@ flowchart LR
 | Frontend | minimales HTML mit Chart.js |
 | Datenbank | SQLite mit PVC |
 | Job Scheduling | Kubernetes CronJob für regelmässigen Preisabruf |
-| Quelle Preisdaten | öffentliche Preis API mit Testdaten Fallback |
+| Preisdaten | Steam Market API mit Mock-Fallback |
 | Doku | MkDocs Material auf GitHub Pages |
 
 ---
@@ -121,71 +121,88 @@ sequenceDiagram
 
 ```
 .
-├── README.md                       # Repository Einstieg
-├── mkdocs.yml                      # MkDocs Material Konfiguration
-├── docs/                           # gesamte Doku, wird zur Pages Seite
-│   ├── index.md                    # diese Startseite
-│   ├── dokumentation.md            # Hauptdokument der Semesterarbeit
-│   ├── runbooks/                   # drei Runbooks
-│   ├── architektur/                # Diagramme und ADRs
-│   └── screenshots/                # Nachweise und Belege
+├── README.md
+├── mkdocs.yml
+├── docs/
+│   ├── index.md
+│   ├── dokumentation.md
+│   └── runbooks/
+│       ├── RB01_plattform_initial_setup.md
+│       ├── RB02_neue_version_deployen.md
+│       ├── RB03_rollback_release.md
+│       └── RB04_argocd_out_of_sync.md
 ├── app/
-│   ├── backend/                    # FastAPI Service: API, Preisabruf, DB Zugriff
-│   └── frontend/                   # einfache Weboberfläche
-├── docker/
-│   └── Dockerfile                  # Image Definition WebApp
+│   └── backend/
+│       ├── main.py
+│       ├── models.py
+│       ├── database.py
+│       ├── pricesource.py
+│       ├── Dockerfile
+│       ├── requirements.txt
+│       ├── pyproject.toml
+│       ├── static/
+│       │   └── index.html
+│       └── tests/
+│           └── test_api.py
 ├── helm/
-│   └── price-watch/                # Helm Chart der WebApp
-├── argocd/
-│   └── price-watch-app.yaml        # Argo CD Application Definition
-├── .github/
-│   ├── workflows/
-│   │   ├── ci.yaml                 # Build und Push in Registry
-│   │   └── docs.yaml               # MkDocs Build und Pages Deploy
-│   ├── ISSUE_TEMPLATE/             # User Story, Task, Bug Templates
-│   └── PULL_REQUEST_TEMPLATE.md
-├── tests/                          # Unit Tests, Smoke Tests
-└── scripts/
-    ├── setup-cluster.sh            # kind Cluster aufsetzen
-    └── bootstrap-argocd.sh         # Argo CD installieren
+│   └── price-watch/
+│       ├── Chart.yaml
+│       ├── values.yaml
+│       └── templates/
+│           ├── deployment.yaml
+│           ├── service.yaml
+│           ├── configmap.yaml
+│           ├── pvc.yaml
+│           └── cronjob.yaml
+├── app/argocd/
+│   └── price-watch.app.yaml
+├── kind/
+│   └── cluster.yaml
+├── scripts/
+│   ├── setup-cluster.sh
+│   ├── setup-argocd.sh
+│   └── teardown-cluster.sh
+└── .github/
+    └── workflows/
+        ├── ci.yaml
+        └── docs.yaml
 ```
 
 ---
 
 ## Quick Start, lokales Setup
 
-Voraussetzungen: Docker, kubectl, Helm, kind, Git, Visual Studio Code.
+Voraussetzungen: Docker Desktop, kubectl, Helm, kind, Git.
 
 ```bash
 # 1. Repository klonen
 git clone https://github.com/Cancani/gitops-platform-semesterarbeit5.git
 cd gitops-platform-semesterarbeit5
 
-# 2. lokalen Cluster bauen
-./scripts/setup-cluster.sh
-kubectl get nodes                     # erwartet: 2 Nodes Ready
+# 2. Cluster erstellen
+bash scripts/setup-cluster.sh
 
-# 3. Argo CD installieren und initiale Application erstellen
-./scripts/bootstrap-argocd.sh
-kubectl -n argocd port-forward svc/argocd-server 8080:443
+# 3. Argo CD installieren
+bash scripts/setup-argocd.sh
 
-# 4. Status prüfen
-kubectl get applications -n argocd
-kubectl get pods -n price-watch
+# 4. price-watch App registrieren
+kubectl apply -f app/argocd/price-watch.app.yaml
+
+# 5. Argo CD UI erreichbar machen
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+# 6. App erreichbar machen
+kubectl port-forward svc/price-watch 8000:8000
 ```
 
-Eine vollständige Schritt für Schritt Anleitung mit Screenshots befindet sich im [Runbook 01: Plattform Initial Setup](runbooks/01_plattform_initial_setup.md).
+Eine vollständige Anleitung mit Screenshots befindet sich in [RB-01: Plattform Initial Setup](docs/runbooks/RB01_plattform_initial_setup.md).
 
 ---
 
 ## Referenzprojekt aus früherer Semesterarbeit
 
-Die 4. Semesterarbeit ist als Referenzprojekt verlinkt und dient als Nachweis für vorhandene Erfahrung mit strukturierter Projektdokumentation, CI/CD, Docker und Microservice Architektur.
-
 - **Dokumentation Sem 4:** [https://cancani.com/geraeteausleihe-sem4/dokumentation/](https://cancani.com/geraeteausleihe-sem4/dokumentation/)
 - **Projektseite Sem 4:** [https://cancani.com/geraeteausleihe-sem4](https://cancani.com/geraeteausleihe-sem4)
-
-Die neue Semesterarbeit ist keine Wiederholung, sondern eine fachliche Erweiterung in Richtung Kubernetes, GitOps, Helm, Argo CD und Cloud Native Plattform Engineering. Details und Lerntransfer siehe [Dokumentation Kapitel 12](dokumentation.md#12-lerntransfer-aus-fruherer-semesterarbeit).
 
 ---
 
@@ -200,5 +217,5 @@ Die neue Semesterarbeit ist keine Wiederholung, sondern eine fachliche Erweiteru
 | Fachexperte IaCA, CNC, CNA | Marcel Bernet |
 | Fachexperte PRJ | Thanam Pangri |
 | Module | Projektmanagement, IaCA, CNC und CNA, optional DevOps |
-| Geplanter Aufwand | ca. 50 Stunden über 9 Wochen |
+| Kolloquium | 08.07.2026 |
 | Repository | [github.com/Cancani/gitops-platform-semesterarbeit5](https://github.com/Cancani/gitops-platform-semesterarbeit5) |
