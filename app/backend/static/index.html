@@ -113,12 +113,18 @@
   .chg.up { color: var(--up); }
   .chg.down { color: var(--down); }
   .chg.flat { color: var(--muted); }
+  .market-link {
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    align-self: flex-start;
+  }
+  .market-link:hover { color: var(--accent); }
   .empty, .loading {
     padding: 60px 28px;
     color: var(--muted);
     text-align: center;
   }
-  /* Detail Overlay */
   .overlay {
     position: fixed;
     inset: 0;
@@ -185,7 +191,6 @@
 
 <script>
 const RARITY = {
-  // name_color aus der Steam Market API, pro Skin
   "AK-47 | Redline (Field-Tested)": "#d32ce6",
   "AWP | Asiimov (Field-Tested)": "#eb4b4b",
   "Desert Eagle | Blaze (Factory New)": "#8847ff",
@@ -208,7 +213,6 @@ async function loadPrices() {
 }
 
 async function changeFor(item) {
-  // Holt die letzten zwei Punkte fuer die prozentuale Aenderung
   const res = await fetch("/api/prices/history?item=" + encodeURIComponent(item));
   const data = await res.json();
   const h = data.history;
@@ -235,6 +239,7 @@ async function render() {
       const sign = chg > 0 ? "+" : "";
       chgHtml = `<span class="chg ${cls}">${sign}${chg.toFixed(2)}%</span>`;
     }
+    const steamUrl = `https://steamcommunity.com/market/listings/730/${encodeURIComponent(p.item_name)}`;
     const card = document.createElement("div");
     card.className = "card";
     card.style.setProperty("--rarity", rarity);
@@ -244,7 +249,8 @@ async function render() {
       <div class="row">
         <span class="price">${fmt(p.price)} ${p.currency}</span>
         ${chgHtml}
-      </div>`;
+      </div>
+      <a class="market-link" href="${steamUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Steam Market</a>`;
     card.addEventListener("click", () => openDetail(p, rarity));
     grid.appendChild(card);
   }

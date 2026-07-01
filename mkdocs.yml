@@ -80,9 +80,9 @@ nav:
   - Start: index.md
   - Dokumentation: dokumentation.md
   - Runbooks:
-      - Plattform Initial Setup: runbooks/01_plattform_initial_setup.md
-      - Neue Version deployen: runbooks/02_neue_version_deployen.md
-      - Rollback Release: runbooks/03_rollback_release.md
+      - Plattform Initial Setup: runbooks/RB01_plattform_initial_setup.md
+      - Neue Version deployen: runbooks/RB02_neue_version_deployen.md
+      - Rollback Release: runbooks/RB03_rollback_release.md
 
 extra:
   social:

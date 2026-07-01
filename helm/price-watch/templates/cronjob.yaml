@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "price-watch.labels" . | nindent 4 }}
 spec:
-  schedule: "*/5 * * * *"
+  schedule: "*/1 * * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
