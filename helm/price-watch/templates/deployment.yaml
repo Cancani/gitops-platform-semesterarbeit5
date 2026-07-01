@@ -22,6 +22,12 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DATABASE_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "price-watch.fullname" . }}
+                  key: DATABASE_PATH
           ports:
             - name: http
               containerPort: 8000
@@ -32,11 +38,14 @@ spec:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          # /tmp als emptyDir, da readOnlyRootFilesystem true ist.
-          # uvicorn nutzt /tmp für reload und Worker Kommunikation.
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: data
+              mountPath: /data
       volumes:
         - name: tmp
           emptyDir: {}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "price-watch.fullname" . }}

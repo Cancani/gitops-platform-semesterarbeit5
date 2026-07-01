@@ -1,22 +1,23 @@
 """Preisquelle für die Preisüberwachung.
 
-Aktuell eine Mock Quelle, die plausible Preise für eine feste Liste von
-CS2 Marktplatzobjekten erzeugt. Die Schwankung erfolgt um einen realistischen
-Basispreis. Damit ist die Demo unabhängig von externen APIs (Massnahme zu
-Risiko R2). Die Bild URLs zeigen auf das echte Steam CDN (icon_url Hashes
-stammen aus der Steam Market API).
-
-Eine echte HTTP Quelle (Steam Market priceoverview) lässt sich später über
-dieselbe fetch_prices Schnittstelle anbinden, ohne die übrige Anwendung zu
-ändern.
+Primär werden Preise über die Steam Market API abgerufen. Bei Nichtverfügbarkeit
+der API greift ein Mock-Fallback mit plausiblen Basispreisen. Die Bild URLs
+zeigen auf das echte Steam CDN.
 """
 
+import logging
 import random
 from datetime import datetime, timezone
 
+import httpx
+
 from models import PriceEntry
 
+logger = logging.getLogger(__name__)
+
 STEAM_CDN = "https://community.cloudflare.steamstatic.com/economy/image"
+STEAM_API = "https://steamcommunity.com/market/priceoverview/"
+EUR_TO_CHF = 0.96
 
 _ICON_AK47 = (
     "i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3Uql"
@@ -52,19 +53,44 @@ def _image_url(icon: str) -> str:
     return f"{STEAM_CDN}/{icon}/360fx360f"
 
 
+def _fetch_steam_price(name: str) -> float | None:
+    """Ruft den aktuellen Preis von der Steam Market API ab."""
+    try:
+        response = httpx.get(
+            STEAM_API,
+            params={"currency": 3, "appid": 730, "market_hash_name": name},
+            timeout=5.0,
+        )
+        response.raise_for_status()
+        data = response.json()
+        if not data.get("success"):
+            return None
+        raw = data.get("lowest_price", "")
+        price_str = raw.replace("CHF", "").replace(",", ".").strip()
+        return round(float(price_str), 2)
+    except Exception:
+        return None
+
+
 def fetch_prices() -> list[PriceEntry]:
-    """Ruft aktuelle Preise ab (Mock mit zufälliger Schwankung)."""
+    """Ruft aktuelle Preise ab. Steam API primär, Mock als Fallback."""
     now = datetime.now(timezone.utc)
     entries: list[PriceEntry] = []
     for name, meta in WATCHED_ITEMS.items():
-        variation = random.uniform(-0.05, 0.05)
-        price = round(meta["base"] * (1 + variation), 2)
+        price = _fetch_steam_price(name)
+        if price is not None:
+            source = "steam"
+        else:
+            logger.warning("Steam API nicht verfügbar für %s, verwende Mock", name)
+            variation = random.uniform(-0.05, 0.05)
+            price = round(meta["base"] * (1 + variation), 2)
+            source = "mock"
         entries.append(
             PriceEntry(
                 item_name=name,
                 price=price,
                 currency="CHF",
-                source="mock",
+                source=source,
                 image_url=_image_url(meta["icon"]),
                 timestamp=now,
             )
