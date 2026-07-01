@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "price-watch.fullname" . }}-refresh
+  labels:
+    {{- include "price-watch.labels" . | nindent 4 }}
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: refresh
+              image: curlimages/curl:8.7.1
+              command:
+                - curl
+                - -X
+                - POST
+                - http://{{ include "price-watch.fullname" . }}:8000/api/prices/refresh
