@@ -34,9 +34,13 @@ kubectl cluster-info --context kind-kind
 bash scripts/setup-argocd.sh
 ```
 
-Das Skript gibt das initiale Admin-Passwort aus. Notieren.
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
 
-3. Argo CD UI erreichbar machen
+Command für Passwort ausführen.
+
+1. Argo CD UI erreichbar machen
 
 ```bash
 kubectl port-forward svc/argocd-server -n argocd 8080:443
