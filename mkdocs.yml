@@ -46,7 +46,7 @@ theme:
     repo: fontawesome/brands/github
 
 extra_css:
-  - stylesheets/extra.css
+  - docs/stylesheets/style.css
 
 markdown_extensions:
   - admonition

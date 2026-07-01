@@ -132,8 +132,7 @@ sequenceDiagram
 │   └── runbooks/
 │       ├── RB01_plattform_initial_setup.md
 │       ├── RB02_neue_version_deployen.md
-│       ├── RB03_rollback_release.md
-│       └── RB04_argocd_out_of_sync.md
+│       └──RB03_rollback_release.md
 ├── app/
 │   ├── argocd/
 │   │   └── price-watch.app.yaml
