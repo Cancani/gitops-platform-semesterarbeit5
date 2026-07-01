@@ -2662,7 +2662,7 @@ Zwei Dinge nehme ich für künftige Projekte mit: Erstens, kleine, verifizierbar
 
 ## Demo Skript
 
-**Annahme zur Slotdauer:** Die folgende Zeitplanung geht von 30 Minuten aus (Präsentation, Live-Demo, Fragen). Falls das tatsächliche Zeitfenster für das Kolloquium am 08.07.2026 davon abweicht, müssen die Blöcke proportional angepasst werden, die Reihenfolge und die Kernpunkte bleiben gleich.
+**Annahme zur Slotdauer:** Die folgende Zeitplanung geht von 20 Minuten aus (Präsentation, Live-Demo, Fragen). Falls das tatsächliche Zeitfenster für das Kolloquium am 08.07.2026 davon abweicht, müssen die Blöcke proportional angepasst werden, die Reihenfolge und die Kernpunkte bleiben gleich.
 
 ### Vorbereitung, am Vortag
 
@@ -2673,16 +2673,6 @@ Zwei Dinge nehme ich für künftige Projekte mit: Erstens, kleine, verifizierbar
 - Browser-Tabs vorbereiten: Frontend (`http://localhost:30080`), Argo CD UI (`https://localhost:8080`), GitHub Repository, GitHub Actions
 - Akku, WLAN und Beamer-Auflösung vorab testen (Risiko R8)
 
-### Ablauf
-
-| Zeit | Block | Inhalt |
-| --- | --- | --- |
-| 0 bis 3 Min | Einstieg | Kurzvorstellung des Themas: GitOps Plattform mit Preisüberwachungs-WebApp als Referenzanwendung. Ziel: nicht die WebApp ist der Fokus, sondern der Plattform- und Bereitstellungsprozess dahinter. |
-| 3 bis 8 Min | Architektur-Überblick | Die vier Diagramme aus Kapitel Architektur im Überblick zeigen: Systemkontext, WebApp-Architektur, Plattform-Architektur, GitOps-Sequenz. Kurz auf ADR-002 (kind), ADR-003 (SQLite) und ADR-005 (Squash Merge) verweisen, falls Fragen dazu erwartbar sind. |
-| 8 bis 18 Min | Live GitOps Loop | Eine kleine, sichtbare Code-Änderung (zum Beispiel ein Farbwert im Frontend) auf `develop` committen, PR nach `main` öffnen und mergen. Live zu GitHub Actions wechseln: `lint-and-test` grün, danach `build-and-push`. Sobald das Image in GHCR liegt und `values.yaml` durch den Bot-Commit aktualisiert ist, zur Argo CD UI wechseln und den automatischen Sync live beobachten. Abschliessend das Frontend neu laden und die Änderung zeigen. |
-| 18 bis 22 Min | SelfHeal oder Rollback | Variante A, SelfHeal: `kubectl scale deployment price-watch --replicas=0` manuell ausführen, Argo CD zeigt den Drift und stellt den Soll-Zustand automatisch wieder her. Variante B, Rollback: den in Runbook 03 dokumentierten Ablauf kurz nachstellen (`git revert` auf den bekannten Bad Commit, Merge, Argo CD synct zurück). Variante A ist schneller und risikoärmer für eine Live-Demo, Variante B ist inhaltlich näher an US12 und damit die Standardwahl, falls Zeit reicht. |
-| 22 bis 26 Min | Projektmanagement Kurzblick | Sprint Velocity (Sprint 2: 16 von 16 Story Points), Risikomatrix mit den drei roten Risiken R4, R9, R10 und deren Ausgang, eine Kernerkenntnis aus den Retrospektiven. Dieser Block richtet sich gezielt an Thanam. |
-| 26 bis 30 Min | Fragen | Offen für Rückfragen von Marcel und Thanam. |
 
 ### Backup Plan
 
@@ -2729,29 +2719,11 @@ Für eine mögliche Folgearbeit oder Weiterentwicklung wären naheliegende näch
 
 ---
 
-## Anhang A: Screenshots
+# Kontakt
 
-Die meisten Nachweis-Screenshots sind direkt im jeweiligen Fachkapitel eingebettet, dort wo sie inhaltlich hingehören (vollständige Liste im Abbildungsverzeichnis). Dieser Anhang bündelt zusätzlich den Stand am Ende der Arbeit an einem Ort, für den schnellen Blick kurz vor oder während des Kolloquiums.
+Für Rückfragen oder weiterführende Informationen zu diesem Projekt:
 
-### Aktuell verwendete Stand-Screenshots
+**Efekan Demirci**  
+efekan@demirci.ch
 
-| Bereich | Screenshot | Ort im Dokument |
-| --- | --- | --- |
-| Argo CD Application, Sync-Status | `argocdui.png` | Kapitel Plattformaufbau, Argo CD Installation |
-| Preisabruf und aktuelle Preise im Cluster | `appbackend3sq.png` | Kapitel Plattformaufbau, Anwendungslogik und Datenmodelle |
-| Frontend mit befüllter Preisübersicht | `lokalpreis2.png` | Kapitel Plattformaufbau, Frontend |
-| Risikomatrix, grafisch | `Risikomatrix.png` | Kapitel Projektmanagement, Risikomatrix |
-
-### Checkliste für frische Screenshots vor dem Kolloquium
-
-Die folgenden Stände sollten möglichst kurz vor dem 08.07.2026 nochmals frisch erfasst werden, damit sie exakt den Abgabestand zeigen und nicht einen Zwischenstand aus Sprint 2 oder 3:
-
-- [ ] Argo CD UI, Application `price-watch`, Ressourcenbaum vollständig `Synced` und `Healthy`
-- [ ] `kubectl get all -n default` mit laufendem Deployment, Service, PVC, CronJob und mindestens einem erfolgreichen Job
-- [ ] GitHub Actions, letzter Workflow Run auf `main`, beide Jobs (`lint-and-test`, `build-and-push`) grün
-- [ ] GitHub Project Board, alle Spalten, Sprint 3 Stories bis auf offene Punkte in Spalte Done
-- [ ] Frontend im Browser mit mehreren Preispunkten pro Skin, sodass der Chart-Verlauf sichtbar ist
-- [ ] Live-Doku auf `cancani.com/gitops-platform-sem5/dokumentation/`, Startseite
-
-Diese Checkliste ersetzt keine neuen Bilddateien, sie ist eine Arbeitsliste für die letzten Tage vor der Abgabe. Sobald die Screenshots erfasst sind, gehören sie unter `docs/img/` und werden an der jeweils passenden Stelle in diesem Dokument referenziert, nicht ausschliesslich hier im Anhang.
-
+Die Projektdokumentation ist **öffentlich zugänglich**.
