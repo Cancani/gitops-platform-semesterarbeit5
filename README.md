@@ -59,13 +59,14 @@ Diese Semesterarbeit baut eine kleine, aber realistische Cloud Native Plattform 
 flowchart LR
     Dev[Entwickler] -->|git push| Repo[(GitHub Repository)]
     Repo -->|Trigger| CI[GitHub Actions CI]
-    CI -->|Build und Push| Reg[(GitHub Container Registry)]
+    CI -->|Build und Push| Reg[(GHCR)]
+    CI -->|values.yaml Update| Repo
     Repo -->|Helm Chart Pfad| Argo[Argo CD]
-    Argo -->|kubectl apply, Sync| K8s[(Kubernetes Cluster)]
+    Argo -->|Sync| K8s[(Kubernetes Cluster)]
     Reg -->|Image Pull| K8s
     K8s --> App[Preisüberwachungs WebApp]
     App --> DB[(SQLite)]
-    App -->|HTTPS| User[Benutzer]
+    App -->|HTTP, NodePort 30080| User[Benutzer]
 ```
 
 ---
@@ -98,17 +99,19 @@ flowchart LR
 sequenceDiagram
     autonumber
     participant Dev as Entwickler
-    participant Git as GitHub
+    participant Git as GitHub Repository
     participant CI as GitHub Actions
     participant Reg as GHCR
     participant Argo as Argo CD
     participant K8s as Kubernetes
 
     Dev->>Git: git push (Code oder Helm Werte)
-    Git->>CI: trigger workflow
-    CI->>CI: Build, Test, Lint
-    CI->>Reg: docker push image:tag
-    Argo->>Git: poll oder webhook
+    Git->>CI: trigger lint-and-test
+    CI->>CI: ruff, pytest, helm lint, helm template
+    CI->>CI: build-and-push, nur wenn lint-and-test gruen
+    CI->>Reg: docker push image, sha-Tag und latest
+    CI->>Git: values.yaml Update, Commit mit skip ci
+    Argo->>Git: Polling auf Aenderung
     Argo->>K8s: apply Manifeste aus Helm Chart
     K8s->>Reg: pull image
     K8s-->>Argo: Status Healthy
@@ -132,6 +135,8 @@ sequenceDiagram
 │       ├── RB03_rollback_release.md
 │       └── RB04_argocd_out_of_sync.md
 ├── app/
+│   ├── argocd/
+│   │   └── price-watch.app.yaml
 │   └── backend/
 │       ├── main.py
 │       ├── models.py
@@ -154,8 +159,6 @@ sequenceDiagram
 │           ├── configmap.yaml
 │           ├── pvc.yaml
 │           └── cronjob.yaml
-├── app/argocd/
-│   └── price-watch.app.yaml
 ├── kind/
 │   └── cluster.yaml
 ├── scripts/
@@ -191,8 +194,8 @@ kubectl apply -f app/argocd/price-watch.app.yaml
 # 5. Argo CD UI erreichbar machen
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 
-# 6. App erreichbar machen
-kubectl port-forward svc/price-watch 8000:8000
+# 6. App im Browser oeffnen, direkt ueber NodePort erreichbar
+# http://localhost:30080
 ```
 
 Eine vollständige Anleitung mit Screenshots befindet sich in [RB-01: Plattform Initial Setup](docs/runbooks/RB01_plattform_initial_setup.md).
