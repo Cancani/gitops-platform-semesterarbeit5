@@ -57,6 +57,6 @@ echo "==> Cluster ist bereit"
 echo
 kubectl get nodes -o wide
 echo
-echo "N$chste Schritte:"
+echo "Nächste Schritte:"
 echo "  - kubectl cluster-info"
 echo "  - Cluster löschen: bash scripts/teardown-cluster.sh"
