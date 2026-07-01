@@ -40,7 +40,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 Command für Passwort ausführen.
 
-1. Argo CD UI erreichbar machen
+3. Argo CD UI erreichbar machen
 
 ```bash
 kubectl port-forward svc/argocd-server -n argocd 8080:443
@@ -59,20 +59,14 @@ kubectl apply -f app/argocd/price-watch.app.yaml
 In der Argo CD UI erscheint die Applikation `price-watch` und wechselt nach ca. 30 Sekunden
 auf `Synced` und `Healthy`.
 
-6. Applikation erreichbar machen
+6. Applikation im Browser öffnen
 
-```bash
-kubectl port-forward svc/price-watch 8000:8000
-```
+Die Applikation ist direkt über NodePort erreichbar, kein Port-Forward nötig:
 
-UI erreichbar unter `http://localhost:8000`.
+`http://localhost:30080`
 
 **Erfolgskriterium**
 
 - Argo CD UI zeigt `price-watch` als `Synced` und `Healthy`
-- `http://localhost:8000` zeigt die price-watch Weboberfläche
+- `http://localhost:30080` zeigt die price-watch Weboberfläche
 - `kubectl get pods` zeigt einen laufenden Pod
-
-**Nachweis**
-
-Screenshot Argo CD UI mit grünem Status und laufendem Pod.
