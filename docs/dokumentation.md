@@ -2276,3 +2276,27 @@ Ausführungen, da SQLite keinen parallelen Schreibzugriff verträgt.
 Die Preisquelle wurde auf die Steam Market API umgestellt. Bei Nichtverfügbarkeit
 greift ein Mock-Fallback mit plausiblen Basispreisen. `httpx` wurde als HTTP-Client
 in `requirements.txt` ergänzt.
+
+---
+
+## Steam Market API als Preisquelle
+
+Die Preisquelle wird von Mock-Daten auf die Steam Market API umgestellt. Der Endpoint
+`priceoverview` liefert den aktuellen Marktpreis eines CS2 Skins direkt in CHF:
+
+`https://steamcommunity.com/market/priceoverview/?currency=3&appid=730&market_hash_name=<name>`
+
+Die Funktion `_fetch_steam_price()` in `pricesource.py` ruft diesen Endpoint via `httpx`
+auf und parst den `lowest_price` Wert. Schlägt der Aufruf fehl -- etwa weil Steam nicht
+erreichbar ist oder ein Rate Limit greift -- greift der Mock-Fallback mit einer zufälligen
+Schwankung um den hinterlegten Basispreis. Damit bleibt die App auch ohne Netzwerkzugriff
+demonstrierbar (Massnahme zu Risiko R2).
+
+Der CronJob-Schedule wurde von `*/5 * * * *` auf `*/1 * * * *` geändert, sodass Preise
+jede Minute automatisch abgerufen und in SQLite persistiert werden. Der Preisverlauf im
+Frontend baut sich dadurch im Demo-Betrieb schnell auf.
+
+Jede Karte im Frontend enthält einen direkten Link auf die Steam Market Seite des Skins:
+
+`https://steamcommunity.com/market/listings/730/<item_name>`
+
