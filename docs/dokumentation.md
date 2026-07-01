@@ -2628,19 +2628,16 @@ Alle Abbildungen und Diagramme dieses Dokuments in der Reihenfolge ihres Auftret
 
 ---
 
-## Reflexion
-
 ### Fachliche Reflexion
 
-Der grösste fachliche Sprung gegenüber Sem 4 war der Wechsel von einer klassischen Microservice-Architektur mit manuellem Deployment hin zu einer deklarativen, GitOps-basierten Plattform. In der Geräteausleihe (Sem 4) endete die Pipeline beim fertigen Container Image, der Rest war manuelles Handling. In dieser Arbeit ist das Deployment selbst Teil des versionierten Zustands, und der Cluster gleicht sich laufend an das Repository an, statt umgekehrt.
+Der grösste fachliche Sprung gegenüber Sem 4 war nicht der Wechsel von manuell zu automatisiert, automatisiertes Deployment gab es in Sem 4 bereits über GitHub Actions. Der eigentliche Sprung war der Wechsel von Push-CD zu echtem Pull-GitOps. In der Geräteausleihe (Sem 4) hat die Pipeline selbst aktiv mit `kubectl apply` und `kubectl set image` auf den Cluster eingewirkt, die Pipeline war der Akteur. In dieser Arbeit ist das umgekehrt: Argo CD beobachtet laufend den Zustand im Repository und gleicht den Cluster kontinuierlich daran an, die Pipeline liefert nur noch ein neues Image und einen neuen Commit, den eigentlichen Abgleich übernimmt der Operator. Der SelfHeal-Mechanismus, der eine manuelle `kubectl scale` aktiv zurücksetzt, macht diesen Unterschied sehr plastisch: Es gibt in Sem 5 keinen Moment, in dem der Cluster länger von der Git-Wahrheit abweicht als einen Reconcile-Zyklus.
 
 Konkret neu waren:
 
-- **Kubernetes als Zielplattform.** Vorher kannte ich nur einzelne Container, keine Orchestrierung. Konzepte wie Reconciliation Loops, Liveness und Readiness Probes oder der Unterschied zwischen `Deployment` und `Pod` waren am Anfang von Sprint 1 abstrakt und wurden erst durch das wiederholte Aufsetzen und Zerstören des kind Clusters greifbar.
-- **Helm als Abstraktionsschicht.** Der Übergang von rohen YAML-Manifesten zu einem parametrisierten Chart mit `values.yaml` hat mir gezeigt, wie schnell reine YAML-Verwaltung unübersichtlich wird, sobald mehr als ein, zwei Ressourcen dazukommen.
-- **Argo CD und der GitOps-Gedanke selbst.** Die Umstellung im Kopf war grösser als die technische: nicht mehr `kubectl apply` als Werkzeug zu denken, sondern Git als einzige Wahrheit und den Cluster nur noch als Spiegel davon zu behandeln. Der SelfHeal-Mechanismus, der eine manuelle `kubectl scale` aktiv zurücksetzt, hat das sehr plastisch gemacht.
+- **Multi-Node Kubernetes und Helm.** Kubernetes selbst war nicht komplett neu, K3s lief schon in Sem 4 auf einer einzelnen EC2. Neu war der Multi-Node-Aufbau mit kind, und vor allem, dass die Ressourcen nicht mehr als rohe YAML-Manifeste direkt appliziert werden, sondern über ein parametrisiertes Helm Chart mit `values.yaml` entstehen. Der Übergang hat mir gezeigt, wie schnell reine Manifest-Verwaltung unübersichtlich wird, sobald mehr als ein, zwei Ressourcen dazukommen, genau das war in Sem 4 mit wachsender Ressourcenzahl bereits spürbar.
+- **Argo CD und der GitOps-Gedanke selbst.** Die Umstellung im Kopf war grösser als die technische: nicht mehr die Pipeline als Werkzeug zu denken, das aktiv auf den Cluster einwirkt, sondern Git als einzige Wahrheit und den Cluster nur noch als sich selbst korrigierenden Spiegel davon zu behandeln.
 - **FastAPI statt Flask.** Der Wechsel war bewusst gewählt (ADR-001), um Lerntransfer zu zeigen, nicht weil Flask ungeeignet gewesen wäre. Pydantic-Modelle als durchgängige Validierungsschicht zwischen API und Datenbank sind ein Muster, das ich in Sem 4 noch nicht hatte und das den Code merklich robuster macht.
-- **Sicherheitsgrundlagen im Container.** Non-Root UID, `readOnlyRootFilesystem`, Multi-Stage Builds für kleinere Images, das war in Sem 4 kein Thema und ist hier von Anfang an mitgedacht statt nachträglich aufgesetzt.
+- **Sicherheitsgrundlagen im Container.** Non-Root UID, `readOnlyRootFilesystem`, Multi-Stage Builds für kleinere Images, das war in Sem 4 nicht im gleichen Umfang mitgedacht und ist hier von Anfang an Teil des Dockerfiles statt ein späterer Ausbauschritt.
 
 Am meisten Zeit hat der CI/CD-Teil gekostet, konkret das Zusammenspiel aus Image Tag, `values.yaml` Update per Bot-Commit und dem `[skip ci]` Mechanismus, um keine Endlosschleife auszulösen. Das war kein grosses Konzept, aber ein Detail, das ohne Testen im echten Repository nicht offensichtlich war.
 
@@ -2657,7 +2654,7 @@ Als Einzelperson ohne Code Review von Aussen fehlte ein Korrektiv, das in einem 
 
 ### Persönliche Reflexion
 
-Der Umstieg von einer mir vertrauten Microservice-Welt (Sem 4) auf eine mir bis dahin nur oberflächlich bekannte Kubernetes- und GitOps-Welt war der Hauptgrund, warum ich mich für dieses Thema entschieden habe, nicht das sichere, sondern das Thema mit dem grösseren Lernfeld. Das hat sich ausgezahlt, brachte aber auch die grösste Unsicherheit der Arbeit mit sich, insbesondere zu Beginn von Sprint 2, als CI Pipeline, Helm Chart und Argo CD gleichzeitig entstehen mussten und noch nichts davon zusammenspielte.
+Der Umstieg von einer mir aus Sem 4 vertrauten Push-CD-Welt auf eine mir bis dahin nur oberflächlich bekannte GitOps-Welt war der Hauptgrund, warum ich mich für dieses Thema entschieden habe, nicht das sichere, sondern das Thema mit dem grösseren Lernfeld. Das hat sich ausgezahlt, brachte aber auch die grösste Unsicherheit der Arbeit mit sich, insbesondere zu Beginn von Sprint 2, als CI Pipeline, Helm Chart und Argo CD gleichzeitig entstehen mussten und noch nichts davon zusammenspielte.
 
 Zwei Dinge nehme ich für künftige Projekte mit: Erstens, kleine, verifizierbare Zwischenschritte (Cluster läuft, dann Image baut lokal, dann Chart installiert lokal, dann CI baut, dann Argo CD synct) haben die Komplexität handhabbar gemacht, ein direkter Sprung auf den vollständigen GitOps-Loop hätte vermutlich zu Debugging ohne klaren Ausgangspunkt geführt. Zweitens, das bewusste Streichen von Umfang ist keine Schwäche, sondern eine Voraussetzung dafür, den Kernpfad überhaupt sauber abzuschliessen, gerade als Einzelperson in neun statt der ursprünglich elf, zwölf Wochen.
 
