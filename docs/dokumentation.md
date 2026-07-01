@@ -180,9 +180,9 @@ Laufende Nachweise pro Sprint durchgehend in `docs/screenshots/sprint-X/`.
 
 | Sprint | Zeitraum | Fokus | Status |
 | --- | --- | --- | --- |
-| **Sprint 1** | Woche 1 bis 3 | Setup, Cluster, WebApp Skelett, Container | _In Bearbeitung_ |
-| **Sprint 2** | Woche 4 bis 6 | CI Pipeline, Helm Chart, Argo CD, GitOps Sync | _Geplant_ |
-| **Sprint 3** | Woche 7 bis 9 | Rollback, Runbooks, Tests, Doku Finalisierung | _Geplant_ |
+| **Sprint 1** | Woche 1 bis 3 | Setup, Cluster, WebApp Skelett, Container | _Abgeschlossen_ |
+| **Sprint 2** | Woche 4 bis 6 | CI Pipeline, Helm Chart, Argo CD, GitOps Sync | _Abgeschlossen_ |
+| **Sprint 3** | Woche 7 bis 9 | Rollback, Runbooks, Tests, Doku Finalisierung | _In Bearbeitung_ |
 
 ### Anpassung der Projektdauer nach Kickoff Präsentation
 
@@ -353,10 +353,10 @@ Die folgenden User Stories gehören zu Sprint 1:
 **Velocity**: 11 von 11 geplanten Story Points abgeschlossen (100 Prozent Sprint Goal Achievement).
 
 ![Milestone Sprint 1 Sprintende](./img/sprint1ende.png)
-<small><em>Abbildung : Milestone Sprint 1 Ende</em></small>
+<small><em>Abbildung 1: Milestone Sprint 1 Ende</em></small>
 
 ![Project Board Sprint 1 Sprintende](./img/sprint1ende2.png)
-<small><em>Abbildung : Projectboard Sprint 1 Ende</em></small>
+<small><em>Abbildung 2: Projectboard Sprint 1 Ende</em></small>
 
 ##### Demo-fähige Artefakte
 
@@ -364,7 +364,7 @@ Die folgenden User Stories gehören zu Sprint 1:
 - FastAPI Backend lokal lauffähig (`uvicorn main:app --reload --port 8000`), alle vier Endpoints (`/healthz`, `/ready`, `/api/prices`, `/api/prices/history`) liefern erwartete JSON Responses
 - Container Image `price-watch-backend:dev` baut in 15 Sekunden, läuft mit aktivem HEALTHCHECK (Status `(healthy)` nach rund 30 Sekunden), Image Grösse 248 MB
 - 5 ADRs dokumentiert (FastAPI, kind, SQLite, Monorepo, Squash Merge)
-- Doku Kapitel 4 (Architekturentscheide) und Kapitel 5 (Plattformaufbau) auf MkDocs Pages live
+- Doku Kapitel Architekturentscheide (ADRs) und Plattformaufbau auf MkDocs Pages live
 - 1 Pull Request gemerged, 11 atomare Commits, lineare History auf `main`
 
 ##### Definition of Done Check
@@ -387,7 +387,7 @@ Die folgenden User Stories gehören zu Sprint 1:
 | Anwendung mit Helm paketieren | Nicht im Sprint 1 Scope, Image Build als Vorarbeit erledigt | offen, geplant Sprint 2 |
 | GitOps mit Argo CD umsetzen | Nicht im Sprint 1 Scope | offen, geplant Sprint 2 |
 | CI Build und Push automatisieren | Lokaler Build verifiziert, CI folgt in Sprint 2 | teilweise vorbereitet |
-| Dokumentation und Runbooks erstellen | Kapitel 4 und 5 erstellt, Runbooks ab Sprint 3 | im Plan |
+| Dokumentation und Runbooks erstellen | Architekturentscheide und Plattformaufbau erstellt, Runbooks ab Sprint 3 | im Plan |
 
 ##### Stakeholder Abnahme
 
@@ -420,7 +420,7 @@ Die Rückmeldung zum Sprint-Umfang in Sprint 2 wurde aufgenommen. Die Sprint 2 P
 Die Retrospektive folgt dem Starfish Modell. Beobachtungen aus Sprint 1 werden in fünf Kategorien einsortiert und in konkrete Aktionen für Sprint 2 überführt.
 
 ![Starfish Retro Sprint 1](./img/starfishretrosprint1.png)
-<small><em>Abbildung : Sprint 1 Starfish Retrospektive</em></small>
+<small><em>Abbildung 3: Sprint 1 Starfish Retrospektive</em></small>
 
 ##### Keep (lief gut)
 
@@ -479,7 +479,7 @@ GitOps Durchstich. Push auf `main` führt automatisch zu Build, Push, Sync und D
 - Liveness und Readiness Probes
 
 ![Sprint2: Milestones und Issues](./img/image-2.png)
-<small><em>Abbildung : Sprint 2 Milestone und Issues</em></small>
+<small><em>Abbildung 4: Sprint 2 Milestone und Issues</em></small>
 
 **Sprint 2 User Stories**
 
@@ -618,7 +618,7 @@ Der Demo-Fehler trat auf weil ein Use Case nicht vollständig durchgespielt wurd
 Die Retrospektive folgt dem Starfish Modell und ist als Diagramm festgehalten.
 
 ![Starfish Retrospektive Sprint 2](./img/retro-sprint2-starfish.png)
-<small><em>Abbildung: Starfish Retrospektive Sprint 2</em></small>
+<small><em>Abbildung 5: Starfish Retrospektive Sprint 2</em></small>
 
 ##### Keep (lief gut, bitte beibehalten)
 
@@ -684,13 +684,13 @@ Plattform und Dokumentation sind prüfbar abgeschlossen. Helm Chart ist mit PVC 
 - Helm Chart um PVC, ConfigMap und CronJob erweitern (US09 Abschluss)
 - Rollback Szenario praktisch durchführen und in Runbook 03 dokumentieren
 - Drei Runbooks erstellen, testen und in MkDocs Navigation einbinden
-- CI Pipeline um pytest, ruff, helm lint und kubectl dry-run erweitern
+- CI Pipeline um pytest, ruff, helm lint und helm template erweitern
 - Vier Mermaid Architekturdiagramme, Quellenverzeichnis, Abbildungsverzeichnis und Glossar finalisieren
 - Management Summary finalisieren, Reflexion und Demo Skript schreiben
 - Generalprobe der Schlussdemo
 
 ![Sprint 3: Milestone und Issues](./img/image-3.png)
-<small><em>Abbildung : Sprint 3 Milestones und Issues</em></small>
+<small><em>Abbildung 6: Sprint 3 Milestones und Issues</em></small>
 
 **Sprint 3 User Stories**
 
@@ -743,7 +743,7 @@ Die bestehende CI Pipeline (`ci.yaml`) wird um folgende Schritte erweitert, die 
 | Lint | ruff | Python Code Qualität und Format |
 | Tests | pytest mit httpx | Vier Endpoint-Tests gegen die FastAPI App |
 | Helm Lint | helm lint | Statische Prüfung des Helm Charts |
-| Kubernetes Dry-Run | kubectl apply --dry-run=client | Valides Manifest aus dem Helm Output |
+| Helm Template | helm template | Manifeste aus dem Chart rendern und auf Fehler prüfen, ohne Cluster-Verbindung |
 
 Ein fehlgeschlagener Schritt verhindert den Image-Build. Damit ist die Pipeline ein vollständiges Build → Test → Lint → Push Konstrukt. Mindestens ein roter und ein grüner Lauf werden als Screenshot dokumentiert.
 
@@ -758,7 +758,7 @@ Für Sprint 3 werden mindestens folgende Nachweise geplant:
 - Screenshot Argo CD History mit Sync vor und nach dem Rollback
 - Screenshot `kubectl get pods` vor und nach dem Rollback
 - Drei Runbooks unter `docs/runbooks/` auf Pages sichtbar mit URL
-- Screenshot CI Pipeline mit allen Steps grün (Lint, Tests, Helm Lint, Dry-Run, Build, Push)
+- Screenshot CI Pipeline mit allen Steps grün (Lint, Tests, Helm Lint, Helm Template, Build, Push)
 - Screenshot eines fehlgeschlagenen Lint oder Test Laufs mit nachfolgender Korrektur
 - Vier Mermaid Diagramme in der Doku auf Pages sichtbar
 - Vollständiges Quellenverzeichnis und Abbildungsverzeichnis
@@ -886,11 +886,11 @@ Die Stärken aus dem Vorprojekt (Doku Disziplin, CI/CD Erfahrung, MkDocs Setup) 
 
 ---
 
-## Use Case Diagramm
+### Use Case Diagramm
 
 Das Use Case Diagramm zeigt die Interaktionen zwischen den Akteuren und der Plattform. Da der fachliche Fokus auf der Plattform liegt, sind die Use Cases bewusst aus Plattform Sicht modelliert und nicht aus einer fachlichen Geschäftslogik.
 
-### Akteure
+#### Akteure
 
 | Akteur | Beschreibung |
 | --- | --- |
@@ -900,7 +900,7 @@ Das Use Case Diagramm zeigt die Interaktionen zwischen den Akteuren und der Plat
 | **Argo CD** | Automatisierter Akteur, synchronisiert den Soll Zustand aus dem Repository in den Kubernetes Cluster. |
 | **Externe Preis API** | Externer Datenlieferant für Preise. Optional, mit Testdaten Fallback. |
 
-### Use Case Diagramm
+#### Use Case Diagramm
 
 ```mermaid
 flowchart TB
@@ -946,74 +946,74 @@ flowchart TB
     Dev --> UC9
 ```
 
-_Abbildung: Use Case Diagramm aus Plattform Sicht_
+_Abbildung 7: Use Case Diagramm aus Plattform Sicht_
 
-### Use Cases im Detail
+#### Use Cases im Detail
 
-#### UC1: Code oder Helm Werte ändern
+##### UC1: Code oder Helm Werte ändern
 
 **Akteur:** Entwickler
 **Auslöser:** Code Anpassung, Image Tag Bump oder Doku Änderung
 **Ablauf:** Entwickler ändert Datei lokal, committet auf `develop`, öffnet Pull Request nach `main`, mergt per Squash Merge.
 **Ergebnis:** Änderung ist auf `main` und triggert je nach Pfad die CI Pipeline oder den Pages Build.
 
-#### UC2: Image bauen und pushen
+##### UC2: Image bauen und pushen
 
 **Akteur:** CI System (GitHub Actions)
 **Auslöser:** Push auf `main` mit Änderungen unter `app/`, `docker/` oder Workflow
 **Ablauf:** Workflow checkt Code aus, baut Container Image, pusht nach GHCR mit Tags `:sha` und `:latest`.
 **Ergebnis:** Neues Image ist in GHCR verfügbar und kann von Argo CD oder lokal geladen werden.
 
-#### UC3: Doku auf Pages bereitstellen
+##### UC3: Doku auf Pages bereitstellen
 
 **Akteur:** CI System (GitHub Actions)
 **Auslöser:** Push auf `main` mit Änderungen unter `docs/` oder in `mkdocs.yml`
 **Ablauf:** Workflow installiert MkDocs Material, baut die Site und deployed auf `gh-pages`. GitHub Pages serviert die Site unter der konfigurierten URL.
 **Ergebnis:** Aktuelle Doku ist live unter der Pages URL.
 
-#### UC4: Sync aus Repository auf Cluster
+##### UC4: Sync aus Repository auf Cluster
 
 **Akteur:** Argo CD
 **Auslöser:** Änderung im überwachten Pfad `helm/price-watch`
 **Ablauf:** Argo CD pollt das Repository, erkennt Drift, appliziert die neuen Manifeste auf den Cluster.
 **Ergebnis:** Cluster Zustand entspricht dem Soll Zustand im Repository. Application Status zeigt `Synced, Healthy`.
 
-#### UC5: Rollback per Git Revert
+##### UC5: Rollback per Git Revert
 
 **Akteur:** Entwickler
 **Auslöser:** Fehlerhafter Release nach Sync
 **Ablauf:** Entwickler ermittelt schlechten Commit, führt `git revert` aus, pusht auf `main`. Argo CD synct den vorherigen Stand.
 **Ergebnis:** Cluster läuft wieder mit dem letzten guten Image Tag.
 
-#### UC6: Aktuelle Preise abrufen
+##### UC6: Aktuelle Preise abrufen
 
 **Akteur:** Endbenutzer
 **Auslöser:** Aufruf der WebApp URL im Browser
 **Ablauf:** Frontend lädt Daten von `GET /api/prices`, zeigt Tabelle mit aktuellem Preis pro Produkt.
 **Ergebnis:** Endbenutzer sieht aktuelle Marktpreise.
 
-#### UC7: Preisverlauf anzeigen
+##### UC7: Preisverlauf anzeigen
 
 **Akteur:** Endbenutzer
 **Auslöser:** Klick auf ein Produkt oder Aufruf der Verlaufsseite
-**Ablauf:** Frontend lädt Daten von `GET /api/prices/{id}/history`, rendert einfaches Chart mit Chart.js.
+**Ablauf:** Frontend lädt Daten von `GET /api/prices/history`, optional gefiltert per `?item=`, rendert einfaches Chart mit Chart.js.
 **Ergebnis:** Endbenutzer sieht Preisentwicklung über die Zeit.
 
-#### UC8: Preise regelmässig abrufen
+##### UC8: Preise regelmässig abrufen
 
 **Akteur:** Kubernetes CronJob (intern), externe Preis API
 **Auslöser:** Cron Schedule (z.B. alle 15 Minuten)
 **Ablauf:** CronJob startet Pod, ruft externe Preis API oder Testdaten Fallback ab, speichert Datensätze in SQLite.
 **Ergebnis:** Datenbank enthält aktuelle Preisdaten. Bei nicht erreichbarer API wird der Testdaten Fallback genutzt.
 
-#### UC9: Plattform Status prüfen
+##### UC9: Plattform Status prüfen
 
 **Akteur:** Entwickler
 **Auslöser:** Manuelle Prüfung oder Reaktion auf Alarm
 **Ablauf:** Entwickler nutzt `kubectl get pods`, Argo CD UI, GitHub Actions Logs. Bei Bedarf Zugriff auf `/healthz` und `/ready`.
 **Ergebnis:** Klares Bild über Cluster, Application und WebApp Zustand.
 
-### Geschäftsregeln und technische Constraints
+#### Geschäftsregeln und technische Constraints
 
 - Änderungen am Deployment erfolgen ausschliesslich über Git Commits, niemals direkt im Cluster (GitOps Prinzip).
 - Die WebApp läuft auch ohne externe Preis API durch den Testdaten Fallback.
@@ -1023,11 +1023,11 @@ _Abbildung: Use Case Diagramm aus Plattform Sicht_
 
 ---
 
-## Risikomatrix
+### Risikomatrix
 
 Die Risikomatrix stellt die identifizierten Projektrisiken zweidimensional dar. Sie hilft, Risiken nach Eintrittswahrscheinlichkeit und Auswirkung zu priorisieren und passende Gegenmassnahmen abzuleiten.
 
-### Achsenbeschreibung
+#### Achsenbeschreibung
 
 **Y Achse, Eintrittswahrscheinlichkeit (5 Stufen):**
 
@@ -1048,7 +1048,7 @@ Die Risikomatrix stellt die identifizierten Projektrisiken zweidimensional dar. 
 | Hoch | Deutliche Auswirkung auf den Projektfortschritt |
 | Kritisch | Projektgefährdend, Sprint Ziele oder Abgabe nicht erreichbar |
 
-### Farbbedeutung
+#### Farbbedeutung
 
 | Farbe | Bedeutung | Behandlung |
 | --- | --- | --- |
@@ -1061,14 +1061,14 @@ Die Risikomatrix stellt die identifizierten Projektrisiken zweidimensional dar. 
 
 
 
-### Risiken im Detail
+#### Risiken im Detail
 
 | ID | Risiko | Wahrscheinlichkeit | Auswirkung | Level | Massnahme | Sprint |
 | --- | --- | --- | --- | --- | --- | --- |
 | **R1** | Scope wird zu gross, WebApp wächst ungeplant über die Plattform hinaus | Wahrscheinlich | Hoch | Orange | WebApp bewusst klein halten, jedes Sprint Ziel auf Pflichtumfang prüfen, Plattform priorisieren | laufend |
 | **R2** | Externe Preisquelle ist instabil, limitiert oder bricht weg | Wahrscheinlich | Mittel | Orange | Früh testen, Testdaten Fallback im CronJob, in Doku als bewusste Abgrenzung dokumentieren | Sprint 2 |
 | **R3** | Lokaler Kubernetes Cluster (kind) verursacht Setup oder Stabilitätsprobleme | Gelegentlich | Hoch | Orange | Setup Skript versioniert und idempotent, k3s als Backup, früh testen in Sprint 1 | Sprint 1 |
-| **R4** | Argo CD oder Helm Setup verursachen mehr Aufwand als geplant | Wahrscheinlich | Hoch | Rot | Bewusst einfache Application ohne App of Apps und OIDC, `helm lint` und Dry Run in CI, Setup in Runbook 01 | Sprint 2 |
+| **R4** | Argo CD oder Helm Setup verursachen mehr Aufwand als geplant | Wahrscheinlich | Hoch | Rot | Bewusst einfache Application ohne App of Apps und OIDC, `helm lint` und `helm template` in CI, Setup in Runbook 01 | Sprint 2 |
 | **R5** | Zeitdruck durch Verzettelung in Zusatztools wie Monitoring, Alerting, Dashboards | Gelegentlich | Hoch | Orange | Strikt Out of Scope erklären, nur umsetzen falls Kernziele erfüllt und Restzeit verbleibt | Sprint 3 |
 | **R6** | Image Push nach GHCR schlägt wegen Token oder Permissions fehl | Gelegentlich | Mittel | Gelb | `permissions: packages: write` im Workflow, GHCR Sichtbarkeit korrekt setzen, frühzeitig testen | Sprint 2 |
 | **R7** | Datenverlust SQLite bei Pod Neustart ohne PVC | Selten | Niedrig | Grün | PVC im Helm Chart Pflicht, Verifikation per Test (Pod löschen, Daten noch da) | Sprint 2 |
@@ -1076,7 +1076,7 @@ Die Risikomatrix stellt die identifizierten Projektrisiken zweidimensional dar. 
 | **R9** | Sprint 2 schafft den GitOps Durchstich nicht in 3 Wochen | Wahrscheinlich | Kritisch | Rot | US08, US09, US10 parallel ab Woche 4 starten, US06 und US07 parallel weiterführen, Zwischenpräsentation 1 als Reality Check nutzen | Sprint 2 |
 | **R10** | Dokumentation rückständig zur Umsetzung | Sehr wahrscheinlich | Hoch | Rot | Doku Pflicht in Definition of Done, MkDocs Pages ab Sprint 1 live, Reviewzeit pro Sprint einplanen | laufend |
 
-### Einordnung in die Risikomatrix
+#### Einordnung in die Risikomatrix
 
 Die folgende Tabelle zeigt, an welcher Position der grafischen Risikomatrix jedes Risiko eingezeichnet wird. Spalten sind die Auswirkung von links (Niedrig) nach rechts (Kritisch), Zeilen sind die Wahrscheinlichkeit von unten (Unwahrscheinlich) nach oben (Sehr wahrscheinlich).
 
@@ -1108,13 +1108,15 @@ Unwahrscheinlich         [grün]      [grün]       [grün]       [gelb] R8
 
 ![Risikomatrix](./img/Risikomatrix.png)
 
-### Risikobehandlung über die Sprints
+<small><em>Abbildung 8: Risikomatrix mit allen zehn Risiken</em></small>
+
+#### Risikobehandlung über die Sprints
 
 - **Sprint 1:** R3 und R6 frühzeitig prüfen, damit Plattform und CI Setup tragfähig sind. R10 ab Sprint 1 durch laufende Doku auf MkDocs Pages reduzieren.
 - **Sprint 2:** R2 mit Testdaten Fallback abdecken. R4 durch frühen, schrittweisen Aufbau von Helm Chart und Argo CD Application angehen. R9 als Hauptfokus überwachen, der GitOps Durchstich hat Priorität.
 - **Sprint 3:** R5 strikt aus Scope halten, keine Zusatztools wenn Kernziele wackeln. R8 mit Demo Generalprobe und vorbereitetem Video absichern. R10 final reduzieren durch vollständige Doku vor Abgabe.
 
-### Fazit zur Risikomatrix
+#### Fazit zur Risikomatrix
 
 Die drei höchsten Risiken (R4, R9, R10) sind alle in der roten Zone und betreffen den Kern der Arbeit: technische Neuheit der Plattform, der dichte GitOps Durchstich in Sprint 2 und die laufende Doku Pflege. Für alle drei sind konkrete Massnahmen definiert, die direkt in die Sprintplanung einfliessen.
 
@@ -1122,22 +1124,179 @@ Die orangen Risiken (R1, R2, R3, R5) sind technisch oder organisatorisch beherrs
 
 Die gelben und grünen Risiken (R6, R7, R8) sind dokumentiert, aber kein aktiver Treiber der Sprintplanung. Sie werden bei Eintritt mit den vorbereiteten Massnahmen behandelt.
 
-### Status am Projektende
+#### Status am Projektende
 
 Nach Projektabschluss wird hier die Ist Bewertung pro Risiko ergänzt: ob das Risiko eingetreten ist und ob die Massnahme gewirkt hat.
 
 | ID | Ist Bewertung | Massnahme erfolgreich? | Bemerkung |
 | --- | --- | --- | --- |
-| R1 | _offen_ | _offen_ | _wird am Sprint 3 Ende ergänzt_ |
-| R2 | _offen_ | _offen_ | _wird am Sprint 3 Ende ergänzt_ |
-| R3 | _offen_ | _offen_ | _wird am Sprint 3 Ende ergänzt_ |
-| R4 | _offen_ | _offen_ | _wird am Sprint 3 Ende ergänzt_ |
-| R5 | _offen_ | _offen_ | _wird am Sprint 3 Ende ergänzt_ |
-| R6 | _offen_ | _offen_ | _wird am Sprint 3 Ende ergänzt_ |
-| R7 | _offen_ | _offen_ | _wird am Sprint 3 Ende ergänzt_ |
-| R8 | _offen_ | _offen_ | _wird am Sprint 3 Ende ergänzt_ |
-| R9 | _offen_ | _offen_ | _wird am Sprint 3 Ende ergänzt_ |
-| R10 | _offen_ | _offen_ | _wird am Sprint 3 Ende ergänzt_ |
+| R1 | Nicht eingetreten | Ja | WebApp blieb über alle drei Sprints bewusst klein, Scope Disziplin hat gehalten |
+| R2 | Teilweise eingetreten | Ja | Steam API wird produktiv genutzt, Mock-Fallback hat in Tests und CI ohne Netzwerkzugriff zuverlässig übernommen |
+| R3 | Nicht eingetreten | Ja | kind Cluster lief über alle drei Sprints stabil, keine grösseren Setup-Probleme |
+| R4 | Teilweise eingetreten | Ja | Helm Chart und Argo CD Application brauchten mehr Iteration als geplant, insbesondere PVC und CronJob in Sprint 3, aber ohne Verzug beim Kernziel |
+| R5 | Nicht eingetreten | Ja | Kein Monitoring, kein Alerting, kein Dashboard umgesetzt, konsequent aus Scope gehalten |
+| R6 | Eingetreten | Ja | GHCR Push scheiterte initial an der Gross-Kleinschreibung von `github.repository_owner`, behoben durch hartkodiertes `cancani` |
+| R7 | Nicht eingetreten | Ja | PVC seit Sprint 3 im Einsatz, Datenverlust bei Pod-Neustart verifiziert ausgeschlossen |
+| R8 | Nicht eingetreten | Ja | Demo läuft lokal auf dem eigenen Notebook, kein externer Abhängigkeitspunkt |
+| R9 | Nicht eingetreten | Ja | Sprint 2 hat den GitOps Durchstich mit 16 von 16 Story Points vollständig geschafft |
+| R10 | Teilweise eingetreten | Ja | Einzelne Kapitel liefen der Umsetzung hinterher, insbesondere die CI-Beschreibung nach der US14 Erweiterung, wurde vor Abgabe nachgezogen |
+
+---
+
+## Architektur im Überblick
+
+Dieses Kapitel zeigt die Architektur auf vier Ebenen, von aussen nach innen: zuerst der Systemkontext mit allen Akteuren und externen Systemen, dann die interne Architektur der WebApp, danach die Plattform Architektur auf Kubernetes Ebene, und zum Schluss die zeitliche Abfolge des GitOps Loops als Sequenzdiagramm. Die Diagramme sind bewusst als Ergänzung zu den ADRs und zum Kapitel Plattformaufbau gedacht: Sie zeigen das Gesamtbild, die Detailbegründungen stehen in den jeweiligen Kapiteln.
+
+### Systemkontext
+
+Das Systemkontextdiagramm zeigt die Plattform als Ganzes, abgegrenzt von den externen Akteuren und Systemen, mit denen sie kommuniziert.
+
+```mermaid
+flowchart TB
+    subgraph Aussenwelt
+        Dev[Entwickler]
+        User[Endbenutzer]
+        Steam[Steam Market API]
+    end
+
+    subgraph GitHub[GitHub]
+        Repo[Git Repository main]
+        Actions[GitHub Actions CI]
+        Pages[GitHub Pages MkDocs]
+    end
+
+    GHCR[(GHCR Container Registry)]
+
+    subgraph Plattform[Kubernetes Plattform, kind Cluster]
+        Argo[Argo CD]
+        App[price-watch WebApp]
+        DB[(SQLite auf PVC)]
+    end
+
+    Dev -->|git push| Repo
+    Repo --> Actions
+    Actions -->|Image Push| GHCR
+    Actions -->|Doku Build| Pages
+    Actions -->|values.yaml Update| Repo
+    Repo -->|beobachtet helm und argocd Pfad| Argo
+    Argo -->|Sync| App
+    Argo -->|Image Pull| GHCR
+    App --> DB
+    App -->|Preisabruf| Steam
+    User -->|Browser| App
+    Dev -.->|kubectl, Runbooks| Plattform
+```
+
+_Abbildung 9: Systemkontext der Plattform_
+
+Vier Akteure beziehungsweise externe Systeme umgeben die Plattform: der Entwickler, der über Git Commits die Plattform verändert, der Endbenutzer, der die WebApp im Browser konsumiert, GitHub als Ort für Repository, CI und Doku Hosting, und die Steam Market API als externe, nicht kontrollierte Datenquelle. Alle Pfeile in die Plattform hinein laufen entweder über Git (deklarativ, versioniert) oder über den direkten Preisabruf der WebApp selbst. Es gibt keinen Pfad, der den Cluster direkt und undokumentiert verändert.
+
+### WebApp Architektur
+
+Die WebApp Architektur zeigt die interne Struktur des FastAPI Backends und wie Browser und CronJob mit ihm interagieren.
+
+```mermaid
+flowchart TB
+    Browser[Browser: index.html + Chart.js]
+    CronJob[Kubernetes CronJob]
+
+    subgraph Backend[FastAPI Backend, main.py]
+        Routes[Routen: healthz, ready, api/prices, api/prices/history, api/prices/refresh]
+        Models[models.py, Pydantic Schemas]
+        DBLayer[database.py, SQLite Zugriff]
+        Source[pricesource.py, Preisquelle]
+    end
+
+    Mock[Mock Fallback]
+    SteamAPI[Steam Market API]
+    SQLite[(SQLite Datei, PVC /data)]
+
+    Browser -->|HTTP Requests| Routes
+    CronJob -->|POST refresh, jede Minute| Routes
+    Routes --> Models
+    Routes --> DBLayer
+    Routes --> Source
+    DBLayer --> SQLite
+    Source -->|primaer| SteamAPI
+    Source -->|bei Fehler| Mock
+```
+
+_Abbildung 10: WebApp Architektur_
+
+Die vier Python Module haben klar getrennte Zuständigkeiten: `main.py` definiert nur die Routen und verdrahtet die anderen Module, `models.py` validiert Ein- und Ausgabedaten über Pydantic, `database.py` kapselt jeden SQLite Zugriff, und `pricesource.py` entscheidet pro Aufruf, ob die echte Steam API oder der Mock Fallback antwortet. Kein Modul greift direkt auf ein anderes als über diese Schnittstellen zu, was die vier Endpoint-Tests aus US14 ohne echten Cluster oder echte Steam Verbindung ermöglicht.
+
+### Plattform Architektur
+
+Die Plattform Architektur zeigt, was innerhalb des kind Clusters läuft und wie Argo CD den Soll-Zustand aus dem Repository durchsetzt.
+
+```mermaid
+flowchart TB
+    subgraph KindCluster[kind Cluster: control-plane + worker Node]
+        subgraph ArgoNS[Namespace argocd]
+            ArgoServer[Argo CD Server + Controller]
+        end
+
+        subgraph DefaultNS[Namespace default]
+            Deploy[Deployment: price-watch Pod]
+            Svc[Service NodePort 30080]
+            CM[ConfigMap DATABASE_PATH]
+            PVC[(PVC 100Mi)]
+            CJ[CronJob alle 1 Minute]
+            Job[Job Pod: curl refresh]
+        end
+    end
+
+    GHCR[(GHCR Registry)]
+    Repo[Git Repository main]
+    Host[Host: localhost:30080]
+
+    Repo -->|beobachtet helm/price-watch| ArgoServer
+    ArgoServer -->|Sync, Prune, SelfHeal| Deploy
+    Deploy -->|pullt Image| GHCR
+    Svc --> Deploy
+    Deploy --> CM
+    Deploy --> PVC
+    CJ -->|erzeugt| Job
+    Job -->|POST refresh| Svc
+    Svc -->|NodePort Mapping| Host
+```
+
+_Abbildung 11: Plattform Architektur auf Kubernetes Ebene_
+
+Zwei Namespaces sind relevant: `argocd` für Argo CD selbst, bootstrapped über `kubectl apply` (siehe Begründung im Kapitel Plattformaufbau), und `default` für die eigentliche Anwendung. Argo CD ist der einzige Akteur, der Ressourcen im Namespace `default` verändert, jede manuelle `kubectl edit` oder `kubectl scale` wird beim nächsten Reconcile Loop durch `selfHeal: true` zurückgesetzt. Der CronJob läuft als eigener, kurzlebiger Job Pod, nicht im Deployment Pod selbst, sodass ein hängender Preisabruf nie den laufenden Service beeinträchtigt.
+
+### GitOps Sequenz
+
+Das Sequenzdiagramm zeigt den vollständigen Ablauf von einem Commit bis zum synchronisierten Cluster, inklusive dem Abbruchpfad bei einer fehlgeschlagenen Prüfung.
+
+```mermaid
+sequenceDiagram
+    actor Dev as Entwickler
+    participant Git as GitHub Repository main
+    participant CI as GitHub Actions
+    participant GHCR as GHCR
+    participant Argo as Argo CD
+    participant K8s as Kubernetes Cluster
+
+    Dev->>Git: git push, Code oder Helm Aenderung
+    Git->>CI: Trigger lint-and-test
+    CI->>CI: ruff, pytest, helm lint, helm template
+
+    alt Pruefung erfolgreich
+        CI->>CI: build-and-push
+        CI->>GHCR: Image Push, sha-Tag und latest
+        CI->>Git: values.yaml Update, Commit mit skip ci
+        Argo->>Git: Polling auf Aenderung
+        Argo->>K8s: Sync neues Image
+        K8s-->>Argo: Status Synced, Healthy
+    else Pruefung schlaegt fehl
+        CI--xDev: Pipeline rot, kein Image, kein Sync
+    end
+```
+
+_Abbildung 12: GitOps Sequenz vom Commit bis zum synchronisierten Cluster_
+
+Der entscheidende Punkt in diesem Diagramm ist der `alt`-Block: Nur wenn `lint-and-test` grün ist, entsteht überhaupt ein neues Image, und nur dann wird `values.yaml` verändert. Damit kann kein ungeprüfter Code jemals bis zu Argo CD vordringen. Der Rollback aus Kapitel Rollback Szenario per Git Revert nutzt exakt denselben Pfad in die andere Richtung: ein `git revert` ist ebenfalls nur ein Commit auf `main` und durchläuft dieselbe Pipeline.
 
 ---
 
@@ -1503,13 +1662,13 @@ Das Setup Skript prüft diese Voraussetzungen beim Start und meldet fehlende Too
 Das Setup Skript ist idempotent: Wenn der Cluster bereits existiert, wird er nicht neu erstellt, sondern nur der `kubectl` Kontext gesetzt und der aktuelle Status angezeigt. Damit ist mehrfaches Ausführen gefahrlos möglich (Massnahme zu Risiko R3).
 
 ![Cluster starten mit Skript](img/setup_cluster1.png)
-<small><em>Abbildung : Starten des Clusters lokal</em></small>
+<small><em>Abbildung 13: Starten des Clusters lokal</em></small>
 
 ![alt text](img/setup_cluster2.png)
-<small><em>Abbildung : Status Cluster</em></small>
+<small><em>Abbildung 14: Status Cluster</em></small>
 
 ![alt text](img/setup_cluster3.png)
-<small><em>Abbildung : Cluster Info nach Start</em></small>
+<small><em>Abbildung 15: Cluster Info nach Start</em></small>
 
 #### Verifikation nach Setup
 
@@ -1536,21 +1695,29 @@ Der Backend Code liegt unter `app/backend/`:
 
 | Pfad | Inhalt |
 | --- | --- |
-| `app/backend/main.py` | FastAPI Anwendung mit Health und API Endpoints |
+| `app/backend/main.py` | FastAPI Anwendung, Endpoints und Lifespan |
+| `app/backend/models.py` | Pydantic Modelle für Preisdaten und API Responses |
+| `app/backend/database.py` | SQLite Datenzugriff, Init, Insert, Queries |
+| `app/backend/pricesource.py` | Steam Market API Anbindung mit Mock-Fallback |
 | `app/backend/requirements.txt` | Python Abhängigkeiten mit Versionsranges |
-| `app/backend/README.md` | Setup Anleitung für lokale Entwicklung |
+| `app/backend/pyproject.toml` | Konfiguration für ruff und pytest |
+| `app/backend/Dockerfile` | Multi-Stage Build, Non-Root UID 1001 |
+| `app/backend/static/index.html` | Frontend, ausgeliefert über StaticFiles |
+| `app/backend/tests/test_api.py` | Vier Endpoint-Tests für die CI Pipeline |
 
 Die Trennung in `app/backend/` reflektiert die Monorepo Struktur (siehe [ADR-004](#adr-004-monorepo-statt-multi-repo)) und macht die Helm Chart Konfiguration eindeutig adressierbar.
 
-#### Endpoints im Skelett
+#### Endpoints
 
-| Pfad | Methode | Beschreibung | Status |
-| --- | --- | --- | --- |
-| `/docs` | GET | Interaktive OpenAPI Doku (Swagger UI) | aktiv |
-| `/healthz` | GET | Liveness Probe für Kubernetes | aktiv |
-| `/ready` | GET | Readiness Probe für Kubernetes | aktiv |
-| `/api/prices` | GET | Aktuelle Preise aller beobachteten Objekte | aktiv |
-| `/api/prices/history` | GET | Historische Preisdaten | aktiv |
+| Pfad | Methode | Beschreibung |
+| --- | --- | --- |
+| `/docs` | GET | Interaktive OpenAPI Doku (Swagger UI) |
+| `/healthz` | GET | Liveness Probe für Kubernetes |
+| `/ready` | GET | Readiness Probe für Kubernetes, prüft SQLite Verbindung |
+| `/api/prices` | GET | Aktuellster Preis pro beobachtetem Objekt |
+| `/api/prices/history` | GET | Preishistorie, optional gefiltert per `?item=` |
+| `/api/prices/refresh` | POST | Preisabruf auslösen, wird vom CronJob aufgerufen |
+| `/` | GET | Frontend (`index.html` über StaticFiles) |
 
 OpenAPI Schema und Swagger UI sind durch FastAPI automatisch verfügbar und müssen nicht separat konfiguriert werden. Das wird für manuelle Tests und für die Demo in den Zwischenpräsentationen genutzt.
 
@@ -1567,7 +1734,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ![Ausführung App](img/backendapp1.png)
-<small><em>Abbildung : Ausführung der App lokal</em></small>
+<small><em>Abbildung 16: Ausführung der App lokal</em></small>
 
 Der Server reagiert auf Code-Änderungen mit Auto-Reload, was die Iteration beim Skelett Aufbau und beim späteren Anbinden der Datenbank in Sprint 2 beschleunigt.
 
@@ -1581,7 +1748,7 @@ Die beiden Health Endpoints werden in Sprint 2 als Kubernetes Liveness und Readi
 Die Trennung in zwei Probes folgt der Kubernetes Best Practice und vermeidet, dass langsame Initialisierungen (zum Beispiel ein Schema-Load in Sprint 2) zu falschen Pod Restarts führen.
 
 ![Health Probes](img/backend2.png)
-<small><em>Abbildung : Healthpoints App</em></small>
+<small><em>Abbildung 17: Health Probes der App</em></small>
 
 ### Containerisierung (Dockerfile)
 
@@ -1643,13 +1810,13 @@ curl http://localhost:8000/api/prices
 ```
 
 ![Docker build](img/docker1.png)
-<small><em>Abbildung : Docker ¨Build ausführung</em></small>
+<small><em>Abbildung 18: Docker Build Ausführung</em></small>
 
 ![Docker run](img/docker2.png)
-<small><em>Abbildung : Docker run ausführung</em></small>
+<small><em>Abbildung 19: Docker Run Ausführung</em></small>
 
 ![Endpoint Check](img/docker3.png)
-<small><em>Abbildung : Endpoint checks</em></small>
+<small><em>Abbildung 20: Endpoint Checks im Container</em></small>
 
 Der HEALTHCHECK wird vom Docker Daemon automatisch ausgeführt. Status prüfen mit:
 
@@ -1657,7 +1824,7 @@ Der HEALTHCHECK wird vom Docker Daemon automatisch ausgeführt. Status prüfen m
 docker ps
 ```
 ![Docker Container Status](img/docker4.png)
-<small><em>Abbildung : Docker Container Status</em></small>
+<small><em>Abbildung 21: Docker Container Status</em></small>
 
 Image Grösse prüfen:
 
@@ -1742,7 +1909,7 @@ Damit `readOnlyRootFilesystem: true` mit uvicorn funktioniert, wird `/tmp` als `
 
 #### Service Exposition via NodePort
 
-Bewusst NodePort statt Ingress. Ein Ingress Controller (zum Beispiel ingress-nginx) wäre eine zusätzliche Plattformkomponente, die im Scope der Semesterarbeit keinen Mehrwert bringt, sondern nur Wartungsaufwand erzeugt. NodePort matched ausserdem die kind Cluster Konfiguration aus US03 (siehe Kapitel 5.1.1), die Port 30080 vom Cluster auf den Host mappt.
+Bewusst NodePort statt Ingress. Ein Ingress Controller (zum Beispiel ingress-nginx) wäre eine zusätzliche Plattformkomponente, die im Scope der Semesterarbeit keinen Mehrwert bringt, sondern nur Wartungsaufwand erzeugt. NodePort matched ausserdem die kind Cluster Konfiguration aus US03 (siehe Kapitel 6.1.1), die Port 30080 vom Cluster auf den Host mappt.
 
 Damit ist das Backend unter `http://localhost:30080/` erreichbar, sobald der Pod im Status `Running` und `Ready` ist.
 
@@ -1764,7 +1931,11 @@ helm install price-watch helm/price-watch
 ```
 ![Helminstall](./img/helminstall_1.png)
 
+<small><em>Abbildung 22: Helm Lint und Helm Template lokal</em></small>
+
 ![Helminstall](./img/helminstall_2.png)
+
+<small><em>Abbildung 23: Helm Chart Installation</em></small>
 
 ```bash
 # Status prüfen
@@ -1773,6 +1944,8 @@ kubectl get pod -l app.kubernetes.io/name=price-watch
 ```
 
 ![Helminstall get pods](./img/helminstall_3.png)
+
+<small><em>Abbildung 24: kubectl get pods und svc nach Helm Install</em></small>
 
 ```bash
 # Smoke Tests gegen NodePort
@@ -1785,13 +1958,19 @@ curl http://localhost:30080/api/prices
 
 ![Test](./img/helminstall_4.png)
 
+<small><em>Abbildung 25: Smoke Test gegen NodePort 30080</em></small>
+
 ```bash
 # Logs
 kubectl logs -l app.kubernetes.io/name=price-watch
 ```
 ![Kubectl Logs](./img/helminstall_5.png)
 
+<small><em>Abbildung 26: Pod Logs nach Helm Install</em></small>
+
 ![Swagger Seite](./img/Helminstall_6.png)
+
+<small><em>Abbildung 27: Swagger UI über NodePort erreichbar</em></small>
 
 ```bash
 # Deinstallieren
@@ -1802,24 +1981,41 @@ helm uninstall price-watch
 
 ### CI Pipeline (GitHub Actions)
 
-Die CI Pipeline automatisiert den Build und Push des Container Images nach GHCR. Sie ist das erste Glied im GitOps Loop: ein Commit auf `main` mit Code-Änderungen triggert die Pipeline, die das Image baut, pushed und die `helm/price-watch/values.yaml` mit dem neuen Image Tag aktualisiert. Argo CD erkennt die Änderung und synct den Cluster (siehe Kapitel 5.6).
+Die CI Pipeline automatisiert den Build und Push des Container Images nach GHCR. Sie ist das erste Glied im GitOps Loop: ein Commit auf `main` mit Code-Änderungen triggert die Pipeline, die das Image baut, pushed und die `helm/price-watch/values.yaml` mit dem neuen Image Tag aktualisiert. Argo CD erkennt die Änderung und synct den Cluster (siehe Kapitel 6.6).
 
 #### Workflow Überblick
 
-Der Workflow liegt unter `.github/workflows/ci.yaml` und besteht aus einem einzigen Job mit fünf Schritten:
+Der Workflow liegt unter `.github/workflows/ci.yaml` und besteht aus zwei Jobs. Der zweite Job läuft nur, wenn der erste erfolgreich durchläuft.
+
+**Job 1, `lint-and-test`:**
 
 | Schritt | Aktion |
 | --- | --- |
-| 1. Checkout | Repository auschecken, `GITHUB_TOKEN` als Credentials für spätere Commits |
+| 1. Checkout | Repository auschecken |
+| 2. Python einrichten | Python 3.11 bereitstellen |
+| 3. Abhängigkeiten installieren | `requirements.txt` sowie `pytest`, `httpx`, `ruff` installieren |
+| 4. ruff | `ruff check .` gegen den Backend Code |
+| 5. pytest | Testsuite aus `tests/test_api.py` ausführen |
+| 6. Helm einrichten | `azure/setup-helm` Action |
+| 7. helm lint | `helm lint helm/price-watch` |
+| 8. helm template | `helm template price-watch helm/price-watch` rendert die Manifeste ohne Cluster-Verbindung |
+
+**Job 2, `build-and-push`:** läuft nur bei `push` auf `main`, blockiert über `needs: lint-and-test`.
+
+| Schritt | Aktion |
+| --- | --- |
+| 1. Checkout | Repository auschecken, `PAT_TOKEN` als Credentials für den späteren Commit |
 | 2. Buildx | Docker Buildx für effiziente Multi-Layer Builds einrichten |
 | 3. GHCR Login | Authentifizierung gegen `ghcr.io` via `GITHUB_TOKEN` |
 | 4. Metadaten | Image Tags und OCI Labels aus dem Commit Kontext ableiten |
 | 5. Build und Push | Multi-Stage Image bauen und nach GHCR pushen |
-| 6. Values Update | `helm/price-watch/values.yaml` mit Repository URL, SHA Tag und `pullPolicy: Always` aktualisieren, Commit zurück auf `main` |
+| 6. Values Update | `helm/price-watch/values.yaml` mit Repository URL, SHA Tag und `pullPolicy: Always` aktualisieren, Commit mit `[skip ci]` zurück auf `main` |
+
+Ein `kubectl apply --dry-run` gegen einen echten Cluster ist in der CI bewusst nicht eingebaut, der GitHub Actions Runner hat keinen Kubernetes Cluster zur Verfügung. `helm template` prüft stattdessen, ob die Manifeste aus dem Chart überhaupt fehlerfrei rendern, das reicht für eine reine Syntax- und Template-Prüfung ohne Cluster.
 
 #### Trigger und Path Filter
 
-Der Workflow feuert ausschliesslich bei Pushes auf `main` und nur wenn sich der Pfad `app/backend/**` ändert:
+Der Workflow feuert bei Pushes auf `main` und bei Pull Requests gegen `main`, jeweils wenn sich einer der beiden Pfade `app/backend/**` oder `helm/**` ändert:
 
 ```yaml
 on:
@@ -1828,9 +2024,16 @@ on:
       - main
     paths:
       - 'app/backend/**'
+      - 'helm/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'app/backend/**'
+      - 'helm/**'
 ```
 
-Reine Doku-Commits oder Helm Chart Anpassungen bauen kein neues Image. Das reduziert unnötige CI Läufe und spart GitHub Actions Minuten.
+Der `pull_request`-Trigger sorgt dafür, dass `lint-and-test` bereits auf offenen Pull Requests läuft, bevor überhaupt gemerged wird. Der Job `build-and-push` läuft dagegen ausschliesslich bei einem tatsächlichen Push auf `main`, ein Pull Request baut kein neues Image. Helm Chart Änderungen lösen die Pipeline also ebenfalls aus und durchlaufen mindestens `lint-and-test`, auch wenn der Anwendungscode selbst unverändert bleibt.
 
 #### Image Tag Strategie
 
@@ -1854,7 +2057,7 @@ image:
   pullPolicy: Always                                  # gesetzt durch CI
 ```
 
-Der Commit durch `github-actions[bot]` trägt `[skip ci]` in der Message, damit kein weiterer Workflow Loop ausgelöst wird. Argo CD erkennt die Änderung in `values.yaml` und synct den Cluster auf das neue Image (siehe Kapitel 5.6).
+Der Commit durch `github-actions[bot]` trägt `[skip ci]` in der Message, damit kein weiterer Workflow Loop ausgelöst wird. Argo CD erkennt die Änderung in `values.yaml` und synct den Cluster auf das neue Image (siehe Kapitel 6.6).
 
 #### Layer Caching
 
@@ -1926,6 +2129,8 @@ kubectl get pods -n argocd
 
 ![Argo CD](./img/setupargocd.png)
 
+<small><em>Abbildung 28: Argo CD Installation im Cluster</em></small>
+
 | Deployment | Zweck |
 | --- | --- |
 | `argocd-server` | API Server und Web UI |
@@ -1960,6 +2165,8 @@ $pw = kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.da
 ```
 
 ![ArgoCD UI](./img/argocdui.png)
+
+<small><em>Abbildung 29: Argo CD UI mit Application price-watch</em></small>
 
 #### Warum kubectl apply statt Helm Chart
 
@@ -2018,7 +2225,7 @@ Mit der Application ist der Loop geschlossen. Eine Code-Änderung durchläuft fo
 | Schritt | Akteur | Aktion |
 | --- | --- | --- |
 | 1 | Entwickler | Commit auf `develop`, Pull Request, Squash Merge auf `main` |
-| 2 | GitHub Actions | CI baut Container Image, pushed nach GHCR (siehe Kapitel 5.5) |
+| 2 | GitHub Actions | CI baut Container Image, pushed nach GHCR (siehe Kapitel 6.5) |
 | 3 | GitHub Actions | `helm/price-watch/values.yaml` wird mit neuem Image Tag aktualisiert, Commit zurück auf `main` |
 | 4 | Argo CD | Erkennt die Änderung in `values.yaml` (Polling alle 3 Minuten oder via Webhook) |
 | 5 | Argo CD | Rendert das Helm Chart neu und synchronisiert den Cluster |
@@ -2041,7 +2248,7 @@ curl http://localhost:30080/healthz
 # Erwartet: {"status":"ok"}
 ```
 
-In der Argo CD UI (siehe Kapitel 5.6.3) wird die Application `price-watch` mit allen Ressourcen (Deployment, Service, Pod, ReplicaSet) als Baum dargestellt, jeweils mit Health- und Sync-Status.
+In der Argo CD UI (siehe Kapitel 6.6.3) wird die Application `price-watch` mit allen Ressourcen (Deployment, Service, Pod, ReplicaSet) als Baum dargestellt, jeweils mit Health- und Sync-Status.
 
 Hinweis zu Image Pull: Da `values.yaml` durch die CI auf das GHCR Image zeigt, muss das GHCR Paket auf Public gesetzt sein. Andernfalls zeigt der Pod `ImagePullBackOff`.
 
@@ -2079,7 +2286,7 @@ Die Single Writer Beschränkung von SQLite ist unproblematisch, da nur der Refre
 
 #### Preisquelle
 
-Die Preisquelle in `app/backend/pricesource.py` erzeugt aktuell plausible Preise für eine feste Liste digitaler Marktplatzobjekte mit zufälliger Schwankung um einen Basispreis. Diese Mock Quelle macht die Demo unabhängig von externen APIs und adressiert damit das Risiko einer instabilen Preisquelle. Über die Funktion `fetch_prices()` als Schnittstelle liesse sich eine echte HTTP Quelle wie Steam Market anbinden, ohne die übrige Anwendung zu ändern.
+Die Preisquelle in `app/backend/pricesource.py` ruft primär die Steam Market API ab (Details siehe Abschnitt Steam Market API als Preisquelle weiter unten in diesem Kapitel). Schlägt der Aufruf fehl, etwa durch Timeout oder Rate Limit, greift automatisch ein Mock-Fallback mit plausibler Schwankung um einen hinterlegten Basispreis. Über die Funktion `fetch_prices()` als einheitliche Schnittstelle bleibt diese Umschaltung für den Rest der Anwendung unsichtbar. Die Kombination macht die Demo unabhängig von der Erreichbarkeit der externen API und adressiert damit das Risiko einer instabilen Preisquelle (R2), ohne auf echte Marktdaten zu verzichten, wenn Steam erreichbar ist.
 
 #### API Endpoints
 
@@ -2105,6 +2312,8 @@ uvicorn main:app --reload --port 8000
 
 ![Run App](./img/appbackend1sq.png)
 
+<small><em>Abbildung 30: Preisabruf und aktuelle Preise im Cluster</em></small>
+
 ```bash
 # Preise abrufen und speichern
 curl -X POST http://localhost:8000/api/prices/refresh
@@ -2123,9 +2332,13 @@ curl "http://localhost:8000/api/prices/history?item=AWP%20Asiimov"
 
 ![curl calls](./img/appbackend2sq.png)
 
+<small><em>Abbildung 31: curl Aufrufe gegen die API im Cluster</em></small>
+
 Die interaktive OpenAPI Doku unter `http://localhost:8000/docs` zeigt den neuen POST Endpoint und die Pydantic Response Schemas.
 
 ![Price Refresh Endpoint](./img/appbackend3sq.png)
+
+<small><em>Abbildung 32: POST /api/prices/refresh im Cluster</em></small>
 
 
 ### Frontend (Preisübersicht und Verlauf)
@@ -2173,7 +2386,7 @@ Die Item Bilder stammen vom offiziellen Steam CDN. Jeder Skin hat einen `icon_ur
 https://community.cloudflare.steamstatic.com/economy/image/<icon_url>/360fx360f
 ```
 
-Das Bild lädt der Browser direkt vom Steam CDN. Die Preise selbst sind in dieser Ausbaustufe noch Mock Werte (plausible Schwankung um einen realistischen Basispreis), siehe Abschnitt zur Preisquelle. Die Umstellung auf echte Steam Preise ist ein separater Schritt und ändert nur die Preisquelle, nicht das Frontend.
+Das Bild lädt der Browser direkt vom Steam CDN. Die Preise stammen von der echten Steam Market API, mit automatischem Mock-Fallback bei Nichtverfügbarkeit (siehe Abschnitt zur Preisquelle weiter unten). Das Bild kommt in jedem Fall vom echten Steam CDN, unabhängig davon, ob der angezeigte Preis von der API oder vom Fallback stammt.
 
 #### Farbcodierung nach Seltenheit
 
@@ -2188,11 +2401,57 @@ uvicorn main:app --reload --port 8000
 ```
 ![Frontend lokal](./img/lokalpreis1.png)
 
+<small><em>Abbildung 33: Frontend lokal, leere Übersicht vor erstem Preisabruf</em></small>
+
 Browser auf `http://localhost:8000/` öffnen. Beim ersten Start ist die Übersicht leer. Ein Klick auf "Preise aktualisieren" ruft die Preisquelle ab und füllt das Grid. Mehrmaliges Aktualisieren erzeugt einen Verlauf, der im Detaildiagramm sichtbar wird.
 
 Die API bleibt unter `http://localhost:8000/api/prices` und die OpenAPI Doku unter `http://localhost:8000/docs` erreichbar.
 
 ![Frontend lokal Preise](./img/lokalpreis2.png)
+
+<small><em>Abbildung 34: Frontend lokal mit befüllter Preisübersicht</em></small>
+
+### Helm Chart Erweiterung: PVC, ConfigMap und CronJob (Sprint 3)
+
+Das Helm Chart wird um drei weitere Templates ergänzt, die für den produktiven Betrieb
+der Applikation notwendig sind.
+
+Die **ConfigMap** stellt den Datenbankpfad `/data/prices.db` als Umgebungsvariable
+`DATABASE_PATH` bereit. Das Deployment liest diesen Wert und gibt ihn an den
+FastAPI-Prozess weiter.
+
+Der **PersistentVolumeClaim** reserviert 100Mi Speicher mit `ReadWriteOnce` Zugriff.
+Das Volume wird im Deployment unter `/data` gemountet, sodass SQLite die Datenbankdatei
+persistent speichern kann. Ohne PVC gehen alle Preisdaten beim Pod-Neustart verloren.
+
+Der **CronJob** ruft alle fünf Minuten `POST /api/prices/refresh` auf und löst damit
+den automatischen Preisabruf aus. `concurrencyPolicy: Forbid` verhindert gleichzeitige
+Ausführungen, da SQLite keinen parallelen Schreibzugriff verträgt.
+
+Die Preisquelle wurde auf die Steam Market API umgestellt. Bei Nichtverfügbarkeit
+greift ein Mock-Fallback mit plausiblen Basispreisen. `httpx` wurde als HTTP-Client
+in `requirements.txt` ergänzt.
+
+### Steam Market API als Preisquelle (Sprint 3)
+
+Die Preisquelle wird von Mock-Daten auf die Steam Market API umgestellt. Der Endpoint
+`priceoverview` liefert den aktuellen Marktpreis eines CS2 Skins direkt in CHF:
+
+`https://steamcommunity.com/market/priceoverview/?currency=4&appid=730&market_hash_name=<name>`
+
+Die Funktion `_fetch_steam_price()` in `pricesource.py` ruft diesen Endpoint via `httpx`
+auf und parst den `lowest_price` Wert. Schlägt der Aufruf fehl -- etwa weil Steam nicht
+erreichbar ist oder ein Rate Limit greift -- greift der Mock-Fallback mit einer zufälligen
+Schwankung um den hinterlegten Basispreis. Damit bleibt die App auch ohne Netzwerkzugriff
+demonstrierbar (Massnahme zu Risiko R2).
+
+Der CronJob-Schedule wurde von `*/5 * * * *` auf `*/1 * * * *` geändert, sodass Preise
+jede Minute automatisch abgerufen und in SQLite persistiert werden. Der Preisverlauf im
+Frontend baut sich dadurch im Demo-Betrieb schnell auf.
+
+Jede Karte im Frontend enthält einen direkten Link auf die Steam Market Seite des Skins:
+
+`https://steamcommunity.com/market/listings/730/<item_name>`
 
 ---
 
@@ -2203,7 +2462,7 @@ Die CI-Pipeline wird um eine Qualitätssicherungsstufe erweitert, die vor jedem 
 **ruff** prüft den Python-Code statisch auf Stil- und Logikfehler.
 **pytest** führt vier Integrationstests gegen die FastAPI-Endpunkte aus: `/healthz`, `/ready`, `POST /api/prices/refresh` und `GET /api/prices`. Die Tests verwenden `TestClient` aus dem FastAPI-Testpaket und laufen in-process ohne laufenden Server.
 **helm lint** validiert das Helm Chart statisch auf syntaktische Korrektheit.
-**kubectl apply --dry-run=client** rendert die Helm-Templates und prüft die resultierenden Kubernetes-Manifeste lokal ohne Cluster-Verbindung.
+**helm template** rendert die Kubernetes-Manifeste aus dem Chart und prüft damit, ob das Template fehlerfrei durchläuft, ganz ohne Cluster-Verbindung.
 
 Die vier Schritte laufen im Job `lint-and-test`. Der Job `build-and-push` ist über `needs: lint-and-test` blockiert -- schlägt ein Schritt fehl, wird kein Image gebaut und kein Deployment ausgelöst. Damit ist sichergestellt, dass nur geprüfter Code den GitOps-Loop erreicht.
 
@@ -2256,47 +2515,246 @@ Erfolgskriterium und Nachweis.
 Die Runbooks sind unter `docs/runbooks/` abgelegt und in der MkDocs Navigation verlinkt.
 RB-03 basiert auf dem durchgeführten Rollback Szenario aus US12.
 
-## Helm Chart Erweiterung: PVC, ConfigMap und CronJob
+---
 
-Das Helm Chart wird um drei weitere Templates ergänzt, die für den produktiven Betrieb
-der Applikation notwendig sind.
+## Glossar
 
-Die **ConfigMap** stellt den Datenbankpfad `/data/prices.db` als Umgebungsvariable
-`DATABASE_PATH` bereit. Das Deployment liest diesen Wert und gibt ihn an den
-FastAPI-Prozess weiter.
-
-Der **PersistentVolumeClaim** reserviert 100Mi Speicher mit `ReadWriteOnce` Zugriff.
-Das Volume wird im Deployment unter `/data` gemountet, sodass SQLite die Datenbankdatei
-persistent speichern kann. Ohne PVC gehen alle Preisdaten beim Pod-Neustart verloren.
-
-Der **CronJob** ruft alle fünf Minuten `POST /api/prices/refresh` auf und löst damit
-den automatischen Preisabruf aus. `concurrencyPolicy: Forbid` verhindert gleichzeitige
-Ausführungen, da SQLite keinen parallelen Schreibzugriff verträgt.
-
-Die Preisquelle wurde auf die Steam Market API umgestellt. Bei Nichtverfügbarkeit
-greift ein Mock-Fallback mit plausiblen Basispreisen. `httpx` wurde als HTTP-Client
-in `requirements.txt` ergänzt.
+| Begriff | Erklärung |
+| --- | --- |
+| ADR | Architectural Decision Record. Kurzform zur Dokumentation einer technischen Entscheidung mit Kontext, Optionen, Entscheid und Konsequenzen. |
+| Argo CD | GitOps Operator für Kubernetes. Vergleicht laufend den im Git Repository beschriebenen Soll-Zustand mit dem Ist-Zustand im Cluster und synchronisiert Abweichungen automatisch. |
+| CI/CD | Continuous Integration / Continuous Delivery. Automatisiertes Bauen, Prüfen und Ausliefern von Software bei jeder Code-Änderung. |
+| ConfigMap | Kubernetes Ressource für nicht-geheime Konfigurationsdaten, die als Umgebungsvariable oder Datei in einen Pod eingebunden werden kann. |
+| ConcurrencyPolicy | Feld im Kubernetes CronJob, das regelt, ob überlappende Jobs erlaubt sind. `Forbid` verhindert, dass ein neuer Job startet, während der vorherige noch läuft. |
+| CronJob | Kubernetes Ressource, die einen Job nach einem Cron-Zeitplan wiederholt startet. In dieser Arbeit für den regelmässigen Preisabruf verwendet. |
+| Deployment | Kubernetes Ressource, die eine gewünschte Anzahl Pod Replicas deklarativ verwaltet, inklusive Rolling Updates. |
+| Dry Run | Ausführung eines Befehls, ohne die eigentliche Änderung vorzunehmen, meist zur Validierung. `helm template` ist ein Dry Run auf Chart-Ebene, `kubectl apply --dry-run` einer auf Cluster-Ebene. |
+| FastAPI | Python Web Framework für APIs, das auf Type Hints und Pydantic aufbaut und automatisch eine OpenAPI Spezifikation erzeugt. |
+| GHCR | GitHub Container Registry. Container Registry von GitHub, in dieser Arbeit Ablageort für die gebauten Backend Images. |
+| GitOps | Betriebsmodell, bei dem der gewünschte Zustand einer Infrastruktur oder Anwendung deklarativ in einem Git Repository liegt und automatisiert in die Zielumgebung synchronisiert wird. Git ist damit die einzige Source of Truth. |
+| Helm | Paketmanager für Kubernetes. Bündelt Kubernetes Manifeste als parametrisierbares Chart, das sich mit einem Befehl installieren, aktualisieren und deinstallieren lässt. |
+| Helm Chart | Ein Paket aus Templates, Default-Werten (`values.yaml`) und Metadaten (`Chart.yaml`), aus dem Helm konkrete Kubernetes Manifeste rendert. |
+| Idempotenz | Eigenschaft eines Vorgangs, bei mehrfacher Ausführung stets dasselbe Ergebnis zu liefern. Die Setup-Skripte dieser Arbeit sind bewusst idempotent gehalten. |
+| kind | Kubernetes IN Docker. Werkzeug, um einen lokalen, mehrknotigen Kubernetes Cluster als Docker Container laufen zu lassen. |
+| Liveness Probe | Kubernetes Health Check, der prüft, ob ein Container noch lebt. Schlägt er wiederholt fehl, startet Kubernetes den Container neu. |
+| MADR | Markdown Architectural Decision Records. Leichtgewichtiges Markdown-Format für ADRs, das dieser Arbeit als Vorlage dient. |
+| Monorepo | Repository-Strategie, bei der Anwendungscode, Infrastrukturcode und Dokumentation in einem einzigen Git Repository liegen, statt auf mehrere Repositories verteilt zu sein. |
+| NodePort | Kubernetes Service-Typ, der einen Port auf jedem Cluster-Node öffnet und so Traffic von ausserhalb des Clusters auf einen internen Service weiterleitet. |
+| OCI | Open Container Initiative. Industriestandard für Container-Image-Formate und Registries, auf dem Docker und GHCR aufbauen. |
+| Pod | Kleinste deploybare Einheit in Kubernetes, ein oder mehrere Container, die sich Netzwerk und Storage teilen. |
+| PVC | PersistentVolumeClaim. Kubernetes Ressource, mit der ein Pod dauerhaften Speicher anfordert, der einen Pod-Neustart übersteht. |
+| Pydantic | Python Bibliothek für Datenvalidierung über Type Hints. FastAPI nutzt Pydantic Modelle für Request- und Response-Validierung. |
+| Readiness Probe | Kubernetes Health Check, der prüft, ob ein Container bereit ist, Traffic zu empfangen. Schlägt er fehl, nimmt Kubernetes den Pod aus dem Service, startet ihn aber nicht neu. |
+| Reconciliation Loop | Kontrollschleife, die laufend Soll- und Ist-Zustand vergleicht und bei Abweichung korrigierend eingreift. Kernprinzip von Kubernetes Controllern und von Argo CD. |
+| SelfHeal | Argo CD Funktion, die manuelle, undokumentierte Änderungen im Cluster automatisch auf den im Git Repository definierten Soll-Zustand zurücksetzt. |
+| Source of Truth | Die eine massgebliche Quelle für den gewünschten Zustand eines Systems. In GitOps ist das Git Repository die Source of Truth, nicht der Cluster selbst. |
+| Squash Merge | Merge-Strategie, bei der alle Commits eines Feature Branch beim Merge zu einem einzigen Commit auf dem Zielbranch zusammengefasst werden. |
+| SQLite | Dateibasierte, eingebettete Datenbank ohne separaten Serverprozess. In dieser Arbeit die Persistenzschicht für Preisdaten. |
+| StaticFiles | FastAPI/Starlette Mechanismus, um ein Verzeichnis mit statischen Dateien (HTML, CSS, JS) direkt über eine Route auszuliefern. |
+| Story Points | Relatives Mass für Aufwand, Komplexität und Risiko einer User Story, bewusst keine Zeitangabe. |
+| Sync Policy | Argo CD Konfiguration, die festlegt, ob und wie automatisch synchronisiert wird, unter anderem mit den Feldern `automated`, `prune` und `selfHeal`. |
+| values.yaml | Zentrale Konfigurationsdatei eines Helm Charts mit den Default-Werten für alle Templates, etwa Image Tag, Replica Count oder Ressourcenlimits. |
+| WIP Limit | Work in Progress Limit. Projektmanagement-Regel, die die Anzahl gleichzeitig aktiver Tickets begrenzt, um Fokus zu erzwingen. |
 
 ---
 
-## Steam Market API als Preisquelle
+## Quellenverzeichnis
 
-Die Preisquelle wird von Mock-Daten auf die Steam Market API umgestellt. Der Endpoint
-`priceoverview` liefert den aktuellen Marktpreis eines CS2 Skins direkt in CHF:
+Alle Quellen wurden im Verlauf der drei Sprints zur Recherche, Entscheidungsfindung oder als Referenz für Implementierungsdetails verwendet. Abrufdaten sind auf den Monat genau angegeben, orientiert an dem Sprint, in dem die Quelle jeweils primär genutzt wurde.
 
-`https://steamcommunity.com/market/priceoverview/?currency=3&appid=730&market_hash_name=<name>`
+| Quelle | URL | Verwendung | Abruf |
+| --- | --- | --- | --- |
+| FastAPI Dokumentation | https://fastapi.tiangolo.com/ | Backend Framework, Routing, Dependency Injection, OpenAPI | Mai 2026 |
+| Pydantic v2 Dokumentation | https://docs.pydantic.dev/latest/ | Datenmodelle, Validierung, Field Constraints | Mai 2026 |
+| Starlette Dokumentation | https://www.starlette.io/staticfiles/ | StaticFiles Mount für das Frontend | Juni 2026 |
+| kind Dokumentation | https://kind.sigs.k8s.io/ | Lokaler Multi-Node Kubernetes Cluster, Konfiguration und `extraPortMappings` | Mai 2026 |
+| Kubernetes Dokumentation | https://kubernetes.io/docs/home/ | Deployment, Service, ConfigMap, PVC, CronJob, Probes | Mai bis Juni 2026 |
+| Helm Dokumentation | https://helm.sh/docs/ | Chart-Aufbau, Templating, `helm lint`, `helm template` | Mai 2026 |
+| Argo CD Dokumentation | https://argo-cd.readthedocs.io/ | Installation, Application Ressource, Sync Policy, SelfHeal | Mai bis Juni 2026 |
+| GitHub Actions Dokumentation | https://docs.github.com/actions | Workflow Syntax, Trigger, Path Filter, Permissions | Mai bis Juni 2026 |
+| Docker Dokumentation | https://docs.docker.com/build/building/multi-stage/ | Multi-Stage Build, `HEALTHCHECK`, Non-Root User | Mai 2026 |
+| OCI Image Format Spezifikation | https://specs.opencontainers.org/image-spec/ | Image Labels, Registry-Kompatibilität von GHCR | Mai 2026 |
+| ruff Dokumentation | https://docs.astral.sh/ruff/ | Lint-Konfiguration in `pyproject.toml`, Regelauswahl | Juni 2026 |
+| pytest Dokumentation | https://docs.pytest.org/ | Testaufbau, `TestClient` Integrationstests | Juni 2026 |
+| MkDocs Material Dokumentation | https://squidfunk.github.io/mkdocs-material/ | Doku-Site, Navigation, Mermaid-Einbindung über `pymdownx.superfences` | Mai 2026 |
+| Mermaid Dokumentation | https://mermaid.js.org/ | Syntax für Flowchart- und Sequenzdiagramme | Juni 2026 |
+| Steam Community Market | https://steamcommunity.com/market/ | Inoffizieller `priceoverview` Endpoint als Preisquelle, keine offizielle API-Dokumentation vorhanden | Juni 2026 |
+| Sem 4 Referenzprojekt, Geräteausleihe | https://cancani.com/geraeteausleihe-sem4/dokumentation/ | Vergleich Dokumentationsstil, Lerntransfer für Reflexion | Mai und Juli 2026 |
 
-Die Funktion `_fetch_steam_price()` in `pricesource.py` ruft diesen Endpoint via `httpx`
-auf und parst den `lowest_price` Wert. Schlägt der Aufruf fehl -- etwa weil Steam nicht
-erreichbar ist oder ein Rate Limit greift -- greift der Mock-Fallback mit einer zufälligen
-Schwankung um den hinterlegten Basispreis. Damit bleibt die App auch ohne Netzwerkzugriff
-demonstrierbar (Massnahme zu Risiko R2).
+Die Steam Community Market API ist nicht offiziell dokumentiert. Feldnamen und Verhalten des `priceoverview` Endpoints wurden über eigene Testaufrufe und öffentlich bekannte, von der Community zusammengetragene Beispiele ermittelt, nicht über eine autoritative Herstellerdokumentation. Das ist einer der Gründe für den Mock-Fallback in `pricesource.py`: Ohne offizielle Garantie auf Verfügbarkeit oder Format-Stabilität ist ein Fallback für eine Referenzanwendung angemessen.
 
-Der CronJob-Schedule wurde von `*/5 * * * *` auf `*/1 * * * *` geändert, sodass Preise
-jede Minute automatisch abgerufen und in SQLite persistiert werden. Der Preisverlauf im
-Frontend baut sich dadurch im Demo-Betrieb schnell auf.
+---
 
-Jede Karte im Frontend enthält einen direkten Link auf die Steam Market Seite des Skins:
+## Abbildungsverzeichnis
 
-`https://steamcommunity.com/market/listings/730/<item_name>`
+Alle Abbildungen und Diagramme dieses Dokuments in der Reihenfolge ihres Auftretens.
+
+| Nr. | Abbildung | Kapitel |
+| --- | --- | --- |
+| 1 | Milestone Sprint 1 Ende | Projektmanagement |
+| 2 | Projectboard Sprint 1 Ende | Projektmanagement |
+| 3 | Sprint 1 Starfish Retrospektive | Projektmanagement |
+| 4 | Sprint 2 Milestone und Issues | Projektmanagement |
+| 5 | Starfish Retrospektive Sprint 2 | Projektmanagement |
+| 6 | Sprint 3 Milestones und Issues | Projektmanagement |
+| 7 | Use Case Diagramm aus Plattform Sicht | Projektmanagement |
+| 8 | Risikomatrix mit allen zehn Risiken | Projektmanagement |
+| 9 | Systemkontext der Plattform | Architektur im Überblick |
+| 10 | WebApp Architektur | Architektur im Überblick |
+| 11 | Plattform Architektur auf Kubernetes Ebene | Architektur im Überblick |
+| 12 | GitOps Sequenz vom Commit bis zum synchronisierten Cluster | Architektur im Überblick |
+| 13 | Starten des Clusters lokal | Plattformaufbau |
+| 14 | Status Cluster | Plattformaufbau |
+| 15 | Cluster Info nach Start | Plattformaufbau |
+| 16 | Ausführung der App lokal | Plattformaufbau |
+| 17 | Health Probes der App | Plattformaufbau |
+| 18 | Docker Build Ausführung | Plattformaufbau |
+| 19 | Docker Run Ausführung | Plattformaufbau |
+| 20 | Endpoint Checks im Container | Plattformaufbau |
+| 21 | Docker Container Status | Plattformaufbau |
+| 22 | Helm Lint und Helm Template lokal | Plattformaufbau |
+| 23 | Helm Chart Installation | Plattformaufbau |
+| 24 | kubectl get pods und svc nach Helm Install | Plattformaufbau |
+| 25 | Smoke Test gegen NodePort 30080 | Plattformaufbau |
+| 26 | Pod Logs nach Helm Install | Plattformaufbau |
+| 27 | Swagger UI über NodePort erreichbar | Plattformaufbau |
+| 28 | Argo CD Installation im Cluster | Plattformaufbau |
+| 29 | Argo CD UI mit Application price-watch | Plattformaufbau |
+| 30 | Preisabruf und aktuelle Preise im Cluster | Plattformaufbau |
+| 31 | curl Aufrufe gegen die API im Cluster | Plattformaufbau |
+| 32 | POST /api/prices/refresh im Cluster | Plattformaufbau |
+| 33 | Frontend lokal, leere Übersicht vor erstem Preisabruf | Plattformaufbau |
+| 34 | Frontend lokal mit befüllter Preisübersicht | Plattformaufbau |
+
+---
+
+## Reflexion
+
+### Fachliche Reflexion
+
+Der grösste fachliche Sprung gegenüber Sem 4 war der Wechsel von einer klassischen Microservice-Architektur mit manuellem Deployment hin zu einer deklarativen, GitOps-basierten Plattform. In der Geräteausleihe (Sem 4) endete die Pipeline beim fertigen Container Image, der Rest war manuelles Handling. In dieser Arbeit ist das Deployment selbst Teil des versionierten Zustands, und der Cluster gleicht sich laufend an das Repository an, statt umgekehrt.
+
+Konkret neu waren:
+
+- **Kubernetes als Zielplattform.** Vorher kannte ich nur einzelne Container, keine Orchestrierung. Konzepte wie Reconciliation Loops, Liveness und Readiness Probes oder der Unterschied zwischen `Deployment` und `Pod` waren am Anfang von Sprint 1 abstrakt und wurden erst durch das wiederholte Aufsetzen und Zerstören des kind Clusters greifbar.
+- **Helm als Abstraktionsschicht.** Der Übergang von rohen YAML-Manifesten zu einem parametrisierten Chart mit `values.yaml` hat mir gezeigt, wie schnell reine YAML-Verwaltung unübersichtlich wird, sobald mehr als ein, zwei Ressourcen dazukommen.
+- **Argo CD und der GitOps-Gedanke selbst.** Die Umstellung im Kopf war grösser als die technische: nicht mehr `kubectl apply` als Werkzeug zu denken, sondern Git als einzige Wahrheit und den Cluster nur noch als Spiegel davon zu behandeln. Der SelfHeal-Mechanismus, der eine manuelle `kubectl scale` aktiv zurücksetzt, hat das sehr plastisch gemacht.
+- **FastAPI statt Flask.** Der Wechsel war bewusst gewählt (ADR-001), um Lerntransfer zu zeigen, nicht weil Flask ungeeignet gewesen wäre. Pydantic-Modelle als durchgängige Validierungsschicht zwischen API und Datenbank sind ein Muster, das ich in Sem 4 noch nicht hatte und das den Code merklich robuster macht.
+- **Sicherheitsgrundlagen im Container.** Non-Root UID, `readOnlyRootFilesystem`, Multi-Stage Builds für kleinere Images, das war in Sem 4 kein Thema und ist hier von Anfang an mitgedacht statt nachträglich aufgesetzt.
+
+Am meisten Zeit hat der CI/CD-Teil gekostet, konkret das Zusammenspiel aus Image Tag, `values.yaml` Update per Bot-Commit und dem `[skip ci]` Mechanismus, um keine Endlosschleife auszulösen. Das war kein grosses Konzept, aber ein Detail, das ohne Testen im echten Repository nicht offensichtlich war.
+
+### Methodische Reflexion
+
+Die Sprint-Struktur mit Planung, Review und Retrospektive pro Sprint ist aus Sem 4 übernommen und in dieser Arbeit konsequenter angewendet worden, insbesondere die Retrospektive nach dem Starfish-Modell und die durchgängige Story-Point-Schätzung. Was in Sem 4 eher informell lief, ist hier über das GitHub Project Board mit festen Feldern (Status, Story Points, Priority, Sprint) strukturiert nachvollziehbar.
+
+Zwei methodische Learnings stechen heraus:
+
+- **Doku parallel statt am Schluss.** Der grösste Doku-Rückstand in dieser Arbeit ist nicht bei der laufenden Umsetzung entstanden, sondern bei Abschnitten, die sich durch spätere Änderungen (etwa die CI-Erweiterung in US14) technisch überholt haben, ohne dass ich sie sofort nachgezogen habe. Die Regel "Doku im selben PR wie der Code" hat für neue Inhalte gut funktioniert, aber nicht automatisch dafür gesorgt, dass ältere Kapitel bei einer Änderung an anderer Stelle mit aktualisiert werden. Für eine Folgearbeit würde ich eine explizite Prüfliste führen, welche Doku-Kapitel von welcher Komponente abhängen.
+- **Scope-Disziplin als Sprint-2-Rettung.** Die Kürzung von vier auf drei Sprints nach der Kickoff-Präsentation hätte den GitOps-Durchstich leicht gefährden können. Dass er trotzdem mit voller Punktzahl geschafft wurde, lag am konsequenten Streichen von Zusatztools (Monitoring, Image Updater, mehrere Values-Profile) zugunsten des Kernpfads. Das ist dieselbe Lektion wie in Sem 4, nur unter engerem Zeitrahmen erneut bestätigt.
+
+Als Einzelperson ohne Code Review von Aussen fehlte ein Korrektiv, das in einem Team-Setting automatisch da wäre. Die Selbstkorrektur über Definition of Done und die eigene Nachprüfung mit `kubectl describe`, `helm lint` und den automatisierten Tests hat das teilweise kompensiert, ersetzt aber keine zweite Perspektive.
+
+### Persönliche Reflexion
+
+Der Umstieg von einer mir vertrauten Microservice-Welt (Sem 4) auf eine mir bis dahin nur oberflächlich bekannte Kubernetes- und GitOps-Welt war der Hauptgrund, warum ich mich für dieses Thema entschieden habe, nicht das sichere, sondern das Thema mit dem grösseren Lernfeld. Das hat sich ausgezahlt, brachte aber auch die grösste Unsicherheit der Arbeit mit sich, insbesondere zu Beginn von Sprint 2, als CI Pipeline, Helm Chart und Argo CD gleichzeitig entstehen mussten und noch nichts davon zusammenspielte.
+
+Zwei Dinge nehme ich für künftige Projekte mit: Erstens, kleine, verifizierbare Zwischenschritte (Cluster läuft, dann Image baut lokal, dann Chart installiert lokal, dann CI baut, dann Argo CD synct) haben die Komplexität handhabbar gemacht, ein direkter Sprung auf den vollständigen GitOps-Loop hätte vermutlich zu Debugging ohne klaren Ausgangspunkt geführt. Zweitens, das bewusste Streichen von Umfang ist keine Schwäche, sondern eine Voraussetzung dafür, den Kernpfad überhaupt sauber abzuschliessen, gerade als Einzelperson in neun statt der ursprünglich elf, zwölf Wochen.
+
+---
+
+## Demo Skript
+
+**Annahme zur Slotdauer:** Die folgende Zeitplanung geht von 30 Minuten aus (Präsentation, Live-Demo, Fragen). Falls das tatsächliche Zeitfenster für das Kolloquium am 08.07.2026 davon abweicht, müssen die Blöcke proportional angepasst werden, die Reihenfolge und die Kernpunkte bleiben gleich.
+
+### Vorbereitung, am Vortag
+
+- kind Cluster frisch aufsetzen (`bash scripts/setup-cluster.sh`), Argo CD installieren (`bash scripts/setup-argocd.sh`), Application deployen
+- Prüfen, dass Argo CD Application Status `Synced, Healthy` zeigt
+- CronJob mindestens einmal durchlaufen lassen, damit die Preishistorie beim Start nicht leer ist
+- Zwei Terminal-Fenster vorbereiten: eines für `kubectl`/`git`, eines für `kubectl port-forward` auf die Argo CD UI
+- Browser-Tabs vorbereiten: Frontend (`http://localhost:30080`), Argo CD UI (`https://localhost:8080`), GitHub Repository, GitHub Actions
+- Akku, WLAN und Beamer-Auflösung vorab testen (Risiko R8)
+
+### Ablauf
+
+| Zeit | Block | Inhalt |
+| --- | --- | --- |
+| 0 bis 3 Min | Einstieg | Kurzvorstellung des Themas: GitOps Plattform mit Preisüberwachungs-WebApp als Referenzanwendung. Ziel: nicht die WebApp ist der Fokus, sondern der Plattform- und Bereitstellungsprozess dahinter. |
+| 3 bis 8 Min | Architektur-Überblick | Die vier Diagramme aus Kapitel Architektur im Überblick zeigen: Systemkontext, WebApp-Architektur, Plattform-Architektur, GitOps-Sequenz. Kurz auf ADR-002 (kind), ADR-003 (SQLite) und ADR-005 (Squash Merge) verweisen, falls Fragen dazu erwartbar sind. |
+| 8 bis 18 Min | Live GitOps Loop | Eine kleine, sichtbare Code-Änderung (zum Beispiel ein Farbwert im Frontend) auf `develop` committen, PR nach `main` öffnen und mergen. Live zu GitHub Actions wechseln: `lint-and-test` grün, danach `build-and-push`. Sobald das Image in GHCR liegt und `values.yaml` durch den Bot-Commit aktualisiert ist, zur Argo CD UI wechseln und den automatischen Sync live beobachten. Abschliessend das Frontend neu laden und die Änderung zeigen. |
+| 18 bis 22 Min | SelfHeal oder Rollback | Variante A, SelfHeal: `kubectl scale deployment price-watch --replicas=0` manuell ausführen, Argo CD zeigt den Drift und stellt den Soll-Zustand automatisch wieder her. Variante B, Rollback: den in Runbook 03 dokumentierten Ablauf kurz nachstellen (`git revert` auf den bekannten Bad Commit, Merge, Argo CD synct zurück). Variante A ist schneller und risikoärmer für eine Live-Demo, Variante B ist inhaltlich näher an US12 und damit die Standardwahl, falls Zeit reicht. |
+| 22 bis 26 Min | Projektmanagement Kurzblick | Sprint Velocity (Sprint 2: 16 von 16 Story Points), Risikomatrix mit den drei roten Risiken R4, R9, R10 und deren Ausgang, eine Kernerkenntnis aus den Retrospektiven. Dieser Block richtet sich gezielt an Thanam. |
+| 26 bis 30 Min | Fragen | Offen für Rückfragen von Marcel und Thanam. |
+
+### Backup Plan
+
+Falls die Live-Demo aus technischen Gründen nicht funktioniert (Netzwerk, Cluster, Beamer, siehe Risiko R8):
+
+1. Ein kurzes, vorher aufgezeichnetes Video des vollständigen GitOps Loops (Commit bis Sync) als Ersatz einspielen.
+2. Falls kein Video verfügbar ist, die Screenshots aus Kapitel Anhang A in derselben Reihenfolge wie die Live-Demo durchgehen und den Ablauf anhand der Bilder erklären.
+3. Die Architektur-Diagramme und die Doku-Site bleiben in jedem Fall offline verfügbar (lokaler Klon der Pages oder PDF-Export), unabhängig von Cluster oder Internetverbindung.
+4. Bei WLAN-Ausfall: GitHub Actions Run und Argo CD Sync nicht live, sondern anhand der bereits während der Vorbereitung gesammelten Screenshots zeigen, restlicher Ablauf unverändert.
+
+Die Priorität im Ernstfall ist, den GitOps-Gedanken nachvollziehbar zu erklären, auch wenn kein einziger Klick live funktioniert. Das Video beziehungsweise die Screenshots sind dafür ausreichend.
+
+---
+
+## Fazit
+
+### Zielerreichung im Detail
+
+Die sechs Ziele aus Kapitel 2.3 (Zielsetzung und Messkriterien) sind der Massstab für dieses Fazit.
+
+**Ziel 1, Kubernetes Umgebung aufbauen.** Erreicht. Der kind Cluster mit zwei Nodes (`gitops-platform-control-plane`, `gitops-platform-worker`) läuft reproduzierbar über das idempotente Setup-Skript, `kubectl get nodes` zeigt beide Nodes im Status `Ready`. Das Messkriterium ist seit Sprint 1 erfüllt und blieb über alle drei Sprints stabil.
+
+**Ziel 2, Preisüberwachungs WebApp erstellen.** Erreicht. Die WebApp zeigt aktuelle Preise und Preisverlauf für vier CS2 Skins, gespeist von der echten Steam Market API mit Mock-Fallback. Das Messkriterium (aktuelle und gespeicherte Preisdaten im Browser sichtbar) ist seit Sprint 2 erfüllt, die Umstellung auf die echte Steam-Quelle kam in Sprint 3 dazu.
+
+**Ziel 3, Anwendung mit Helm paketieren.** Erreicht. Das Helm Chart `helm/price-watch` installiert Deployment, Service, ConfigMap, PVC und CronJob reproduzierbar, `helm lint` und `helm template` laufen fehlerfrei und sind seit US14 fester Bestandteil der CI Pipeline.
+
+**Ziel 4, GitOps mit Argo CD umsetzen.** Erreicht. Die Argo CD Application beobachtet `helm/price-watch` und `argocd/`, `syncPolicy` ist `automated` mit `prune: true` und `selfHeal: true`. Ein Commit auf `main` führt innerhalb weniger Minuten zu einem automatischen Sync, verifiziert unter anderem im dokumentierten Rollback-Szenario aus US12.
+
+**Ziel 5, Build und Image Veröffentlichung automatisieren.** Erreicht. Die CI Pipeline baut bei jedem Push auf `main` ein neues Image, taggt es mit Kurz-SHA und `latest`, pusht nach GHCR und aktualisiert `values.yaml` automatisch. Seit US14 laufen zusätzlich ruff, pytest, `helm lint` und `helm template` vor dem Image-Build, ein roter Schritt verhindert den Build.
+
+**Ziel 6, Dokumentation und Runbooks erstellen.** Erreicht. Die Dokumentation umfasst Architektur (ADRs und die vier Diagramme aus Kapitel Architektur im Überblick), Aufbau, Deployment-Ablauf und drei getestete Runbooks (Initial Setup, neue Version deployen, Rollback), alle unter `docs/runbooks/` abgelegt und in der MkDocs Navigation verlinkt.
+
+Alle sechs Ziele sind damit im Sinne der jeweiligen Messkriterien erreicht.
+
+### Gesamtfazit
+
+Der Kern der Arbeit, ein vollständiger GitOps Loop von einem Git Commit bis zu einem synchronisierten, selbstheilenden Kubernetes Cluster, funktioniert durchgängig und ist mehrfach live nachgewiesen, unter anderem im Rollback-Szenario aus US12. Die bewusste Entscheidung, die WebApp fachlich einfach zu halten, hat sich ausgezahlt: Der Aufwand floss in die Plattform statt in Anwendungslogik, und der dichte GitOps-Durchstich in Sprint 2 wurde trotz verkürztem Zeitrahmen (9 statt ursprünglich 12 Wochen) mit voller Punktzahl abgeschlossen.
+
+Die grösste Schwäche der Arbeit liegt nicht in der Technik, sondern in der Pflege der Dokumentation: Mehrere Kapitel liefen der Umsetzung zeitweise hinterher, insbesondere nach der CI-Erweiterung in Sprint 3, und mussten vor Abgabe gezielt nachgezogen werden (Risiko R10, siehe Risikomatrix). Als Einzelperson ohne Code Review von Aussen war die eigene Nachprüfung über Definition of Done, automatisierte Tests und Lint die einzige Qualitätssicherung, das hat funktioniert, ersetzt aber keine zweite Perspektive.
+
+### Ausblick
+
+Für eine mögliche Folgearbeit oder Weiterentwicklung wären naheliegende nächste Schritte: ein Argo CD Image Updater statt manuellem Tag-Bump in `values.yaml`, ein Ingress Controller statt NodePort für einen produktionsnäheren Zugriffsweg, PostgreSQL statt SQLite sobald mehr als ein schreibender Zugriff nötig wird, sowie ein einfacher Observability-Stack (Prometheus, Grafana) für Laufzeitmetriken. Alle vier waren im Rahmen dieser Arbeit bewusst ausserhalb des Scopes (siehe Abgrenzung, Kapitel 2.5, und SWOT-Chancen), bauen aber direkt auf der jetzt vorhandenen GitOps-Grundlage auf und liessen sich ohne strukturellen Umbau ergänzen.
+
+---
+
+## Anhang A: Screenshots
+
+Die meisten Nachweis-Screenshots sind direkt im jeweiligen Fachkapitel eingebettet, dort wo sie inhaltlich hingehören (vollständige Liste im Abbildungsverzeichnis). Dieser Anhang bündelt zusätzlich den Stand am Ende der Arbeit an einem Ort, für den schnellen Blick kurz vor oder während des Kolloquiums.
+
+### Aktuell verwendete Stand-Screenshots
+
+| Bereich | Screenshot | Ort im Dokument |
+| --- | --- | --- |
+| Argo CD Application, Sync-Status | `argocdui.png` | Kapitel Plattformaufbau, Argo CD Installation |
+| Preisabruf und aktuelle Preise im Cluster | `appbackend3sq.png` | Kapitel Plattformaufbau, Anwendungslogik und Datenmodelle |
+| Frontend mit befüllter Preisübersicht | `lokalpreis2.png` | Kapitel Plattformaufbau, Frontend |
+| Risikomatrix, grafisch | `Risikomatrix.png` | Kapitel Projektmanagement, Risikomatrix |
+
+### Checkliste für frische Screenshots vor dem Kolloquium
+
+Die folgenden Stände sollten möglichst kurz vor dem 08.07.2026 nochmals frisch erfasst werden, damit sie exakt den Abgabestand zeigen und nicht einen Zwischenstand aus Sprint 2 oder 3:
+
+- [ ] Argo CD UI, Application `price-watch`, Ressourcenbaum vollständig `Synced` und `Healthy`
+- [ ] `kubectl get all -n default` mit laufendem Deployment, Service, PVC, CronJob und mindestens einem erfolgreichen Job
+- [ ] GitHub Actions, letzter Workflow Run auf `main`, beide Jobs (`lint-and-test`, `build-and-push`) grün
+- [ ] GitHub Project Board, alle Spalten, Sprint 3 Stories bis auf offene Punkte in Spalte Done
+- [ ] Frontend im Browser mit mehreren Preispunkten pro Skin, sodass der Chart-Verlauf sichtbar ist
+- [ ] Live-Doku auf `cancani.com/gitops-platform-sem5/dokumentation/`, Startseite
+
+Diese Checkliste ersetzt keine neuen Bilddateien, sie ist eine Arbeitsliste für die letzten Tage vor der Abgabe. Sobald die Screenshots erfasst sind, gehören sie unter `docs/img/` und werden an der jeweils passenden Stelle in diesem Dokument referenziert, nicht ausschliesslich hier im Anhang.
 
