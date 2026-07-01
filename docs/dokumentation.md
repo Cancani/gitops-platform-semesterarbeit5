@@ -2255,3 +2255,24 @@ Erfolgskriterium und Nachweis.
 
 Die Runbooks sind unter `docs/runbooks/` abgelegt und in der MkDocs Navigation verlinkt.
 RB-03 basiert auf dem durchgeführten Rollback Szenario aus US12.
+
+## Helm Chart Erweiterung: PVC, ConfigMap und CronJob
+
+Das Helm Chart wird um drei weitere Templates ergänzt, die für den produktiven Betrieb
+der Applikation notwendig sind.
+
+Die **ConfigMap** stellt den Datenbankpfad `/data/prices.db` als Umgebungsvariable
+`DATABASE_PATH` bereit. Das Deployment liest diesen Wert und gibt ihn an den
+FastAPI-Prozess weiter.
+
+Der **PersistentVolumeClaim** reserviert 100Mi Speicher mit `ReadWriteOnce` Zugriff.
+Das Volume wird im Deployment unter `/data` gemountet, sodass SQLite die Datenbankdatei
+persistent speichern kann. Ohne PVC gehen alle Preisdaten beim Pod-Neustart verloren.
+
+Der **CronJob** ruft alle fünf Minuten `POST /api/prices/refresh` auf und löst damit
+den automatischen Preisabruf aus. `concurrencyPolicy: Forbid` verhindert gleichzeitige
+Ausführungen, da SQLite keinen parallelen Schreibzugriff verträgt.
+
+Die Preisquelle wurde auf die Steam Market API umgestellt. Bei Nichtverfügbarkeit
+greift ein Mock-Fallback mit plausiblen Basispreisen. `httpx` wurde als HTTP-Client
+in `requirements.txt` ergänzt.
