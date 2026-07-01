@@ -1,3 +1,4 @@
+# ConfigMap mit dem Datenbankpfad fuer die SQLite Persistenz auf der PVC.
 apiVersion: v1
 kind: ConfigMap
 metadata:

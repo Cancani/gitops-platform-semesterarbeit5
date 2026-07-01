@@ -1,3 +1,4 @@
+# PersistentVolumeClaim für die SQLite Datenbankdatei, übersteht Pod-Neustarts.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

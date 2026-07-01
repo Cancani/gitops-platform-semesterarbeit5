@@ -1,3 +1,5 @@
+# Deployment für die price-watch FastAPI Anwendung.
+# Non-Root Security Context, ConfigMap für DATABASE_PATH, PVC für SQLite Persistenz.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
