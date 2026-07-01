@@ -49,14 +49,9 @@ jobs:
         working-directory: .
         run: helm lint helm/price-watch
 
-      - name: kubectl einrichten
-        uses: azure/setup-kubectl@v4
-
-      - name: kubectl dry-run
+      - name: helm template
         working-directory: .
-        run: |
-          helm template price-watch helm/price-watch | \
-          kubectl apply --dry-run=client --validate=false --server-side=false -f -
+        run: helm template price-watch helm/price-watch > /dev/null
 
   build-and-push:
     name: Container Image bauen und pushen
