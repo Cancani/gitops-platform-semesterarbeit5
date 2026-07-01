@@ -24,7 +24,7 @@
 
 Die laufende Projektdokumentation ist auf GitHub Pages verfügbar:
 
-**GitHub Pages:** [https://cancani.com/gitops-platform-sem5/](https://cancani.com/gitops-platform-sem5/)
+**GitHub Pages:** [https://cancani.com/gitops-platform-semesterarbeit5/](https://cancani.com/gitops-platform-semesterarbeit5/)
 
 | Dokument | Inhalt |
 | --- | --- |
