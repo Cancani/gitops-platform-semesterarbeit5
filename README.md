@@ -49,7 +49,7 @@ Diese Semesterarbeit baut eine kleine, aber realistische Cloud Native Plattform 
 | --- | --- | --- | --- |
 | Sprint 1 | 1 bis 3 | Setup, Cluster, WebApp Skelett, Container | ![status](https://img.shields.io/badge/done-brightgreen?style=flat-square) |
 | Sprint 2 | 4 bis 6 | GitOps Durchstich (CI, Helm, Argo CD) | ![status](https://img.shields.io/badge/done-brightgreen?style=flat-square) |
-| Sprint 3 | 7 bis 9 | Stabilisierung, Runbooks, Doku, Demo | ![status](https://img.shields.io/badge/in__progress-yellow?style=flat-square) |
+| Sprint 3 | 7 bis 9 | Stabilisierung, Runbooks, Doku, Demo | ![status](https://img.shields.io/badge/done-brightgreen?style=flat-square) |
 
 ---
 
