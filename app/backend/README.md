@@ -1,11 +1,12 @@
 # Price Watch Backend
 
-FastAPI Backend der Preisüberwachungs WebApp. Das Skelett wird in Sprint 1
-(US04) aufgebaut. Fachliche Logik (Preisabruf, Persistenz) folgt in Sprint 2.
+FastAPI Backend der Preisüberwachungs WebApp. Preisabruf über die Steam
+Market API mit Mock-Fallback, Persistenz in SQLite, ausgeliefertes
+Frontend unter `/`.
 
 ## Voraussetzungen
 
-- Python 3.11 oder neuer
+- Python 3.12 (oder 3.11+)
 - pip
 
 ## Lokale Entwicklung
@@ -33,15 +34,17 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 Der Server ist unter `http://localhost:8000` erreichbar. Die interaktive
 OpenAPI Doku liegt unter `http://localhost:8000/docs`.
 
-## Endpoints im Skelett
+## Endpoints
 
-| Pfad | Methode | Beschreibung | Status |
-| --- | --- | --- | --- |
-| `/docs` | GET | OpenAPI Swagger UI | aktiv |
-| `/healthz` | GET | Liveness Probe | aktiv |
-| `/ready` | GET | Readiness Probe | aktiv |
-| `/api/prices` | GET | Aktuelle Preise | Skelett (Sprint 2) |
-| `/api/prices/history` | GET | Historische Preise | Skelett (Sprint 2) |
+| Pfad | Methode | Beschreibung |
+| --- | --- | --- |
+| `/` | GET | Frontend (index.html mit Chart.js) |
+| `/docs` | GET | OpenAPI Swagger UI |
+| `/healthz` | GET | Liveness Probe |
+| `/ready` | GET | Readiness Probe (inkl. DB-Check) |
+| `/api/prices` | GET | Aktuelle Preise (neuster Wert pro Objekt) |
+| `/api/prices/history` | GET | Historische Preise, optional `?item=...` |
+| `/api/prices/refresh` | POST | Preise abrufen und speichern (CronJob) |
 
 ## Manueller Smoke Test
 
@@ -52,11 +55,19 @@ curl http://localhost:8000/healthz
 curl http://localhost:8000/ready
 # {"status":"ready"}
 
+curl -X POST http://localhost:8000/api/prices/refresh
+# {"fetched":4}
+
 curl http://localhost:8000/api/prices
-# {"prices":[]}
+# {"prices":[...]}
 ```
 
 ## Tests
 
-Automatisierte Tests werden in Sprint 2 zusammen mit der fachlichen Logik
-ergänzt (siehe Sprint 2 Planung in `docs/dokumentation.md`).
+```bash
+pip install pytest httpx
+pytest
+```
+
+Die Tests mocken die Steam Market API (kein Netzwerkzugriff nötig) und
+verwenden eine temporäre SQLite Datenbank.

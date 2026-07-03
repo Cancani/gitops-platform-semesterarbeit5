@@ -770,35 +770,41 @@ Für Sprint 3 werden mindestens folgende Nachweise geplant:
 
 #### Sprint 3 Retrospektive
 
-_Platzhalter Abbildung: Starfish Retrospektive Sprint 3_
+![Starfish Retrospektive Sprint 3](./img/Starfish_Retro_Sprint_3.png)
+<small><em>Abbildung: Starfish Retrospektive Sprint 3</em></small>
 
 **Start Doing**
 
-- ...
+- Akzeptanzkriterien vor der Umsetzung gegen die technische Realität prüfen. Das Kriterium kubectl apply --dry-run=client aus US14 war ohne laufenden Cluster in der CI nicht umsetzbar und musste durch helm template ersetzt werden. Eine kurze technische Validierung beim Sprint Planning hätte das früher aufgedeckt.
+- Dokumentation kontinuierlich reviewen statt in einer grossen Schlusskorrektur. Das finale Doku Review fand mehrere Inkonsistenzen auf einmal, verteilt über den Sprint wäre der Aufwand kleiner gewesen.
 
 **Stop Doing**
 
-- ...
+- Den develop Branch über längere Zeit parallel zu main führen. Durch Squash Merges divergieren die SHA Stände, was zu unnötigem Branch Handling führte. Feature Branches direkt von main sind bei einem Soloprojekt ausreichend.
+- Nicht referenzierte Screenshots im Repository ansammeln. Das Aufräumen am Sprint Ende kostete Zeit, die bei sofortigem Löschen nicht angefallen wäre.
 
 **Keep Doing**
 
-- ...
+- Alle Änderungen konsequent über PRs mit Squash Merge. Genau diese saubere Historie hat das Rollback Szenario in US12 mit einem einzigen git revert möglich gemacht.
+- Runbooks vor der Dokumentation live durchspielen. Alle drei Runbooks wurden praktisch verifiziert, dadurch sind sie belastbar und nicht nur theoretisch.
+- Klare Abhängigkeiten zwischen Stories im Planning definieren. Die Verknüpfung von US12 und US13 über Runbook 03 hat Doppelarbeit vermieden.
 
 **More Of**
 
-- ...
+- Rote Pipeline Läufe bewusst provozieren und dokumentieren. Der absichtlich fehlerhafte Image Tag in US12 war einer der stärksten Nachweise des Sprints und zeigt das Verhalten der Plattform unter Fehlerbedingungen.
+- Kleine, abgeschlossene PRs pro Story. Das hat Reviews und Nachvollziehbarkeit deutlich vereinfacht.
 
 **Less Of**
 
-- ...
+- Funktionale Erweiterungen kurz vor Sprint Ende. Die Integration der Steam Market API als echte Preisquelle war fachlich wertvoll, hätte aber bei Problemen die Doku Stories US15 und US16 gefährdet. Solche Erweiterungen gehören an den Sprint Anfang oder in einen eigenen Scope Entscheid.
 
 **Zusammenfassung**
 
-_Wird nach Abschluss von Sprint 3 ergänzt._
+Sprint 3 wurde mit 15 von 15 Story Points abgeschlossen, die Velocity liegt bei 100 Prozent. Alle sechs Stories wurden umgesetzt: das Helm Chart ist mit PVC, ConfigMap und CronJob vollständig, die Pipeline prüft Code und Chart automatisiert, das Rollback Szenario ist praktisch nachgewiesen, drei Runbooks sind getestet und die Dokumentation ist mit Diagrammen, Glossar, Quellen, Management Summary und Reflexion vollständig. Die WIP Regel von maximal zwei parallelen Issues wurde eingehalten. Der grösste Lerneffekt des Sprints war der Rollback Nachweis: die Plattform korrigiert Fehlzustände ausschliesslich über Git, ohne direkten Cluster Eingriff.
 
-**Fazit**
+**Erkenntnisse für zukünftige Projekte**
 
-_Gesamtfazit zum Projektmanagement über alle drei Sprints. Was hat die Methodik gebracht, was würde ich nächstes Mal anders machen._
+Akzeptanzkriterien technisch validieren bevor sie ins Issue geschrieben werden, Dokumentation als laufende Aufgabe statt als Schlussaktivität behandeln und Branch Strategien so einfach wie möglich halten. Der GitOps Ansatz mit Pull Prinzip hat sich gegenüber dem Push CD aus Semester 4 als klar nachvollziehbarer und robuster erwiesen.
 
 ---
 

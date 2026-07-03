@@ -8,6 +8,10 @@ metadata:
     {{- include "price-watch.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  # Recreate statt RollingUpdate: SQLite auf RWO-PVC verträgt keinen
+  # zweiten Pod während des Updates (Single Writer, siehe ADR-003).
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "price-watch.selectorLabels" . | nindent 6 }}
