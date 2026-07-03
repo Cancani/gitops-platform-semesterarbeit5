@@ -14,7 +14,7 @@ die Änderung und synct den vorherigen Stand automatisch zurück.
 
 **Schritte**
 
-1. Fehlerhaften Commit identifizieren
+**Schritt 1: Fehlerhaften Commit identifizieren**
 
 ```bash
 git log --oneline -5
@@ -22,7 +22,7 @@ git log --oneline -5
 
 Den SHA des fehlerhaften Commits notieren.
 
-2. Pod-Status prüfen
+**Schritt 2: Pod-Status prüfen**
 
 ```bash
 kubectl get pods
@@ -30,7 +30,7 @@ kubectl get pods
 
 Der neue Pod zeigt `ImagePullBackOff` oder `ErrImagePull`. Der alte Pod läuft noch.
 
-3. Neuen Branch erstellen und Revert ausführen
+**Schritt 3: Neuen Branch erstellen und Revert ausführen**
 
 ```bash
 git checkout main
@@ -40,12 +40,12 @@ git revert <bad-commit-sha> --no-edit
 git push origin feature/revert-bad-commit
 ```
 
-4. Pull Request auf main erstellen und mergen (Squash Merge)
+**Schritt 4: Pull Request auf main erstellen und mergen (Squash Merge)**
 
 Der Revert-Commit landet auf main. Argo CD erkennt die Änderung in `values.yaml`
 und synct den vorherigen Image Tag zurück.
 
-5. Sync abwarten und Pod-Status prüfen
+**Schritt 5: Sync abwarten und Pod-Status prüfen**
 
 ```bash
 kubectl get pods
