@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Löscht den lokalen kind Cluster
 # Idempotent: Wenn der Cluster nicht existiert, beendet sich das Skript
 # ohne Fehler.

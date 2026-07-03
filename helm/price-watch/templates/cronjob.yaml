@@ -9,16 +9,46 @@ metadata:
 spec:
   schedule: "*/1 * * * *"
   concurrencyPolicy: Forbid
+
+  # History-Limits: verhindert, dass sich bei minütlicher Ausführung
+  # abgeschlossene Job-Pods im Cluster ansammeln.
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+
   jobTemplate:
     spec:
+      # Maximal 2 Wiederholungsversuche pro Job, danach gilt er als failed.
+      backoffLimit: 2
+      # Job wird hart abgebrochen, falls er länger als 60s läuft
+      # (nächster Lauf startet ohnehin nach 1 Minute).
+      activeDeadlineSeconds: 60
       template:
         spec:
           restartPolicy: OnFailure
           containers:
             - name: refresh
               image: curlimages/curl:8.7.1
+              # Gleiche Härtung wie beim App-Container (Non-Root, keine
+              # Privilege Escalation, Read-Only Root FS, keine Capabilities).
+              securityContext:
+                runAsNonRoot: true
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 16Mi
+                limits:
+                  cpu: 50m
+                  memory: 32Mi
               command:
                 - curl
+                - --fail
+                - --max-time
+                - "30"
                 - -X
                 - POST
                 - http://{{ include "price-watch.fullname" . }}:8000/api/prices/refresh

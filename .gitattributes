@@ -1,0 +1,19 @@
+# Zeilenenden normalisieren: Git speichert intern LF für alle Textdateien.
+* text=auto
+
+# Shell-Skripte MÜSSEN LF haben, sonst bricht bash unter Linux/macOS ab.
+*.sh text eol=lf
+
+# Code und Konfiguration ebenfalls LF
+*.py text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.toml text eol=lf
+*.txt text eol=lf
+
+# Binärdateien nicht anfassen
+*.png binary
+*.jpg binary

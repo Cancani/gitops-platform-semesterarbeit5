@@ -22,14 +22,14 @@ GitOps Plattform mit Preisüberwachungs WebApp, Cloud Native Deployment auf Kube
 
 Die laufende Projektdokumentation ist auf GitHub Pages verfügbar:
 
-**GitHub Pages:** [https://cancani.com/gitops-platform-sem5/](https://cancani.com/gitops-platform-sem5/)
+**GitHub Pages:** [https://cancani.com/gitops-platform-semesterarbeit5/](https://cancani.com/gitops-platform-semesterarbeit5/)
 
 | Dokument | Inhalt |
 | --- | --- |
 | [Dokumentation](dokumentation.md) | Hauptdokument, alle Kapitel von Management Summary bis Reflexion |
-| Runbook 01: Plattform Initial Setup | Cluster und Argo CD initial aufbauen (folgt in Sprint 3, US13) |
-| Runbook 02: Neue Version deployen | Standard GitOps Release Workflow (folgt in Sprint 3, US13) |
-| Runbook 03: Rollback Release | Rollback eines fehlerhaften Releases (folgt in Sprint 3, US13) |
+| [Runbook 01: Plattform Initial Setup](runbooks/RB01_plattform_initial_setup.md) | Cluster und Argo CD initial aufbauen |
+| [Runbook 02: Neue Version deployen](runbooks/RB02_neue_version_deployen.md) | Standard GitOps Release Workflow |
+| [Runbook 03: Rollback Release](runbooks/RB03_rollback_release.md) | Rollback eines fehlerhaften Releases |
 
 ---
 
@@ -57,13 +57,14 @@ Diese Semesterarbeit baut eine kleine, aber realistische Cloud Native Plattform 
 flowchart LR
     Dev[Entwickler] -->|git push| Repo[(GitHub Repository)]
     Repo -->|Trigger| CI[GitHub Actions CI]
-    CI -->|Build und Push| Reg[(GitHub Container Registry)]
+    CI -->|Build und Push| Reg[(GHCR)]
+    CI -->|values.yaml Update| Repo
     Repo -->|Helm Chart Pfad| Argo[Argo CD]
-    Argo -->|kubectl apply, Sync| K8s[(Kubernetes Cluster)]
+    Argo -->|Sync| K8s[(Kubernetes Cluster)]
     Reg -->|Image Pull| K8s
     K8s --> App[Preisüberwachungs WebApp]
     App --> DB[(SQLite)]
-    App -->|HTTPS| User[Benutzer]
+    App -->|HTTP, NodePort 30080| User[Benutzer]
 ```
 
 ---
@@ -81,9 +82,9 @@ flowchart LR
 | Registry | GitHub Container Registry (ghcr.io) |
 | Backend | Python 3.12, FastAPI |
 | Frontend | minimales HTML mit Chart.js |
-| Datenbank | SQLite (PVC folgt in Sprint 3) |
-| Job Scheduling | Kubernetes CronJob für regelmässigen Preisabruf (folgt in Sprint 3) |
-| Quelle Preisdaten | Mock Preisquelle mit echten Steam CDN Bildern, echte API folgt |
+| Datenbank | SQLite mit PVC |
+| Job Scheduling | Kubernetes CronJob für regelmässigen Preisabruf |
+| Preisdaten | Steam Market API mit Mock-Fallback |
 | Doku | MkDocs Material auf GitHub Pages |
 
 ---
@@ -96,17 +97,19 @@ flowchart LR
 sequenceDiagram
     autonumber
     participant Dev as Entwickler
-    participant Git as GitHub
+    participant Git as GitHub Repository
     participant CI as GitHub Actions
     participant Reg as GHCR
     participant Argo as Argo CD
     participant K8s as Kubernetes
 
     Dev->>Git: git push (Code oder Helm Werte)
-    Git->>CI: trigger workflow
-    CI->>CI: Build, Test, Lint
-    CI->>Reg: docker push image:tag
-    Argo->>Git: poll oder webhook
+    Git->>CI: trigger lint-and-test
+    CI->>CI: ruff, pytest, helm lint, helm template
+    CI->>CI: build-and-push, nur wenn lint-and-test gruen
+    CI->>Reg: docker push image, sha-Tag und latest
+    CI->>Git: values.yaml Update, Commit mit skip ci
+    Argo->>Git: Polling auf Aenderung
     Argo->>K8s: apply Manifeste aus Helm Chart
     K8s->>Reg: pull image
     K8s-->>Argo: Status Healthy
@@ -124,28 +127,28 @@ sequenceDiagram
 ├── docs/                           # gesamte Doku, wird zur Pages Seite
 │   ├── index.md                    # diese Startseite
 │   ├── dokumentation.md            # Hauptdokument der Semesterarbeit
-│   ├── runbooks/                   # drei Runbooks (folgt Sprint 3)
+│   ├── runbooks/                   # RB01 Setup, RB02 Deploy, RB03 Rollback
 │   └── img/                        # Screenshots und Abbildungen
 ├── app/
+│   ├── argocd/
+│   │   └── price-watch.app.yaml    # Argo CD Application Definition
 │   └── backend/                    # FastAPI Service: API, Preisabruf, DB Zugriff
 │       ├── main.py                 # FastAPI Anwendung
 │       ├── database.py             # SQLite Datenzugriff
 │       ├── models.py               # Pydantic Modelle
-│       ├── pricesource.py          # Preisquelle (Mock mit Steam CDN Bildern)
+│       ├── pricesource.py          # Preisquelle (Steam API mit Mock-Fallback)
 │       ├── requirements.txt        # Python Abhängigkeiten
 │       ├── Dockerfile              # Multi-Stage Container Build
-│       └── static/                 # Frontend (index.html mit Chart.js)
+│       ├── static/                 # Frontend (index.html mit Chart.js)
+│       └── tests/                  # pytest API Tests
 ├── helm/
 │   └── price-watch/                # Helm Chart der WebApp
-├── app/argocd/
-│   └── price-watch.app.yaml        # Argo CD Application Definition
 ├── kind/
 │   └── cluster.yaml                # kind Cluster Konfiguration
 ├── .github/
-│   ├── workflows/
-│   │   ├── ci.yaml                 # Build und Push in Registry
-│   │   └── docs.yaml               # MkDocs Build und Pages Deploy
-│   └── ISSUE_TEMPLATE/             # User Story Templates
+│   └── workflows/
+│       ├── ci.yaml                 # Build und Push in Registry
+│       └── docs.yaml               # MkDocs Build und Pages Deploy
 └── scripts/
     ├── setup-cluster.sh            # kind Cluster aufsetzen
     ├── setup-argocd.sh             # Argo CD installieren
@@ -177,9 +180,8 @@ kubectl apply -f app/argocd/price-watch.app.yaml
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 # Browser: https://localhost:8080
 
-# 6. Status prüfen
-kubectl get application -n argocd price-watch
-kubectl get pods
+# 6. App im Browser oeffnen, direkt ueber NodePort erreichbar
+# http://localhost:30080
 ```
 
 ---
@@ -206,5 +208,5 @@ Die neue Semesterarbeit ist keine Wiederholung, sondern eine fachliche Erweiteru
 | Fachexperte IaCA, CNC, CNA | Marcel Bernet |
 | Fachexperte PRJ | Thanam Pangri |
 | Module | Projektmanagement, IaCA, CNC und CNA, optional DevOps |
-| Geplanter Aufwand | ca. 50 Stunden über 9 Wochen |
+| Kolloquium | 08.07.2026 |
 | Repository | [github.com/Cancani/gitops-platform-semesterarbeit5](https://github.com/Cancani/gitops-platform-semesterarbeit5) |

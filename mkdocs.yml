@@ -1,7 +1,7 @@
 site_name: GitOps Plattform Semesterarbeit 5
 site_description: Aufbau einer GitOps basierten Kubernetes Plattform mit Preisüberwachungs WebApp
 site_author: Efekan Demirci
-site_url: https://cancani.com/gitops-platform-sem5/
+site_url: https://cancani.com/gitops-platform-semesterarbeit5/
 
 repo_name: Cancani/gitops-platform-semesterarbeit5
 repo_url: https://github.com/Cancani/gitops-platform-semesterarbeit5
@@ -46,7 +46,7 @@ theme:
     repo: fontawesome/brands/github
 
 extra_css:
-  - docs/stylesheets/style.css
+  - stylesheets/style.css
 
 markdown_extensions:
   - admonition
@@ -91,5 +91,3 @@ extra:
   generator: false
 
 copyright: Efekan Demirci, ITCNE24, TBZ Höhere Fachschule
-
-# Test
