@@ -12,7 +12,7 @@
 | Module | Projektmanagement, IaCA, CNC und CNA, optional DevOps |
 | Geplanter Aufwand | ca. 50 Stunden über 9 Wochen |
 | Repository | https://github.com/Cancani/gitops-platform-semesterarbeit5 |
-| Pages | https://cancani.com/gitops-platform-sem5/ |
+| Pages | https://cancani.com/gitops-platform-semesterarbeit5/ |
 
 ---
 
@@ -210,7 +210,7 @@ Das Projekt umfasst **16 User Stories**, US01 bis US16. Alle Stories werden als 
 - Definition of Done als Checkboxen
 - Labels für Type (`story`, `task`, `bug`)
 - Milestone Zuordnung zu Sprint
-- Story Points im Project Board
+- Story Points in den Sprint Planning Tabellen dieser Dokumentation
 
 #### Project Board Felder
 
@@ -219,7 +219,6 @@ Die Steuerung erfolgt über folgende Felder im GitHub Project:
 | Feld | Zweck |
 | --- | --- |
 | Status | Backlog, Ready, In Progress, Review, Done |
-| Story Points | Aufwandsschätzung (Number) |
 | Priority | Low, Medium, High |
 | Sprint | Sprint 1, Sprint 2, Sprint 3 |
 
@@ -257,7 +256,7 @@ Es wurde bewusst auf eine Schätzung in Stunden verzichtet, da diese insbesonder
 | 5 | Komplexer Task oder neue Technologie mit erhöhtem Debuggingaufwand |
 | 8 | Sehr komplexer Task mit hohem Risiko oder vielen Unbekannten |
 
-Die Story Points werden direkt pro Issue im GitHub Project Board gepflegt. Zusätzlich ist in jedem Issue eine kurze Begründung der Schätzung dokumentiert. Änderungen an Schätzungen wurden transparent im jeweiligen Issue festgehalten.
+Die Story Points werden pro User Story in den Sprint Planning Tabellen dieser Dokumentation gepflegt und in den Sprint Reviews gegen den tatsächlichen Abschluss abgeglichen. Die Zuordnung der Issues zu den Sprints erfolgt im GitHub Project Board über Milestones.
 
 #### Priorisierung
 
@@ -2661,7 +2660,7 @@ Am meisten Zeit hat der CI/CD-Teil gekostet, konkret das Zusammenspiel aus Image
 
 ### Methodische Reflexion
 
-Die Sprint-Struktur mit Planung, Review und Retrospektive pro Sprint ist aus Sem 4 übernommen und in dieser Arbeit konsequenter angewendet worden, insbesondere die Retrospektive nach dem Starfish-Modell und die durchgängige Story-Point-Schätzung. Was in Sem 4 eher informell lief, ist hier über das GitHub Project Board mit festen Feldern (Status, Story Points, Priority, Sprint) strukturiert nachvollziehbar.
+Die Sprint-Struktur mit Planung, Review und Retrospektive pro Sprint ist aus Sem 4 übernommen und in dieser Arbeit konsequenter angewendet worden, insbesondere die Retrospektive nach dem Starfish-Modell und die durchgängige Story-Point-Schätzung. Was in Sem 4 eher informell lief, ist hier über das GitHub Project Board mit festen Feldern (Status, Priority, Sprint) und die Story-Point-Tabellen in den Sprint Plannings strukturiert nachvollziehbar.
 
 Zwei methodische Learnings stechen heraus:
 
