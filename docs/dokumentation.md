@@ -1181,9 +1181,9 @@ flowchart TB
     Actions -->|Image Push| GHCR
     Actions -->|Doku Build| Pages
     Actions -->|values.yaml Update| Repo
-    Repo -->|beobachtet helm und argocd Pfad| Argo
+    Repo -->|beobachtet helm/price-watch| Argo
     Argo -->|Sync| App
-    Argo -->|Image Pull| GHCR
+    App -->|kubelet zieht Image| GHCR
     App --> DB
     App -->|Preisabruf| Steam
     User -->|Browser| App
@@ -1192,7 +1192,7 @@ flowchart TB
 
 _Abbildung 10: Systemkontext der Plattform_
 
-Vier Akteure beziehungsweise externe Systeme umgeben die Plattform: der Entwickler, der über Git Commits die Plattform verändert, der Endbenutzer, der die WebApp im Browser konsumiert, GitHub als Ort für Repository, CI und Doku Hosting, und die Steam Market API als externe, nicht kontrollierte Datenquelle. Alle Pfeile in die Plattform hinein laufen entweder über Git (deklarativ, versioniert) oder über den direkten Preisabruf der WebApp selbst. Es gibt keinen Pfad, der den Cluster direkt und undokumentiert verändert.
+Vier Akteure beziehungsweise externe Systeme umgeben die Plattform: der Entwickler, der über Git Commits die Plattform verändert, der Endbenutzer, der die WebApp im Browser konsumiert, GitHub als Ort für Repository, CI und Doku Hosting, und die Steam Market API als externe, nicht kontrollierte Datenquelle. Alle Pfeile in die Plattform hinein laufen entweder über Git (deklarativ, versioniert) oder über den direkten Preisabruf der WebApp selbst. Es gibt keinen Pfad, der den Cluster direkt und undokumentiert verändert. Argo CD überwacht dabei ausschliesslich den Pfad `helm/price-watch`, rendert das Chart und synchronisiert die Kubernetes Ressourcen; das Container Image wird nicht von Argo CD, sondern vom kubelet gemäss Deployment Spezifikation aus GHCR geladen.
 
 ### WebApp Architektur
 
@@ -1561,7 +1561,7 @@ Der oft genannte "Mixed Concerns" Nachteil eines Monorepos (App Code und Deploym
 
 **Kontext und Problemstellung**
 
-Pull Requests werden ausschliesslich vom Branch `develop` nach `main` geöffnet. Branch Protection erzwingt eine lineare History auf `main`. Es muss entschieden werden, welche Merge Strategie für diese Pull Requests gilt.
+Pull Requests werden nach `main` geöffnet, zu Projektbeginn vom Branch `develop`, ab Sprint 3 von kurzlebigen Feature Branches (siehe Nachtrag). Branch Protection erzwingt eine lineare History auf `main`. Es muss entschieden werden, welche Merge Strategie für diese Pull Requests gilt.
 
 Diese Entscheidung wirkt sich direkt auf den GitOps Lifecycle aus: Argo CD reagiert auf Commits auf `main`. Ein sauberer Commit pro PR macht Rollbacks, Bisects und das Lesen der Git History deutlich einfacher.
 
@@ -1576,19 +1576,19 @@ Diese Entscheidung wirkt sich direkt auf den GitOps Lifecycle aus: Argo CD reagi
 
 1. Squash Merge, ein einzelner Commit pro PR auf `main`
 2. Merge Commit, vollständige Branch History plus Merge Commit
-3. Rebase Merge, einzelne Commits aus `develop` werden auf `main` rebased
+3. Rebase Merge, einzelne Commits aus dem Quellbranch werden auf `main` rebased
 
 **Entscheid**
 
-Squash Merge. Jeder Pull Request von `develop` nach `main` erzeugt genau einen Commit auf `main`.
+Squash Merge. Jeder Pull Request nach `main` erzeugt genau einen Commit auf `main`.
 
 **Begründung**
 
 GitOps lebt davon, dass jeder Commit auf `main` eindeutig zu einer Deployment Änderung führt. Squash Merge erzeugt genau das: einen Commit pro PR, sauber benannt nach Conventional Commits Konvention, ein eindeutiges Ziel für `git revert`.
 
-Merge Commits würden die History aufblähen, weil jeder Mikro Commit von `develop` (oft mehrere pro Tag) in der History von `main` landet. Das macht Bisects schwierig und die History für einen Reviewer unleserlich. Rebase Merge wäre eine Mittellösung, würde aber bei der Rollback Story (Revert eines kompletten PR) zusätzliche Schritte erfordern, weil mehrere Commits gleichzeitig revertiert werden müssten.
+Merge Commits würden die History aufblähen, weil jeder Mikro Commit des Quellbranches (oft mehrere pro Tag) in der History von `main` landet. Das macht Bisects schwierig und die History für einen Reviewer unleserlich. Rebase Merge wäre eine Mittellösung, würde aber bei der Rollback Story (Revert eines kompletten PR) zusätzliche Schritte erfordern, weil mehrere Commits gleichzeitig revertiert werden müssten.
 
-Die Detail Commits aus `develop` gehen damit zwar in der `main` History verloren, sind aber im PR selbst weiterhin sichtbar. Das ist ein bewusster Tradeoff, der zugunsten der Lesbarkeit auf `main` ausgeht.
+Die Detail Commits des Quellbranches gehen damit zwar in der `main` History verloren, sind aber im PR selbst weiterhin sichtbar. Das ist ein bewusster Tradeoff, der zugunsten der Lesbarkeit auf `main` ausgeht.
 
 **Konsequenzen**
 
@@ -1637,14 +1637,13 @@ Der Cluster besteht aus zwei Nodes:
 | `gitops-platform-control-plane` | Control Plane | API Server, Scheduler, Controller Manager, etcd |
 | `gitops-platform-worker` | Worker | Workloads (Backend, CronJob, später Argo CD) |
 
-Die Konfiguration liegt in `kind/cluster.yaml` im Repository Root. Zusätzlich sind zwei Port Mappings vom Control Plane Node auf den Host eingerichtet:
+Die Konfiguration liegt in `kind/cluster.yaml` im Repository Root. Zusätzlich ist ein Port Mapping vom Control Plane Node auf den Host eingerichtet:
 
 | containerPort | hostPort | Verwendung |
 | --- | --- | --- |
-| 30080 | 30080 | HTTP NodePort, später Frontend und Argo CD UI |
-| 30443 | 30443 | HTTPS NodePort, reserviert für TLS Tests |
+| 30080 | 30080 | HTTP NodePort für die price-watch WebApp |
 
-Damit sind Services im Cluster ohne Ingress Controller per `http://localhost:30080` vom Host aus erreichbar, sobald ein passender NodePort Service deklariert ist.
+Damit ist die WebApp ohne Ingress Controller per `http://localhost:30080` vom Host aus erreichbar. Die Argo CD UI wird nicht über einen NodePort exponiert, sondern bei Bedarf per `kubectl port-forward` lokal erreichbar gemacht (siehe Kapitel Argo CD Installation).
 
 #### Voraussetzungen
 
@@ -1869,7 +1868,7 @@ Das Backend wird über ein Helm Chart in den Kubernetes Cluster deployed. Das Ch
 | `helm/price-watch/templates/service.yaml` | NodePort Service |
 | `helm/price-watch/templates/NOTES.txt` | Post-Install Hilfe |
 
-Chart Version und App Version sind bewusst getrennt: Chart-Änderungen (zum Beispiel Ressourcen anpassen) bumpen die `version`, App-Releases (neues Backend Image) bumpen die `appVersion`. Dieses Trennungsmuster ist Helm Best Practice und erleichtert das spätere Versionsmanagement in Sprint 3.
+Chart Version und App Version sind getrennte Metadaten: `version` beschreibt den Stand des Charts selbst, `appVersion` die zugehörige Anwendungsversion. Die tatsächlich ausgelieferte Applikationsversion wird in diesem Projekt jedoch über `image.tag` in `values.yaml` gesteuert: Die CI Pipeline baut ein Image mit commitbasiertem Tag und schreibt diesen nach erfolgreichem Push zurück in `values.yaml`, worauf Argo CD synchronisiert. `appVersion` wird bewusst nicht als automatischer Release Mechanismus verwendet und nur bei manuellen Versionssprüngen der Anwendung nachgeführt.
 
 #### Konfigurierbarkeit über values.yaml
 
@@ -2000,7 +1999,7 @@ Der Workflow liegt unter `.github/workflows/ci.yaml` und besteht aus zwei Jobs. 
 | Schritt | Aktion |
 | --- | --- |
 | 1. Checkout | Repository auschecken |
-| 2. Python einrichten | Python 3.11 bereitstellen |
+| 2. Python einrichten | Python 3.12 bereitstellen |
 | 3. Abhängigkeiten installieren | `requirements.txt` sowie `pytest`, `httpx`, `ruff` installieren |
 | 4. ruff | `ruff check .` gegen den Backend Code |
 | 5. pytest | Testsuite aus `tests/test_api.py` ausführen |
@@ -2065,7 +2064,7 @@ image:
   pullPolicy: Always                                  # gesetzt durch CI
 ```
 
-Der Commit durch `github-actions[bot]` trägt `[skip ci]` in der Message, damit kein weiterer Workflow Loop ausgelöst wird. Argo CD erkennt die Änderung in `values.yaml` und synct den Cluster auf das neue Image (siehe Kapitel Argo CD Application und GitOps Loop).
+Der Commit (Autorname `github-actions[bot]`, authentisiert über `PAT_TOKEN`) trägt `[skip ci]` in der Message, damit kein weiterer Workflow Loop ausgelöst wird. Argo CD erkennt die Änderung in `values.yaml` und synct den Cluster auf das neue Image (siehe Kapitel Argo CD Application und GitOps Loop).
 
 #### Layer Caching
 
@@ -2075,8 +2074,8 @@ Der Workflow nutzt den GitHub Actions Cache (`cache-from: type=gha`) für Docker
 
 Zwei Konfigurationen sind einmalig in GitHub notwendig:
 
-**github-actions[bot] Branch Protection Bypass:**
-Im Repository unter `Settings → Branches → main` muss `github-actions[bot]` als Actor hinzugefügt werden, der die Branch Protection bypassen darf. Ohne das schlägt der `git push` im Values Update Schritt fehl.
+**Schreibrechte für den Values Update Commit:**
+Der Push auf `main` wird nicht über den Standard `GITHUB_TOKEN` authentisiert, sondern über einen Personal Access Token (`PAT_TOKEN`), der als Repository Secret hinterlegt und im Checkout Schritt gesetzt wird. Der Token gehört dem Repository Owner und ist in der Branch Protection als Bypass Actor zugelassen; `github-actions[bot]` erscheint dabei lediglich als konfigurierter Autorname des Commits. Ohne diesen Token schlägt der `git push` im Values Update Schritt an der Branch Protection fehl. Das ist ein bewusster Tradeoff: Er ermöglicht den vollständigen GitOps Loop, müsste in einer produktiven Umgebung aber restriktiver abgesichert werden (z.B. Fine-grained Token mit minimalem Scope und regelmässiger Rotation).
 
 **GHCR Paket Sichtbarkeit:**
 Nach dem ersten CI Run ist das `price-watch-backend` Paket unter `ghcr.io/cancani/price-watch-backend` initial als private gespeichert. Unter dem eigenen GitHub Profil unter `Packages → price-watch-backend → Package settings → Change visibility → Public` auf Public setzen, damit Kubernetes im kind Cluster das Image ohne `imagePullSecret` ziehen kann.
@@ -2301,7 +2300,7 @@ Der Datenzugriff liegt in `app/backend/database.py`. Die Datenbankdatei wird üb
 
 Die Tabelle `prices` wird beim Anwendungsstart über den FastAPI Lifespan Hook idempotent angelegt (`CREATE TABLE IF NOT EXISTS`). Ein Index auf `(item_name, timestamp)` beschleunigt die Abfragen für aktuelle Preise und Historie.
 
-Die Single Writer Beschränkung von SQLite ist unproblematisch, da nur der Refresh Pfad schreibt und die API ausschliesslich liest.
+Die Single Writer Beschränkung von SQLite ist im Lab Setup akzeptabel, weil nur eine Backend Replica betrieben wird und alle Schreibzugriffe über den Refresh Pfad laufen. Dieser wird durch den CronJob sowie bei Bedarf manuell über UI oder API ausgelöst. `concurrencyPolicy: Forbid` verhindert parallele CronJob Läufe, aber keine gleichzeitig manuell ausgelösten Refreshs. Für ein produktives Multi Pod Setup wäre PostgreSQL notwendig.
 
 #### Preisquelle
 
@@ -2771,6 +2770,22 @@ Die grösste Schwäche der Arbeit liegt nicht in der Technik, sondern in der Pfl
 ### Ausblick
 
 Für eine mögliche Folgearbeit oder Weiterentwicklung wären naheliegende nächste Schritte: ein Argo CD Image Updater statt manuellem Tag-Bump in `values.yaml`, ein Ingress Controller statt NodePort für einen produktionsnäheren Zugriffsweg, PostgreSQL statt SQLite sobald mehr als ein schreibender Zugriff nötig wird, sowie ein einfacher Observability-Stack (Prometheus, Grafana) für Laufzeitmetriken. Alle vier waren im Rahmen dieser Arbeit bewusst ausserhalb des Scopes (siehe Kapitel Abgrenzung und SWOT-Chancen), bauen aber direkt auf der jetzt vorhandenen GitOps-Grundlage auf und liessen sich ohne strukturellen Umbau ergänzen.
+
+---
+
+## Abnahmematrix
+
+Die folgende Matrix ordnet jedes Projektziel dem konkreten Artefakt und einem überprüfbaren Nachweis zu.
+
+| Ziel | Artefakt | Nachweis | Status |
+| --- | --- | --- | --- |
+| Lokaler Kubernetes Cluster | `kind/cluster.yaml`, `scripts/setup-cluster.sh` | `kubectl get nodes`, beide Nodes `Ready` (Abbildung 15) | Erfüllt |
+| Preisüberwachungs WebApp | `app/backend/` | WebApp zeigt aktuelle und historische Preise über NodePort 30080 (Abbildungen 38, 39) | Erfüllt |
+| Helm Chart | `helm/price-watch/` | `helm lint` und `helm template` fehlerfrei in jeder CI Pipeline, installierte Ressourcen (Abbildungen 23 bis 28) | Erfüllt |
+| GitOps mit Argo CD | `app/argocd/price-watch.app.yaml` | Application `Synced, Healthy`, Commit auf `main` führt zu automatischem Sync (Abbildungen 30, 31) | Erfüllt |
+| CI Build und Image Publishing | `.github/workflows/ci.yaml` | Grüne Workflow Runs, SHA getaggte Images in GHCR | Erfüllt |
+| Persistenz | PVC Template, SQLite | Preishistorie bleibt über Pod Neustart erhalten (Rollback Szenario) | Erfüllt |
+| Dokumentation und Runbooks | `docs/`, `docs/runbooks/` | MkDocs Site auf GitHub Pages, drei getestete Runbooks | Erfüllt |
 
 ---
 
