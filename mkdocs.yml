@@ -13,12 +13,11 @@ theme:
   features:
     - navigation.tabs
     - navigation.sections
-    - navigation.expand
     - navigation.top
     - navigation.tracking
     - navigation.indexes
+    - navigation.instant
     - toc.follow
-    - toc.integrate
     - search.suggest
     - search.highlight
     - content.code.copy
@@ -27,14 +26,14 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
+      primary: black
       accent: indigo
       toggle:
         icon: material/weather-night
         name: Dark Mode aktivieren
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
+      primary: black
       accent: indigo
       toggle:
         icon: material/weather-sunny
