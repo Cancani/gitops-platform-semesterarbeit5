@@ -493,7 +493,7 @@ GitOps Durchstich. Push auf `main` führt automatisch zu Build, Push, Sync und D
 
 **Geplanter Aufwand Sprint 2:** **16 Story Points**
 
-Sprint 2 ist bewusst der schwerste Sprint, da hier der GitOps Durchstich entsteht. Das Risiko, dass ein Teil davon nicht in den drei Wochen schaffbar ist, ist explizit in der Risikomatrix als R11 dokumentiert.
+Sprint 2 ist bewusst der schwerste Sprint, da hier der GitOps Durchstich entsteht. Das Risiko, dass ein Teil davon nicht in den drei Wochen schaffbar ist, ist explizit in der Risikomatrix als R9 dokumentiert.
 
 **WIP Regel**
 
@@ -757,7 +757,7 @@ Für Sprint 3 werden mindestens folgende Nachweise geplant:
 - Drei Runbooks unter `docs/runbooks/` auf Pages sichtbar mit URL
 - Screenshot CI Pipeline mit allen Steps grün (Lint, Tests, Helm Lint, Helm Template, Build, Push)
 - Screenshot eines fehlgeschlagenen Lint oder Test Laufs mit nachfolgender Korrektur
-- Vier Mermaid Diagramme in der Doku auf Pages sichtbar
+- Vier Mermaid Architekturdiagramme in der Doku auf Pages sichtbar
 - Vollständiges Quellenverzeichnis und Abbildungsverzeichnis
 - Demo Skript oder Generalprobe Notizen
 
@@ -879,8 +879,8 @@ Eine SWOT Analyse hilft, das Projekt aus vier Perspektiven einzuschätzen und Ma
 
 #### Risiken
 
-- GitOps Durchstich in Sprint 2 wird nicht in 3 Wochen geschafft (siehe R11 in Risikomatrix)
-- Doku rückständig zur Umsetzung (siehe R10 und R12)
+- GitOps Durchstich in Sprint 2 wird nicht in 3 Wochen geschafft (siehe R9 in Risikomatrix)
+- Doku rückständig zur Umsetzung (siehe R10)
 - Verzettelung in optionale Zusatztools wie Monitoring (siehe R5)
 - Externe Preis API instabil oder limitiert (siehe R2, gemildert durch Testdaten Fallback)
 - Argo CD oder Helm Konfiguration verursachen mehr Setup Aufwand als geplant (siehe R4, R9)
