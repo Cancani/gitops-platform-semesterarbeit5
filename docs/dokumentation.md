@@ -604,7 +604,7 @@ Die Zwischenpräsentation 2 fand am 22.06.2026 statt. Präsentiert wurde gegenü
 
 **Massnahmen aus dem Feedback**
 
-Der Demo-Fehler trat auf weil ein Use Case nicht vollständig durchgespielt wurde. Für die Schlusspräsentation wird jeder Demo-Schritt mindestens einmal komplett und in Reihenfolge generalprobt. Die Sprint Retrospektive wird mit dem Starfish-Diagramm visuell unterstützt und klarer erklärt.
+Der Demo-Fehler trat auf weil ein Use Case nicht vollständig durchgespielt wurde. Für die Schlusspräsentation wird jeder Demo-Schritt mindestens einmal komplett und in Reihenfolge getestet. Die Sprint Retrospektive wird mit dem Starfish-Diagramm visuell unterstützt und klarer erklärt.
 
 ---
 
@@ -674,7 +674,7 @@ Woche 7 bis 9 der Semesterarbeit, 14.06.2026 bis 08.07.2026.
 
 **Sprint Ziel**
 
-Plattform und Dokumentation sind prüfbar abgeschlossen. Helm Chart ist mit PVC und CronJob vollständig, Rollback Szenario ist live nachgewiesen, drei Runbooks sind getestet und auf Pages sichtbar, Tests und Lint laufen automatisiert in der Pipeline, alle Doku-Bestandteile sind komplett. Die Schlussdemo ist vorbereitet und generalprobt.
+Plattform und Dokumentation sind prüfbar abgeschlossen. Helm Chart ist mit PVC und CronJob vollständig, Rollback Szenario ist live nachgewiesen, drei Runbooks sind getestet und auf Pages sichtbar, Tests und Lint laufen automatisiert in der Pipeline, alle Doku-Bestandteile sind komplett. Die Schlussdemo ist vorbereitet und getestet.
 
 **Sprint 3 Scope**
 
@@ -2222,6 +2222,12 @@ kubectl get application -n argocd price-watch -w
 
 Erwartetes Ergebnis nach 1 bis 2 Minuten: `SYNC STATUS: Synced`, `HEALTH STATUS: Healthy`.
 
+![Argo CD Applications Übersicht](./img/argocdappoverview.png)
+
+<small><em>Abbildung 31: Argo CD Applications Übersicht mit registrierter Application price-watch (Healthy, Synced)</em></small>
+
+Die Kachelansicht bestätigt die zentralen Parameter der Application: Repository, Target Revision `main`, Pfad `helm/price-watch` und Ziel-Namespace `default`. Status ist `Healthy` und `Synced` wenige Sekunden nach der Registrierung.
+
 
 #### Der vollständige GitOps Loop
 
@@ -2254,6 +2260,12 @@ curl http://localhost:30080/healthz
 ```
 
 In der Argo CD UI (siehe Kapitel Argo CD Installation, Abschnitt UI Zugang) wird die Application `price-watch` mit allen Ressourcen (Deployment, Service, Pod, ReplicaSet) als Baum dargestellt, jeweils mit Health- und Sync-Status.
+
+![Argo CD Ressourcenbaum](./img/argocdapptree.png)
+
+<small><em>Abbildung 32: Argo CD Ressourcenbaum der Application price-watch mit ConfigMap, PVC, Service, Deployment und CronJob</em></small>
+
+Der Baum zeigt alle vom Helm Chart erzeugten Ressourcen inklusive der Sprint 3 Erweiterungen (ConfigMap, PVC, CronJob). Der CronJob hat bereits einen Job mit zugehörigem Pod für den Preisabruf gestartet. Sync Status ist `Sync OK` auf den Commit `e439ac3`, App Health `Healthy`.
 
 Hinweis zu Image Pull: Da `values.yaml` durch die CI auf das GHCR Image zeigt, muss das GHCR Paket auf Public gesetzt sein. Andernfalls zeigt der Pod `ImagePullBackOff`.
 
@@ -2317,7 +2329,7 @@ uvicorn main:app --reload --port 8000
 
 ![Run App](./img/appbackend1sq.png)
 
-<small><em>Abbildung 31: Preisabruf und aktuelle Preise im Cluster</em></small>
+<small><em>Abbildung 33: Preisabruf und aktuelle Preise im Cluster</em></small>
 
 ```bash
 # Preise abrufen und speichern
@@ -2337,13 +2349,13 @@ curl "http://localhost:8000/api/prices/history?item=AWP%20Asiimov"
 
 ![curl calls](./img/appbackend2sq.png)
 
-<small><em>Abbildung 32: curl Aufrufe gegen die API im Cluster</em></small>
+<small><em>Abbildung 34: curl Aufrufe gegen die API im Cluster</em></small>
 
 Die interaktive OpenAPI Doku unter `http://localhost:8000/docs` zeigt den neuen POST Endpoint und die Pydantic Response Schemas.
 
 ![Price Refresh Endpoint](./img/appbackend3sq.png)
 
-<small><em>Abbildung 33: POST /api/prices/refresh im Cluster</em></small>
+<small><em>Abbildung 35: POST /api/prices/refresh im Cluster</em></small>
 
 
 ### Frontend (Preisübersicht und Verlauf)
@@ -2406,7 +2418,7 @@ uvicorn main:app --reload --port 8000
 ```
 ![Frontend lokal](./img/lokalpreis1.png)
 
-<small><em>Abbildung 34: Frontend lokal, leere Übersicht vor erstem Preisabruf</em></small>
+<small><em>Abbildung 36: Frontend lokal, leere Übersicht vor erstem Preisabruf</em></small>
 
 Browser auf `http://localhost:8000/` öffnen. Beim ersten Start ist die Übersicht leer. Ein Klick auf "Preise aktualisieren" ruft die Preisquelle ab und füllt das Grid. Mehrmaliges Aktualisieren erzeugt einen Verlauf, der im Detaildiagramm sichtbar wird.
 
@@ -2414,7 +2426,7 @@ Die API bleibt unter `http://localhost:8000/api/prices` und die OpenAPI Doku unt
 
 ![Frontend lokal Preise](./img/lokalpreis2.png)
 
-<small><em>Abbildung 35: Frontend lokal mit befüllter Preisübersicht</em></small>
+<small><em>Abbildung 37: Frontend lokal mit befüllter Preisübersicht</em></small>
 
 ### Helm Chart Erweiterung: PVC, ConfigMap und CronJob (Sprint 3)
 
@@ -2457,6 +2469,20 @@ Frontend baut sich dadurch im Demo-Betrieb schnell auf.
 Jede Karte im Frontend enthält einen direkten Link auf die Steam Market Seite des Skins:
 
 `https://steamcommunity.com/market/listings/730/<item_name>`
+
+#### Verifikation im Cluster
+
+Nach dem Argo CD Sync ist das Frontend über den NodePort `http://localhost:30080` erreichbar. Direkt nach einem frischen Deployment ist die Übersicht noch leer, bis der CronJob den ersten Preisabruf ausgelöst hat oder manuell auf "Preise aktualisieren" geklickt wird:
+
+![Frontend im Cluster, leer](./img/clusterpreis1.png)
+
+<small><em>Abbildung 38: Frontend im Cluster über NodePort, leere Übersicht vor dem ersten Preisabruf</em></small>
+
+Nach dem Preisabruf zeigt die Übersicht die vier beobachteten Skins mit echten Preisen der Steam Market API in CHF, den echten Skin Bildern vom Steam CDN und der Farbcodierung nach Seltenheit:
+
+![Frontend im Cluster, Steam Preise](./img/clusterpreis2.png)
+
+<small><em>Abbildung 39: Frontend im Cluster mit echten Preisen der Steam Market API in CHF</em></small>
 
 ---
 
@@ -2634,11 +2660,15 @@ Alle Abbildungen und Diagramme dieses Dokuments in der Reihenfolge ihres Auftret
 | 28 | [Swagger UI über NodePort erreichbar](img/Helminstall_6.png) | Plattformaufbau |
 | 29 | [Argo CD Installation im Cluster](img/setupargocd.png) | Plattformaufbau |
 | 30 | [Argo CD UI mit Application price-watch](img/argocdui.png) | Plattformaufbau |
-| 31 | [Preisabruf und aktuelle Preise im Cluster](img/appbackend1sq.png) | Plattformaufbau |
-| 32 | [curl Aufrufe gegen die API im Cluster](img/appbackend2sq.png) | Plattformaufbau |
-| 33 | [POST /api/prices/refresh im Cluster](img/appbackend3sq.png) | Plattformaufbau |
-| 34 | [Frontend lokal, leere Übersicht vor erstem Preisabruf](img/lokalpreis1.png) | Plattformaufbau |
-| 35 | [Frontend lokal mit befüllter Preisübersicht](img/lokalpreis2.png) | Plattformaufbau |
+| 31 | [Argo CD Applications Übersicht mit registrierter Application price-watch](img/argocdappoverview.png) | Plattformaufbau |
+| 32 | [Argo CD Ressourcenbaum der Application price-watch](img/argocdapptree.png) | Plattformaufbau |
+| 33 | [Preisabruf und aktuelle Preise im Cluster](img/appbackend1sq.png) | Plattformaufbau |
+| 34 | [curl Aufrufe gegen die API im Cluster](img/appbackend2sq.png) | Plattformaufbau |
+| 35 | [POST /api/prices/refresh im Cluster](img/appbackend3sq.png) | Plattformaufbau |
+| 36 | [Frontend lokal, leere Übersicht vor erstem Preisabruf](img/lokalpreis1.png) | Plattformaufbau |
+| 37 | [Frontend lokal mit befüllter Preisübersicht](img/lokalpreis2.png) | Plattformaufbau |
+| 38 | [Frontend im Cluster, leere Übersicht vor dem ersten Preisabruf](img/clusterpreis1.png) | Plattformaufbau |
+| 39 | [Frontend im Cluster mit echten Preisen der Steam Market API](img/clusterpreis2.png) | Plattformaufbau |
 
 
 ---
