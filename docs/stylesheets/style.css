@@ -1,6 +1,30 @@
+/* Basis-Schriftgroesse reduzieren (Material Standard ist 125% = 20px) */
+html {
+  font-size: 112.5%;
+}
+
+/* Inhalt etwas breiter, wirkt weniger gestaucht */
+.md-grid {
+  max-width: 76rem;
+}
+
+/* Ueberschriften kompakter */
+.md-typeset h1 {
+  font-size: 1.9em;
+  margin-bottom: 1rem;
+}
+
+.md-typeset h2 {
+  font-size: 1.45em;
+}
+
+.md-typeset h3 {
+  font-size: 1.15em;
+}
+
 /* Tabellen mit klarer Trennung */
 .md-typeset table:not([class]) {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .md-typeset table:not([class]) th {
@@ -8,7 +32,7 @@
   color: var(--md-primary-bg-color);
 }
 
-/* Code Blöcke mit etwas mehr Abstand */
+/* Code Bloecke mit etwas mehr Abstand */
 .md-typeset pre > code {
   padding: 1rem;
 }
@@ -21,9 +45,15 @@
 
 /* Bildunterschriften */
 .md-typeset figcaption,
-.md-typeset em {
-  font-size: 0.85rem;
+.md-typeset small em {
+  font-size: 0.8rem;
   color: var(--md-default-fg-color--light);
+}
+
+/* Screenshots dezent rahmen */
+.md-typeset img {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 4px;
 }
 
 /* Footer Anpassung */

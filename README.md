@@ -22,7 +22,7 @@
 
 ## Dokumentation
 
-Die laufende Projektdokumentation ist auf GitHub Pages verfügbar:
+Die vollständige Projektdokumentation ist auf GitHub Pages verfügbar:
 
 **GitHub Pages:** [https://cancani.com/gitops-platform-semesterarbeit5/](https://cancani.com/gitops-platform-semesterarbeit5/)
 
@@ -111,7 +111,7 @@ sequenceDiagram
     CI->>CI: build-and-push, nur wenn lint-and-test grün
     CI->>Reg: docker push image, sha-Tag und latest
     CI->>Git: values.yaml Update, Commit mit skip ci
-    Argo->>Git: Polling auf Aenderung
+    Argo->>Git: Polling auf Änderung
     Argo->>K8s: apply Manifeste aus Helm Chart
     K8s->>Reg: pull image
     K8s-->>Argo: Status Healthy
