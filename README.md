@@ -108,7 +108,7 @@ sequenceDiagram
     Dev->>Git: git push (Code oder Helm Werte)
     Git->>CI: trigger lint-and-test
     CI->>CI: ruff, pytest, helm lint, helm template
-    CI->>CI: build-and-push, nur wenn lint-and-test gruen
+    CI->>CI: build-and-push, nur wenn lint-and-test grün
     CI->>Reg: docker push image, sha-Tag und latest
     CI->>Git: values.yaml Update, Commit mit skip ci
     Argo->>Git: Polling auf Aenderung
@@ -193,7 +193,7 @@ kubectl apply -f app/argocd/price-watch.app.yaml
 # 5. Argo CD UI erreichbar machen
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 
-# 6. App im Browser oeffnen, direkt ueber NodePort erreichbar
+# 6. App im Browser öffnen, direkt über NodePort erreichbar
 # http://localhost:30080
 ```
 

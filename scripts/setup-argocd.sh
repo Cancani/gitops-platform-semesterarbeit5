@@ -5,7 +5,7 @@
 #
 # Voraussetzung: kind Cluster läuft (bash scripts/setup-cluster.sh)
 #
-# Siehe docs/dokumentation.md Kapitel 5.6 für Details.
+# Siehe docs/dokumentation.md Kapitel Argo CD Installation für Details.
 
 set -euo pipefail
 

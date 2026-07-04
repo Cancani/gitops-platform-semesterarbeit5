@@ -274,8 +274,6 @@ Die Priorität wird pro Issue explizit festgelegt und bleibt über mehrere Sprin
 
 Im Project Board sind Issues mit der Priorität **High** ganz oben angeordnet, darunter folgen Issues mit der Priorität **Medium**, während Issues mit der Priorität **Low** bewusst am unteren Ende des Backlogs platziert sind. Diese Anordnung stellt sicher, dass fachlich und technisch zwingend notwendige Aufgaben jederzeit klar erkennbar sind und zuerst in die Sprint Planung einfliessen.
 
-_Platzhalter Abbildung: Project Board mit Priorisierung_
-
 ---
 
 ### Sprint Planungen, Reviews und Retrospektiven
@@ -766,12 +764,16 @@ Für Sprint 3 werden mindestens folgende Nachweise geplant:
 
 
 
+**Sprint 3 Review**
+
+Ein separates Sprint 3 Review Gespräch findet nicht statt. Die Abnahme von Sprint 3 erfolgt direkt im Rahmen des Kolloquiums am 08.07.2026, in dem Plattform, Live-Demo und Dokumentation gemeinsam mit beiden Experten geprüft werden. Die Nachweise aus dem Evidence Standard ersetzen dabei die Demo-Artefakte eines regulären Sprint Reviews.
+
 ---
 
 #### Sprint 3 Retrospektive
 
 ![Starfish Retrospektive Sprint 3](./img/Starfish_Retro_Sprint_3.png)
-<small><em>Abbildung: Starfish Retrospektive Sprint 3</em></small>
+<small><em>Abbildung 7: Starfish Retrospektive Sprint 3</em></small>
 
 **Start Doing**
 
@@ -800,7 +802,7 @@ Für Sprint 3 werden mindestens folgende Nachweise geplant:
 
 **Zusammenfassung**
 
-Sprint 3 wurde mit 15 von 15 Story Points abgeschlossen, die Velocity liegt bei 100 Prozent. Alle sechs Stories wurden umgesetzt: das Helm Chart ist mit PVC, ConfigMap und CronJob vollständig, die Pipeline prüft Code und Chart automatisiert, das Rollback Szenario ist praktisch nachgewiesen, drei Runbooks sind getestet und die Dokumentation ist mit Diagrammen, Glossar, Quellen, Management Summary und Reflexion vollständig. Die WIP Regel von maximal zwei parallelen Issues wurde eingehalten. Der grösste Lerneffekt des Sprints war der Rollback Nachweis: die Plattform korrigiert Fehlzustände ausschliesslich über Git, ohne direkten Cluster Eingriff.
+Sprint 3 wurde mit 12 von 12 Story Points abgeschlossen, die Velocity liegt bei 100 Prozent. Alle fünf Stories sowie der Abschluss von US09 wurden umgesetzt: das Helm Chart ist mit PVC, ConfigMap und CronJob vollständig, die Pipeline prüft Code und Chart automatisiert, das Rollback Szenario ist praktisch nachgewiesen, drei Runbooks sind getestet und die Dokumentation ist mit Diagrammen, Glossar, Quellen, Management Summary und Reflexion vollständig. Die WIP Regel von maximal zwei parallelen Issues wurde eingehalten. Der grösste Lerneffekt des Sprints war der Rollback Nachweis: die Plattform korrigiert Fehlzustände ausschliesslich über Git, ohne direkten Cluster Eingriff.
 
 **Erkenntnisse für zukünftige Projekte**
 
@@ -919,15 +921,15 @@ flowchart TB
     end
 
     subgraph System[Plattform und WebApp]
-        UC1[Code oder Helm Werte aendern]
+        UC1[Code oder Helm Werte ändern]
         UC2[Image bauen und pushen]
         UC3[Doku auf Pages bereitstellen]
         UC4[Sync aus Repository auf Cluster]
         UC5[Rollback per Git Revert]
         UC6[Aktuelle Preise abrufen]
         UC7[Preisverlauf anzeigen]
-        UC8[Preise regelmaessig abrufen]
-        UC9[Plattform Status pruefen]
+        UC8[Preise regelmässig abrufen]
+        UC9[Plattform Status prüfen]
     end
 
     Dev --> UC1
@@ -952,7 +954,7 @@ flowchart TB
     Dev --> UC9
 ```
 
-_Abbildung 7: Use Case Diagramm aus Plattform Sicht_
+_Abbildung 8: Use Case Diagramm aus Plattform Sicht_
 
 #### Use Cases im Detail
 
@@ -1114,7 +1116,7 @@ Unwahrscheinlich         [grün]      [grün]       [grün]       [gelb] R8
 
 ![Risikomatrix](./img/Risikomatrix.png)
 
-<small><em>Abbildung 8: Risikomatrix mit allen zehn Risiken</em></small>
+<small><em>Abbildung 9: Risikomatrix mit allen zehn Risiken</em></small>
 
 #### Risikobehandlung über die Sprints
 
@@ -1193,7 +1195,7 @@ flowchart TB
     Dev -.->|kubectl, Runbooks| Plattform
 ```
 
-_Abbildung 9: Systemkontext der Plattform_
+_Abbildung 10: Systemkontext der Plattform_
 
 Vier Akteure beziehungsweise externe Systeme umgeben die Plattform: der Entwickler, der über Git Commits die Plattform verändert, der Endbenutzer, der die WebApp im Browser konsumiert, GitHub als Ort für Repository, CI und Doku Hosting, und die Steam Market API als externe, nicht kontrollierte Datenquelle. Alle Pfeile in die Plattform hinein laufen entweder über Git (deklarativ, versioniert) oder über den direkten Preisabruf der WebApp selbst. Es gibt keinen Pfad, der den Cluster direkt und undokumentiert verändert.
 
@@ -1223,11 +1225,11 @@ flowchart TB
     Routes --> DBLayer
     Routes --> Source
     DBLayer --> SQLite
-    Source -->|primaer| SteamAPI
+    Source -->|primär| SteamAPI
     Source -->|bei Fehler| Mock
 ```
 
-_Abbildung 10: WebApp Architektur_
+_Abbildung 11: WebApp Architektur_
 
 Die vier Python Module haben klar getrennte Zuständigkeiten: `main.py` definiert nur die Routen und verdrahtet die anderen Module, `models.py` validiert Ein- und Ausgabedaten über Pydantic, `database.py` kapselt jeden SQLite Zugriff, und `pricesource.py` entscheidet pro Aufruf, ob die echte Steam API oder der Mock Fallback antwortet. Kein Modul greift direkt auf ein anderes als über diese Schnittstellen zu, was die vier Endpoint-Tests aus US14 ohne echten Cluster oder echte Steam Verbindung ermöglicht.
 
@@ -1267,7 +1269,7 @@ flowchart TB
     Svc -->|NodePort Mapping| Host
 ```
 
-_Abbildung 11: Plattform Architektur auf Kubernetes Ebene_
+_Abbildung 12: Plattform Architektur auf Kubernetes Ebene_
 
 Zwei Namespaces sind relevant: `argocd` für Argo CD selbst, bootstrapped über `kubectl apply` (siehe Begründung im Kapitel Plattformaufbau), und `default` für die eigentliche Anwendung. Argo CD ist der einzige Akteur, der Ressourcen im Namespace `default` verändert, jede manuelle `kubectl edit` oder `kubectl scale` wird beim nächsten Reconcile Loop durch `selfHeal: true` zurückgesetzt. Der CronJob läuft als eigener, kurzlebiger Job Pod, nicht im Deployment Pod selbst, sodass ein hängender Preisabruf nie den laufenden Service beeinträchtigt.
 
@@ -1288,19 +1290,19 @@ sequenceDiagram
     Git->>CI: Trigger lint-and-test
     CI->>CI: ruff, pytest, helm lint, helm template
 
-    alt Pruefung erfolgreich
+    alt Prüfung erfolgreich
         CI->>CI: build-and-push
         CI->>GHCR: Image Push, sha-Tag und latest
         CI->>Git: values.yaml Update, Commit mit skip ci
         Argo->>Git: Polling auf Aenderung
         Argo->>K8s: Sync neues Image
         K8s-->>Argo: Status Synced, Healthy
-    else Pruefung schlaegt fehl
+    else Prüfung schlägt fehl
         CI--xDev: Pipeline rot, kein Image, kein Sync
     end
 ```
 
-_Abbildung 12: GitOps Sequenz vom Commit bis zum synchronisierten Cluster_
+_Abbildung 13: GitOps Sequenz vom Commit bis zum synchronisierten Cluster_
 
 Der entscheidende Punkt in diesem Diagramm ist der `alt`-Block: Nur wenn `lint-and-test` grün ist, entsteht überhaupt ein neues Image, und nur dann wird `values.yaml` verändert. Damit kann kein ungeprüfter Code jemals bis zu Argo CD vordringen. Der Rollback aus Kapitel Rollback Szenario per Git Revert nutzt exakt denselben Pfad in die andere Richtung: ein `git revert` ist ebenfalls nur ein Commit auf `main` und durchläuft dieselbe Pipeline.
 
@@ -1668,13 +1670,13 @@ Das Setup Skript prüft diese Voraussetzungen beim Start und meldet fehlende Too
 Das Setup Skript ist idempotent: Wenn der Cluster bereits existiert, wird er nicht neu erstellt, sondern nur der `kubectl` Kontext gesetzt und der aktuelle Status angezeigt. Damit ist mehrfaches Ausführen gefahrlos möglich (Massnahme zu Risiko R3).
 
 ![Cluster starten mit Skript](img/setup_cluster1.png)
-<small><em>Abbildung 13: Starten des Clusters lokal</em></small>
+<small><em>Abbildung 14: Starten des Clusters lokal</em></small>
 
 ![alt text](img/setup_cluster2.png)
-<small><em>Abbildung 14: Status Cluster</em></small>
+<small><em>Abbildung 15: Status Cluster</em></small>
 
 ![alt text](img/setup_cluster3.png)
-<small><em>Abbildung 15: Cluster Info nach Start</em></small>
+<small><em>Abbildung 16: Cluster Info nach Start</em></small>
 
 #### Verifikation nach Setup
 
@@ -1740,7 +1742,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ![Ausführung App](img/backendapp1.png)
-<small><em>Abbildung 16: Ausführung der App lokal</em></small>
+<small><em>Abbildung 17: Ausführung der App lokal</em></small>
 
 Der Server reagiert auf Code-Änderungen mit Auto-Reload, was die Iteration beim Skelett Aufbau und beim späteren Anbinden der Datenbank in Sprint 2 beschleunigt.
 
@@ -1754,7 +1756,7 @@ Die beiden Health Endpoints werden in Sprint 2 als Kubernetes Liveness und Readi
 Die Trennung in zwei Probes folgt der Kubernetes Best Practice und vermeidet, dass langsame Initialisierungen (zum Beispiel ein Schema-Load in Sprint 2) zu falschen Pod Restarts führen.
 
 ![Health Probes](img/backend2.png)
-<small><em>Abbildung 17: Health Probes der App</em></small>
+<small><em>Abbildung 18: Health Probes der App</em></small>
 
 ### Containerisierung (Dockerfile)
 
@@ -1816,13 +1818,13 @@ curl http://localhost:8000/api/prices
 ```
 
 ![Docker build](img/docker1.png)
-<small><em>Abbildung 18: Docker Build Ausführung</em></small>
+<small><em>Abbildung 19: Docker Build Ausführung</em></small>
 
 ![Docker run](img/docker2.png)
-<small><em>Abbildung 19: Docker Run Ausführung</em></small>
+<small><em>Abbildung 20: Docker Run Ausführung</em></small>
 
 ![Endpoint Check](img/docker3.png)
-<small><em>Abbildung 20: Endpoint Checks im Container</em></small>
+<small><em>Abbildung 21: Endpoint Checks im Container</em></small>
 
 Der HEALTHCHECK wird vom Docker Daemon automatisch ausgeführt. Status prüfen mit:
 
@@ -1830,7 +1832,7 @@ Der HEALTHCHECK wird vom Docker Daemon automatisch ausgeführt. Status prüfen m
 docker ps
 ```
 ![Docker Container Status](img/docker4.png)
-<small><em>Abbildung 21: Docker Container Status</em></small>
+<small><em>Abbildung 22: Docker Container Status</em></small>
 
 Image Grösse prüfen:
 
@@ -1937,11 +1939,11 @@ helm install price-watch helm/price-watch
 ```
 ![Helminstall](./img/helminstall_1.png)
 
-<small><em>Abbildung 22: Helm Lint und Helm Template lokal</em></small>
+<small><em>Abbildung 23: Helm Lint und Helm Template lokal</em></small>
 
 ![Helminstall](./img/helminstall_2.png)
 
-<small><em>Abbildung 23: Helm Chart Installation</em></small>
+<small><em>Abbildung 24: Helm Chart Installation</em></small>
 
 ```bash
 # Status prüfen
@@ -1951,7 +1953,7 @@ kubectl get pod -l app.kubernetes.io/name=price-watch
 
 ![Helminstall get pods](./img/helminstall_3.png)
 
-<small><em>Abbildung 24: kubectl get pods und svc nach Helm Install</em></small>
+<small><em>Abbildung 25: kubectl get pods und svc nach Helm Install</em></small>
 
 ```bash
 # Smoke Tests gegen NodePort
@@ -1964,7 +1966,7 @@ curl http://localhost:30080/api/prices
 
 ![Test](./img/helminstall_4.png)
 
-<small><em>Abbildung 25: Smoke Test gegen NodePort 30080</em></small>
+<small><em>Abbildung 26: Smoke Test gegen NodePort 30080</em></small>
 
 ```bash
 # Logs
@@ -1972,11 +1974,11 @@ kubectl logs -l app.kubernetes.io/name=price-watch
 ```
 ![Kubectl Logs](./img/helminstall_5.png)
 
-<small><em>Abbildung 26: Pod Logs nach Helm Install</em></small>
+<small><em>Abbildung 27: Pod Logs nach Helm Install</em></small>
 
 ![Swagger Seite](./img/Helminstall_6.png)
 
-<small><em>Abbildung 27: Swagger UI über NodePort erreichbar</em></small>
+<small><em>Abbildung 28: Swagger UI über NodePort erreichbar</em></small>
 
 ```bash
 # Deinstallieren
@@ -2135,7 +2137,7 @@ kubectl get pods -n argocd
 
 ![Argo CD](./img/setupargocd.png)
 
-<small><em>Abbildung 28: Argo CD Installation im Cluster</em></small>
+<small><em>Abbildung 29: Argo CD Installation im Cluster</em></small>
 
 | Deployment | Zweck |
 | --- | --- |
@@ -2172,7 +2174,7 @@ $pw = kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.da
 
 ![ArgoCD UI](./img/argocdui.png)
 
-<small><em>Abbildung 29: Argo CD UI mit Application price-watch</em></small>
+<small><em>Abbildung 30: Argo CD UI mit Application price-watch</em></small>
 
 #### Warum kubectl apply statt Helm Chart
 
@@ -2318,7 +2320,7 @@ uvicorn main:app --reload --port 8000
 
 ![Run App](./img/appbackend1sq.png)
 
-<small><em>Abbildung 30: Preisabruf und aktuelle Preise im Cluster</em></small>
+<small><em>Abbildung 31: Preisabruf und aktuelle Preise im Cluster</em></small>
 
 ```bash
 # Preise abrufen und speichern
@@ -2338,13 +2340,13 @@ curl "http://localhost:8000/api/prices/history?item=AWP%20Asiimov"
 
 ![curl calls](./img/appbackend2sq.png)
 
-<small><em>Abbildung 31: curl Aufrufe gegen die API im Cluster</em></small>
+<small><em>Abbildung 32: curl Aufrufe gegen die API im Cluster</em></small>
 
 Die interaktive OpenAPI Doku unter `http://localhost:8000/docs` zeigt den neuen POST Endpoint und die Pydantic Response Schemas.
 
 ![Price Refresh Endpoint](./img/appbackend3sq.png)
 
-<small><em>Abbildung 32: POST /api/prices/refresh im Cluster</em></small>
+<small><em>Abbildung 33: POST /api/prices/refresh im Cluster</em></small>
 
 
 ### Frontend (Preisübersicht und Verlauf)
@@ -2407,7 +2409,7 @@ uvicorn main:app --reload --port 8000
 ```
 ![Frontend lokal](./img/lokalpreis1.png)
 
-<small><em>Abbildung 33: Frontend lokal, leere Übersicht vor erstem Preisabruf</em></small>
+<small><em>Abbildung 34: Frontend lokal, leere Übersicht vor erstem Preisabruf</em></small>
 
 Browser auf `http://localhost:8000/` öffnen. Beim ersten Start ist die Übersicht leer. Ein Klick auf "Preise aktualisieren" ruft die Preisquelle ab und füllt das Grid. Mehrmaliges Aktualisieren erzeugt einen Verlauf, der im Detaildiagramm sichtbar wird.
 
@@ -2415,7 +2417,7 @@ Die API bleibt unter `http://localhost:8000/api/prices` und die OpenAPI Doku unt
 
 ![Frontend lokal Preise](./img/lokalpreis2.png)
 
-<small><em>Abbildung 34: Frontend lokal mit befüllter Preisübersicht</em></small>
+<small><em>Abbildung 35: Frontend lokal mit befüllter Preisübersicht</em></small>
 
 ### Helm Chart Erweiterung: PVC, ConfigMap und CronJob (Sprint 3)
 
@@ -2503,8 +2505,8 @@ wieder mit Status `Running`.
 **Nachweise**
 
 - Bad Commit SHA: `4563f45`
-- Pod in `ErrImagePull` und `ImagePullBackOff` (siehe Anhang)
-- Pod wieder `Running` nach Revert (siehe Anhang)
+- Pod in `ErrImagePull` und `ImagePullBackOff` (siehe Runbook 03)
+- Pod wieder `Running` nach Revert (siehe Runbook 03)
 
 ## Runbooks
 
@@ -2585,6 +2587,14 @@ Alle Quellen wurden im Verlauf der drei Sprints zur Recherche, Entscheidungsfind
 | MkDocs Material Dokumentation | https://squidfunk.github.io/mkdocs-material/ | Doku-Site, Navigation, Mermaid-Einbindung über `pymdownx.superfences` | Mai 2026 |
 | Mermaid Dokumentation | https://mermaid.js.org/ | Syntax für Flowchart- und Sequenzdiagramme | Juni 2026 |
 | Steam Community Market | https://steamcommunity.com/market/ | Inoffizieller `priceoverview` Endpoint als Preisquelle, keine offizielle API-Dokumentation vorhanden | Juni 2026 |
+| Uvicorn Dokumentation | https://www.uvicorn.org/ | ASGI Server, Startparameter für Container und lokale Entwicklung | Mai 2026 |
+| httpx Dokumentation | https://www.python-httpx.org/ | HTTP Client für den Steam API Abruf, Timeout Handling | Juni 2026 |
+| Python sqlite3 Dokumentation | https://docs.python.org/3/library/sqlite3.html | Datenbankzugriff, Row Factory, Context Manager Pattern | Mai 2026 |
+| SQLite Dokumentation | https://www.sqlite.org/docs.html | Single Writer Verhalten, Eignung als eingebettete Datenbank (ADR-003) | Mai 2026 |
+| Chart.js Dokumentation | https://www.chartjs.org/docs/latest/ | Preisverlauf Diagramm im Frontend | Juni 2026 |
+| GitHub Packages, Container Registry | https://docs.github.com/packages/working-with-a-github-packages-registry/working-with-the-container-registry | GHCR Login, Berechtigungen, Lowercase Anforderung an Image Namen | Mai 2026 |
+| OpenGitOps, GitOps Prinzipien | https://opengitops.dev/ | Definition der vier GitOps Prinzipien als konzeptionelle Grundlage | Mai 2026 |
+| Conventional Commits Spezifikation | https://www.conventionalcommits.org/ | Einheitliches Commit Format über alle Sprints | Mai 2026 |
 | Sem 4 Referenzprojekt, Geräteausleihe | https://cancani.com/geraeteausleihe-sem4/dokumentation/ | Vergleich Dokumentationsstil, Lerntransfer für Reflexion | Mai und Juli 2026 |
 
 Die Steam Community Market API ist nicht offiziell dokumentiert. Feldnamen und Verhalten des `priceoverview` Endpoints wurden über eigene Testaufrufe und öffentlich bekannte, von der Community zusammengetragene Beispiele ermittelt, nicht über eine autoritative Herstellerdokumentation. Das ist einer der Gründe für den Mock-Fallback in `pricesource.py`: Ohne offizielle Garantie auf Verfügbarkeit oder Format-Stabilität ist ein Fallback für eine Referenzanwendung angemessen.
@@ -2593,10 +2603,47 @@ Die Steam Community Market API ist nicht offiziell dokumentiert. Feldnamen und V
 
 ## Abbildungsverzeichnis
 
-Alle Abbildungen und Diagramme dieses Dokuments in der Reihenfolge ihres Auftretens.
+Alle Abbildungen und Diagramme dieses Dokuments in der Reihenfolge ihres Auftretens. Screenshots sind direkt auf die Bilddatei verlinkt, Mermaid Diagramme werden im jeweiligen Kapitel gerendert.
 
 | Nr. | Abbildung | Kapitel |
 | --- | --- | --- |
+| 1 | [Milestone Sprint 1 Ende](img/sprint1ende.png) | Projektmanagement |
+| 2 | [Projectboard Sprint 1 Ende](img/sprint1ende2.png) | Projektmanagement |
+| 3 | [Sprint 1 Starfish Retrospektive](img/starfishretrosprint1.png) | Projektmanagement |
+| 4 | [Sprint 2 Milestone und Issues](img/image-2.png) | Projektmanagement |
+| 5 | [Starfish Retrospektive Sprint 2](img/retro-sprint2-starfish.png) | Projektmanagement |
+| 6 | [Sprint 3 Milestones und Issues](img/image-3.png) | Projektmanagement |
+| 7 | [Starfish Retrospektive Sprint 3](img/Starfish_Retro_Sprint_3.png) | Projektmanagement |
+| 8 | Use Case Diagramm aus Plattform Sicht (Mermaid) | Projektmanagement |
+| 9 | [Risikomatrix mit allen zehn Risiken](img/Risikomatrix.png) | Projektmanagement |
+| 10 | Systemkontext der Plattform (Mermaid) | Architektur im Überblick |
+| 11 | WebApp Architektur (Mermaid) | Architektur im Überblick |
+| 12 | Plattform Architektur auf Kubernetes Ebene (Mermaid) | Architektur im Überblick |
+| 13 | GitOps Sequenz vom Commit bis zum synchronisierten Cluster (Mermaid) | Architektur im Überblick |
+| 14 | [Starten des Clusters lokal](img/setup_cluster1.png) | Plattformaufbau |
+| 15 | [Status Cluster](img/setup_cluster2.png) | Plattformaufbau |
+| 16 | [Cluster Info nach Start](img/setup_cluster3.png) | Plattformaufbau |
+| 17 | [Ausführung der App lokal](img/backendapp1.png) | Plattformaufbau |
+| 18 | [Health Probes der App](img/backend2.png) | Plattformaufbau |
+| 19 | [Docker Build Ausführung](img/docker1.png) | Plattformaufbau |
+| 20 | [Docker Run Ausführung](img/docker2.png) | Plattformaufbau |
+| 21 | [Endpoint Checks im Container](img/docker3.png) | Plattformaufbau |
+| 22 | [Docker Container Status](img/docker4.png) | Plattformaufbau |
+| 23 | [Helm Lint und Helm Template lokal](img/helminstall_1.png) | Plattformaufbau |
+| 24 | [Helm Chart Installation](img/helminstall_2.png) | Plattformaufbau |
+| 25 | [kubectl get pods und svc nach Helm Install](img/helminstall_3.png) | Plattformaufbau |
+| 26 | [Smoke Test gegen NodePort 30080](img/helminstall_4.png) | Plattformaufbau |
+| 27 | [Pod Logs nach Helm Install](img/helminstall_5.png) | Plattformaufbau |
+| 28 | [Swagger UI über NodePort erreichbar](img/Helminstall_6.png) | Plattformaufbau |
+| 29 | [Argo CD Installation im Cluster](img/setupargocd.png) | Plattformaufbau |
+| 30 | [Argo CD UI mit Application price-watch](img/argocdui.png) | Plattformaufbau |
+| 31 | [Preisabruf und aktuelle Preise im Cluster](img/appbackend1sq.png) | Plattformaufbau |
+| 32 | [curl Aufrufe gegen die API im Cluster](img/appbackend2sq.png) | Plattformaufbau |
+| 33 | [POST /api/prices/refresh im Cluster](img/appbackend3sq.png) | Plattformaufbau |
+| 34 | [Frontend lokal, leere Übersicht vor erstem Preisabruf](img/lokalpreis1.png) | Plattformaufbau |
+| 35 | [Frontend lokal mit befüllter Preisübersicht](img/lokalpreis2.png) | Plattformaufbau |
+
+--- | --- | --- |
 | 1 | Milestone Sprint 1 Ende | Projektmanagement |
 | 2 | Projectboard Sprint 1 Ende | Projektmanagement |
 | 3 | Sprint 1 Starfish Retrospektive | Projektmanagement |
@@ -2633,6 +2680,8 @@ Alle Abbildungen und Diagramme dieses Dokuments in der Reihenfolge ihres Auftret
 | 34 | Frontend lokal mit befüllter Preisübersicht | Plattformaufbau |
 
 ---
+
+## Reflexion
 
 ### Fachliche Reflexion
 
@@ -2685,7 +2734,7 @@ Zwei Dinge nehme ich für künftige Projekte mit: Erstens, kleine, verifizierbar
 Falls die Live-Demo aus technischen Gründen nicht funktioniert (Netzwerk, Cluster, Beamer, siehe Risiko R8):
 
 1. Ein kurzes, vorher aufgezeichnetes Video des vollständigen GitOps Loops (Commit bis Sync) als Ersatz einspielen.
-2. Falls kein Video verfügbar ist, die Screenshots aus Kapitel Anhang A in derselben Reihenfolge wie die Live-Demo durchgehen und den Ablauf anhand der Bilder erklären.
+2. Falls kein Video verfügbar ist, die Screenshots aus den Kapiteln Plattformaufbau und Rollback Szenario per Git Revert in derselben Reihenfolge wie die Live-Demo durchgehen und den Ablauf anhand der Bilder erklären.
 3. Die Architektur-Diagramme und die Doku-Site bleiben in jedem Fall offline verfügbar (lokaler Klon der Pages oder PDF-Export), unabhängig von Cluster oder Internetverbindung.
 4. Bei WLAN-Ausfall: GitHub Actions Run und Argo CD Sync nicht live, sondern anhand der bereits während der Vorbereitung gesammelten Screenshots zeigen, restlicher Ablauf unverändert.
 
@@ -2725,7 +2774,7 @@ Für eine mögliche Folgearbeit oder Weiterentwicklung wären naheliegende näch
 
 ---
 
-# Kontakt
+## Kontakt
 
 Für Rückfragen oder weiterführende Informationen zu diesem Projekt:
 

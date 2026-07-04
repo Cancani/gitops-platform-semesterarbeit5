@@ -50,7 +50,7 @@ def health_check() -> dict:
 
 @app.get("/ready", tags=["health"])
 def readiness_check() -> dict:
-    """Readiness Probe: prueft zusaetzlich die Datenbankverbindung."""
+    """Readiness Probe: prüft zusätzlich die Datenbankverbindung."""
     try:
         check_connection()
     except Exception:
@@ -74,13 +74,11 @@ def price_history(item: str | None = None) -> dict:
 def refresh_prices() -> dict:
     """Ruft aktuelle Preise ab und speichert sie.
 
-    Wird vom Kubernetes CronJob regelmaessig aufgerufen.
-    Manuell nutzbar fuer Tests und Demo.
+    Wird vom Kubernetes CronJob regelmässig aufgerufen.
+    Manuell nutzbar für Tests und Demo.
     """
     entries = fetch_prices()
     insert_prices(entries)
     return {"fetched": len(entries)}
 
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
-
-#Test
