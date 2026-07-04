@@ -763,7 +763,6 @@ Für Sprint 3 werden mindestens folgende Nachweise geplant:
 - Demo Skript oder Generalprobe Notizen
 
 
-
 **Sprint 3 Review**
 
 Ein separates Sprint 3 Review Gespräch findet nicht statt. Die Abnahme von Sprint 3 erfolgt direkt im Rahmen des Kolloquiums am 08.07.2026, in dem Plattform, Live-Demo und Dokumentation gemeinsam mit beiden Experten geprüft werden. Die Nachweise aus dem Evidence Standard ersetzen dabei die Demo-Artefakte eines regulären Sprint Reviews.
@@ -1066,9 +1065,6 @@ Die Risikomatrix stellt die identifizierten Projektrisiken zweidimensional dar. 
 | Rot | Kritisches Risiko | Sofortige Massnahme, hat Priorität in der Sprint Planung |
 
 
-
-
-
 #### Risiken im Detail
 
 | ID | Risiko | Wahrscheinlichkeit | Auswirkung | Level | Massnahme | Sprint |
@@ -1318,7 +1314,7 @@ Die ADRs sind versioniert und werden im Verlauf der Arbeit ergänzt, wenn neue E
 
 | ADR | Titel |
 | --- | --- |
-| [ADR-001](#adr-001-fastapi-statt-flask-für-das-backend) | FastAPI statt Flask für das Backend |
+| [ADR-001](#adr-001-fastapi-statt-flask-fur-das-backend) | FastAPI statt Flask für das Backend |
 | [ADR-002](#adr-002-lokaler-cluster-mit-kind-statt-minikube) | Lokaler Cluster mit kind statt minikube |
 | [ADR-003](#adr-003-sqlite-statt-postgresql-als-datenbank) | SQLite statt PostgreSQL als Datenbank |
 | [ADR-004](#adr-004-monorepo-statt-multi-repo) | Monorepo statt Multi Repo |
@@ -1693,7 +1689,7 @@ Sind beide Nodes `Ready`, ist das Messkriterium aus Ziel 1 (Kapitel 2.3) erfüll
 
 ### Backend Anwendung (FastAPI)
 
-Das Backend wird als FastAPI Anwendung implementiert. Die Wahl von FastAPI gegenüber Flask ist in [ADR-001](#adr-001-fastapi-statt-flask-für-das-backend) dokumentiert.
+Das Backend wird als FastAPI Anwendung implementiert. Die Wahl von FastAPI gegenüber Flask ist in [ADR-001](#adr-001-fastapi-statt-flask-fur-das-backend) dokumentiert.
 
 In Sprint 1 (US04) wurde das Backend als minimales Skelett aufgebaut, das die Plattform Integration ermöglicht (Health Probes, OpenAPI Schema). In Sprint 2 wurde die Anwendungslogik mit Pydantic Modellen, SQLite Persistenz und der Preisquelle erweitert (US06, US07).
 
@@ -2225,7 +2221,6 @@ kubectl get application -n argocd price-watch -w
 Erwartetes Ergebnis nach 1 bis 2 Minuten: `SYNC STATUS: Synced`, `HEALTH STATUS: Healthy`.
 
 
-
 #### Der vollständige GitOps Loop
 
 Mit der Application ist der Loop geschlossen. Eine Code-Änderung durchläuft folgende Stationen vollautomatisch:
@@ -2643,41 +2638,6 @@ Alle Abbildungen und Diagramme dieses Dokuments in der Reihenfolge ihres Auftret
 | 34 | [Frontend lokal, leere Übersicht vor erstem Preisabruf](img/lokalpreis1.png) | Plattformaufbau |
 | 35 | [Frontend lokal mit befüllter Preisübersicht](img/lokalpreis2.png) | Plattformaufbau |
 
---- | --- | --- |
-| 1 | Milestone Sprint 1 Ende | Projektmanagement |
-| 2 | Projectboard Sprint 1 Ende | Projektmanagement |
-| 3 | Sprint 1 Starfish Retrospektive | Projektmanagement |
-| 4 | Sprint 2 Milestone und Issues | Projektmanagement |
-| 5 | Starfish Retrospektive Sprint 2 | Projektmanagement |
-| 6 | Sprint 3 Milestones und Issues | Projektmanagement |
-| 7 | Use Case Diagramm aus Plattform Sicht | Projektmanagement |
-| 8 | Risikomatrix mit allen zehn Risiken | Projektmanagement |
-| 9 | Systemkontext der Plattform | Architektur im Überblick |
-| 10 | WebApp Architektur | Architektur im Überblick |
-| 11 | Plattform Architektur auf Kubernetes Ebene | Architektur im Überblick |
-| 12 | GitOps Sequenz vom Commit bis zum synchronisierten Cluster | Architektur im Überblick |
-| 13 | Starten des Clusters lokal | Plattformaufbau |
-| 14 | Status Cluster | Plattformaufbau |
-| 15 | Cluster Info nach Start | Plattformaufbau |
-| 16 | Ausführung der App lokal | Plattformaufbau |
-| 17 | Health Probes der App | Plattformaufbau |
-| 18 | Docker Build Ausführung | Plattformaufbau |
-| 19 | Docker Run Ausführung | Plattformaufbau |
-| 20 | Endpoint Checks im Container | Plattformaufbau |
-| 21 | Docker Container Status | Plattformaufbau |
-| 22 | Helm Lint und Helm Template lokal | Plattformaufbau |
-| 23 | Helm Chart Installation | Plattformaufbau |
-| 24 | kubectl get pods und svc nach Helm Install | Plattformaufbau |
-| 25 | Smoke Test gegen NodePort 30080 | Plattformaufbau |
-| 26 | Pod Logs nach Helm Install | Plattformaufbau |
-| 27 | Swagger UI über NodePort erreichbar | Plattformaufbau |
-| 28 | Argo CD Installation im Cluster | Plattformaufbau |
-| 29 | Argo CD UI mit Application price-watch | Plattformaufbau |
-| 30 | Preisabruf und aktuelle Preise im Cluster | Plattformaufbau |
-| 31 | curl Aufrufe gegen die API im Cluster | Plattformaufbau |
-| 32 | POST /api/prices/refresh im Cluster | Plattformaufbau |
-| 33 | Frontend lokal, leere Übersicht vor erstem Preisabruf | Plattformaufbau |
-| 34 | Frontend lokal mit befüllter Preisübersicht | Plattformaufbau |
 
 ---
 
