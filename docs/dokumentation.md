@@ -69,7 +69,7 @@ Die Ziele aus dem Kapitel Zielsetzung und Messkriterien werden nach dem SMART Pr
 | --- | --- | --- | --- | --- | --- |
 | **Kubernetes Umgebung aufbauen** | Lokaler kind Cluster mit zwei Nodes per Skript bereitgestellt | `kubectl get nodes` zeigt zwei Nodes im Status Ready | Basis für GitOps, Helm und Argo CD | kind ist leichtgewichtig, lokal lauffähig | Sprint 1 |
 | **Preisüberwachungs WebApp erstellen** | FastAPI Backend mit Endpoints für aktuelle und historische Preise, einfaches Frontend | API liefert valide JSON Responses, Browser zeigt Tabelle und Chart | Realistischer Workload für die Plattform | Bewährter Tech Stack, kleiner Scope | Sprint 1 bis Sprint 2 |
-| **Anwendung mit Helm paketieren** | Helm Chart mit Deployment, Service, ConfigMap, Secret, PVC, CronJob | `helm lint` fehlerfrei, Chart installiert reproduzierbar | Standard im Cloud Native Umfeld | Helm ist gut dokumentiert, Argo CD unterstützt es nativ | Sprint 2 |
+| **Anwendung mit Helm paketieren** | Helm Chart mit Deployment, Service, ConfigMap, PVC, CronJob | `helm lint` fehlerfrei, Chart installiert reproduzierbar | Standard im Cloud Native Umfeld | Helm ist gut dokumentiert, Argo CD unterstützt es nativ | Sprint 2 |
 | **GitOps mit Argo CD umsetzen** | Argo CD Application beobachtet Helm Chart im Repo, automatisches Sync aktiv | Commit auf `main` führt innerhalb 3 Minuten zu Sync, Status `Synced, Healthy` | Deklarativ, nachvollziehbar, reproduzierbar | Lokaler Cluster, einfaches App Setup, kein App of Apps | Sprint 2 |
 | **CI Build und Push automatisieren** | GitHub Actions Workflow baut Image bei jedem Push auf `main` und pusht nach GHCR | Erfolgreiche Workflow Runs, Tags `:sha` und `:latest` in GHCR sichtbar | Automatisierung als DevOps Kernprinzip | GitHub Actions im selben Ökosystem, kein extra Setup | Sprint 2 |
 | **Dokumentation und Runbooks erstellen** | Dokumentation auf MkDocs Pages mit Architektur, ADRs, drei Runbooks, Reflexion | Pages URL erreichbar, alle Kapitel vollständig, drei Runbooks getestet | HF Bewertbarkeit, Nachvollziehbarkeit für Dritte | MkDocs Setup aus Sem 4 bekannt, parallele Doku Pflege | laufend, final Sprint 3 |
@@ -84,6 +84,7 @@ Bewusst nicht im Scope:
 - produktive Hochverfügbarkeit, Multi Cluster, Service Mesh,
 - vollwertiger Observability Stack (Prometheus, Grafana, Loki) als Pflicht; falls Zeit übrig, optional,
 - Identity Provider Integration (OIDC, SSO) für Argo CD,
+- Authentisierung der API: `POST /api/prices/refresh` ist bewusst unauthentisiert und über den NodePort erreichbar. Für das Lab Setup ist das akzeptabel, in Produktion wären Authentisierung und Rate Limiting notwendig
 - vollständige Sicherheitshärtung wie Network Policies, Pod Security Standards, RBAC für mehrere Teams,
 - vollständige Frontend Architektur, das UI bleibt absichtlich minimal.
 
@@ -93,7 +94,7 @@ Bewusst nicht im Scope:
 |-------|----------------------------|
 | Projektmanagement (PRJ) | Projektplanung, Sprints, User Stories, Risikomanagement, Reflexion |
 | IaCA (Infrastructure as Code Advanced) | Cluster Bootstrap per Skript, Helm Chart als deklarative Anwendungsbeschreibung, Argo CD Manifeste, alles versioniert |
-| CNC, Cloud Native Core | Kubernetes Grundlagen, Pods, Services, Deployments, ConfigMaps, Secrets, CronJob |
+| CNC, Cloud Native Core | Kubernetes Grundlagen, Pods, Services, Deployments, ConfigMaps, CronJob |
 | CNA, Cloud Native Advanced | Helm, GitOps mit Argo CD, Health Checks, deklarative Application Lifecycle |
 | DevOps (optional) | CI Pipeline mit GitHub Actions, Container Registry, automatisierte Auslieferung |
 
@@ -182,7 +183,7 @@ Laufende Nachweise pro Sprint durchgehend in `docs/screenshots/sprint-X/`.
 | --- | --- | --- | --- |
 | **Sprint 1** | Woche 1 bis 3 | Setup, Cluster, WebApp Skelett, Container | _Abgeschlossen_ |
 | **Sprint 2** | Woche 4 bis 6 | CI Pipeline, Helm Chart, Argo CD, GitOps Sync | _Abgeschlossen_ |
-| **Sprint 3** | Woche 7 bis 9 | Rollback, Runbooks, Tests, Doku Finalisierung | _In Bearbeitung_ |
+| **Sprint 3** | Woche 7 bis 9 | Rollback, Runbooks, Tests, Doku Finalisierung | Abgeschlossen |
 
 ### Anpassung der Projektdauer nach Kickoff Präsentation
 
@@ -205,7 +206,7 @@ Das Projekt umfasst **16 User Stories**, US01 bis US16. Alle Stories werden als 
 
 #### Standards pro Issue
 
-- User Story Text nach dem Schema „Als <Rolle> möchte ich <Ziel>, damit <Nutzen>“
+- User Story Text nach dem Schema `Als <Rolle> möchte ich <Ziel>, damit <Nutzen>`
 - Akzeptanzkriterien als Checkboxen
 - Definition of Done als Checkboxen
 - Labels für Type (`story`, `task`, `bug`)
@@ -1007,7 +1008,7 @@ _Abbildung 8: Use Case Diagramm aus Plattform Sicht_
 ##### UC8: Preise regelmässig abrufen
 
 **Akteur:** Kubernetes CronJob (intern), externe Preis API
-**Auslöser:** Cron Schedule (z.B. alle 15 Minuten)
+**Auslöser:** Cron Schedule (jede Minute, `*/1 * * * *`)
 **Ablauf:** CronJob startet Pod, ruft externe Preis API oder Testdaten Fallback ab, speichert Datensätze in SQLite.
 **Ergebnis:** Datenbank enthält aktuelle Preisdaten. Bei nicht erreichbarer API wird der Testdaten Fallback genutzt.
 
@@ -1289,7 +1290,8 @@ sequenceDiagram
         CI->>GHCR: Image Push, sha-Tag und latest
         CI->>Git: values.yaml Update, Commit mit skip ci
         Argo->>Git: Polling auf Änderung
-        Argo->>K8s: Sync neues Image
+        Argo->>K8s: Sync Manifeste mit neuem Image Tag
+        K8s->>GHCR: kubelet zieht Image
         K8s-->>Argo: Status Synced, Healthy
     else Prüfung schlägt fehl
         CI--xDev: Pipeline rot, kein Image, kein Sync
@@ -1445,7 +1447,7 @@ Gegenüber minikube entfällt der VM Overhead, da kind direkt mit dem lokalen Do
 
 **Kontext und Problemstellung**
 
-Die Preisüberwachungs WebApp speichert aktuelle und historische Preisdaten von digitalen Marktplatzobjekten. Das Datenvolumen ist klein (geschätzt einige tausend Datensätze pro Tag), die Schreibvorgänge erfolgen kontrolliert durch den Kubernetes CronJob, die Leseseite ist gering bis moderat.
+Die Preisüberwachungs WebApp speichert aktuelle und historische Preisdaten von digitalen Marktplatzobjekten. Das Datenvolumen ist klein (geschätzt einige tausend Datensätze pro Tag), die Schreibvorgänge erfolgen durch den Kubernetes CronJob sowie durch manuell ausgelöste Refresh Aufrufe über API oder UI, die Leseseite ist gering bis moderat.
 
 Es ist zu entscheiden, welche Datenbank für die Persistenz eingesetzt wird. Die Entscheidung muss zur Plattform passen (Kubernetes Resourcen) und darf den Scope der Arbeit nicht unnötig vergrössern.
 
@@ -1468,7 +1470,7 @@ SQLite wird als Datenbank eingesetzt. Die Datenbankdatei liegt auf einem Persist
 
 **Begründung**
 
-Bei einem CronJob, der alle paar Minuten schreibt, und einer Leseseite, die hauptsächlich Read Only Queries beantwortet, ist SQLite mehr als ausreichend. Die Single Writer Beschränkung von SQLite ist hier kein Problem, da der Writer Pfad fest auf den CronJob beschränkt ist und die API nur liest.
+Bei einem CronJob, der alle paar Minuten schreibt, und einer Leseseite, die hauptsächlich Read Only Queries beantwortet, ist SQLite mehr als ausreichend. Die Single Writer Beschränkung von SQLite ist in diesem Lab Setup akzeptabel, weil nur eine Backend Replica betrieben wird und das Deployment bewusst nicht horizontal skaliert (Strategie `Recreate`). Schreibzugriffe erfolgen durch den CronJob sowie durch manuell ausgelöste Refresh Aufrufe; `concurrencyPolicy: Forbid` reduziert parallele CronJob Ausführungen, verhindert aber keine gleichzeitig manuell ausgelösten Refreshs. Für ein produktives Multi Pod Setup wäre PostgreSQL oder eine vergleichbare Server Datenbank notwendig.
 
 Ein zusätzlicher PostgreSQL Pod würde den Plattformfokus verwässern: zusätzliches Deployment, ConfigMap, Secret, PVC und ggf. ein Init Job für Schema Migrationen. Das ist Plattform Engineering, das die Story der Arbeit nicht stärkt, weil es nur eine zweite Datenbank dazustellt.
 
@@ -1853,7 +1855,7 @@ Damit ist das Image im Cluster verfügbar, ohne über eine Registry gehen zu mü
 
 ### Helm Chart
 
-Das Backend wird über ein Helm Chart in den Kubernetes Cluster deployed. Das Chart liegt unter `helm/price-watch/`. In Sprint 2 (US09) wurde das Chart mit Deployment, Service und Security Context aufgebaut. ConfigMap, PVC und CronJob folgen in Sprint 3 als Abschluss von US09.
+Das Backend wird über ein Helm Chart in den Kubernetes Cluster deployed. Das Chart liegt unter `helm/price-watch/`. In Sprint 2 (US09) wurde das Chart mit Deployment, Service und Security Context aufgebaut. ConfigMap, PVC und CronJob wurden in Sprint 3 als Abschluss von US09 ergänzt.
 
 #### Chart Struktur
 
@@ -2176,7 +2178,7 @@ $pw = kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.da
 
 #### Warum kubectl apply statt Helm Chart
 
-Argo CD kann sich nicht selbst via GitOps verwalten (Chicken-and-Egg Problem). Das offizielle Manifest via `kubectl apply` ist deshalb der empfohlene Bootstrap-Weg und wird in der offiziellen Argo CD Dokumentation so beschrieben. Für Production wäre ein eigener Argo CD Helm Chart mit App-of-Apps Pattern denkbar, sprengt aber den Scope dieser Semesterarbeit.
+Argo CD muss initial manuell gebootstrapped werden, bevor es andere Anwendungen verwalten kann (Chicken-and-Egg beim ersten Setup). Das offizielle Manifest via `kubectl apply` ist dafür der empfohlene Weg; danach wäre Self Management über ein App-of-Apps Pattern möglich, wurde aber bewusst ausgeschlossen und wird in der offiziellen Argo CD Dokumentation so beschrieben. Für Production wäre ein eigener Argo CD Helm Chart mit App-of-Apps Pattern denkbar, sprengt aber den Scope dieser Semesterarbeit.
 
 ### Argo CD Application und GitOps Loop
 
@@ -2441,7 +2443,7 @@ Der **PersistentVolumeClaim** reserviert 100Mi Speicher mit `ReadWriteOnce` Zugr
 Das Volume wird im Deployment unter `/data` gemountet, sodass SQLite die Datenbankdatei
 persistent speichern kann. Ohne PVC gehen alle Preisdaten beim Pod-Neustart verloren.
 
-Der **CronJob** ruft alle fünf Minuten `POST /api/prices/refresh` auf und löst damit
+Der **CronJob** ruft jede Minute `POST /api/prices/refresh` auf und löst damit
 den automatischen Preisabruf aus. `concurrencyPolicy: Forbid` verhindert gleichzeitige
 Ausführungen, da SQLite keinen parallelen Schreibzugriff verträgt.
 
@@ -2491,7 +2493,7 @@ Nach dem Preisabruf zeigt die Übersicht die vier beobachteten Skins mit echten 
 Die CI-Pipeline wird um eine Qualitätssicherungsstufe erweitert, die vor jedem Image-Build vier Prüfschritte ausführt.
 
 **ruff** prüft den Python-Code statisch auf Stil- und Logikfehler.
-**pytest** führt vier Integrationstests gegen die FastAPI-Endpunkte aus: `/healthz`, `/ready`, `POST /api/prices/refresh` und `GET /api/prices`. Die Tests verwenden `TestClient` aus dem FastAPI-Testpaket und laufen in-process ohne laufenden Server.
+**pytest** führt 14 Tests gegen Backend und Preisquelle aus: die FastAPI Endpunkte `/healthz`, `/ready` (Positiv- und Negativfall mit gemockter, defekter Datenbankverbindung), `POST /api/prices/refresh` und `GET /api/prices` sowie den Steam Preisparser mit verschiedenen CHF Formaten, den Mock Fallback bei nicht erreichbarer Steam API und das Wachstum der Preishistorie über mehrere Refreshs. Die Tests verwenden `TestClient` aus dem FastAPI-Testpaket, mocken alle Netzwerkzugriffe und laufen in-process ohne laufenden Server.
 **helm lint** validiert das Helm Chart statisch auf syntaktische Korrektheit.
 **helm template** rendert die Kubernetes-Manifeste aus dem Chart und prüft damit, ob das Template fehlerfrei durchläuft, ganz ohne Cluster-Verbindung.
 
@@ -2511,9 +2513,15 @@ Kein manueller Eingriff im Cluster ist nötig -- Git ist die einzige Source of T
 **Ablauf**
 
 Ein bewusst fehlerhafter Image Tag (`sha-000000`) wird via Pull Request auf main gemergt.
-Argo CD erkennt die Änderung in `values.yaml` und versucht das neue Image zu pullen.
-Da der Tag nicht in GHCR existiert, wechselt der neue Pod in `ImagePullBackOff`. Der
-ursprüngliche Pod bleibt unterdessen laufend.
+Argo CD erkennt die Änderung in `values.yaml` und synchronisiert das Deployment; das
+Image selbst wird anschliessend nicht von Argo CD, sondern vom kubelet auf dem Node
+aus GHCR gezogen. Da der Tag nicht in GHCR existiert, wechselt der neue Pod in
+`ImagePullBackOff`. Weil das Deployment bewusst die Strategie `Recreate` verwendet
+(siehe ADR-003 und Deployment Template), wird der bestehende Pod vor dem Start des
+neuen Pods beendet. Die Anwendung ist während des fehlerhaften Rollouts deshalb
+temporär nicht verfügbar. Das Rollback Szenario demonstriert damit nicht Zero
+Downtime, sondern die nachvollziehbare Wiederherstellung des Soll Zustands über
+Git Revert und Argo CD Synchronisation.
 
 Der Revert wird auf einem neuen Branch durchgeführt:
 
@@ -2746,7 +2754,7 @@ Die sechs Ziele aus dem Kapitel Zielsetzung und Messkriterien sind der Massstab 
 
 **Ziel 3, Anwendung mit Helm paketieren.** Erreicht. Das Helm Chart `helm/price-watch` installiert Deployment, Service, ConfigMap, PVC und CronJob reproduzierbar, `helm lint` und `helm template` laufen fehlerfrei und sind seit US14 fester Bestandteil der CI Pipeline.
 
-**Ziel 4, GitOps mit Argo CD umsetzen.** Erreicht. Die Argo CD Application beobachtet `helm/price-watch` und `argocd/`, `syncPolicy` ist `automated` mit `prune: true` und `selfHeal: true`. Ein Commit auf `main` führt innerhalb weniger Minuten zu einem automatischen Sync, verifiziert unter anderem im dokumentierten Rollback-Szenario aus US12.
+**Ziel 4, GitOps mit Argo CD umsetzen.** Erreicht. Die Argo CD Application beobachtet den Pfad `helm/price-watch` auf Branch `main`; das Application Manifest unter `app/argocd/` wird initial einmalig per `kubectl apply` gebootstrapped und nicht durch die Application selbst verwaltet. `syncPolicy` ist `automated` mit `prune: true` und `selfHeal: true`. Ein Commit auf `main`, der das Helm Chart oder `values.yaml` verändert, führt innerhalb weniger Minuten zu einem automatischen Sync, verifiziert unter anderem im dokumentierten Rollback-Szenario aus US12.
 
 **Ziel 5, Build und Image Veröffentlichung automatisieren.** Erreicht. Die CI Pipeline baut bei jedem Push auf `main` ein neues Image, taggt es mit Kurz-SHA und `latest`, pusht nach GHCR und aktualisiert `values.yaml` automatisch. Seit US14 laufen zusätzlich ruff, pytest, `helm lint` und `helm template` vor dem Image-Build, ein roter Schritt verhindert den Build.
 

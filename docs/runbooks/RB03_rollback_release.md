@@ -28,7 +28,7 @@ Den SHA des fehlerhaften Commits notieren.
 kubectl get pods
 ```
 
-Der neue Pod zeigt `ImagePullBackOff` oder `ErrImagePull`. Der alte Pod läuft noch.
+Der neue Pod zeigt `ImagePullBackOff` oder `ErrImagePull`. Da das Deployment die Strategie `Recreate` verwendet, wurde der alte Pod bereits beendet; die Anwendung ist während des fehlerhaften Rollouts temporär nicht erreichbar. Das ist im Lab Setup akzeptiert und in ADR-003 begründet (SQLite Single Writer auf RWO PVC). Der Rollback stellt die Verfügbarkeit über den Git Revert wieder her.
 
 **Schritt 3: Neuen Branch erstellen und Revert ausführen**
 

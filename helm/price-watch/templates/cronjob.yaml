@@ -32,6 +32,10 @@ spec:
               # Privilege Escalation, Read-Only Root FS, keine Capabilities).
               securityContext:
                 runAsNonRoot: true
+                runAsUser: 100
+                runAsGroup: 101
+                seccompProfile:
+                  type: RuntimeDefault
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
                 capabilities:

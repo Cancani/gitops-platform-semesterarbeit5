@@ -27,7 +27,7 @@ FROM python:3.12-slim AS runtime
 LABEL org.opencontainers.image.title="Price Watch Backend" \
       org.opencontainers.image.description="FastAPI Backend der Preisüberwachungs WebApp" \
       org.opencontainers.image.source="https://github.com/Cancani/gitops-platform-semesterarbeit5" \
-      org.opencontainers.image.licenses="MIT"
+      org.opencontainers.image.licenses="Apache-2.0"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
