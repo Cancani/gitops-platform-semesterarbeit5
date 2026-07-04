@@ -4,6 +4,10 @@ __pycache__/
 .venv/
 venv/
 
+# Caches
+.pytest_cache/
+.ruff_cache/
+
 # MkDocs
 site/
 

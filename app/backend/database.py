@@ -93,6 +93,6 @@ def get_price_history(item_name: str | None = None) -> list[dict]:
 
 
 def check_connection() -> None:
-    """Prueft, ob die Datenbank erreichbar ist (fuer Readiness Probe)."""
+    """Prüft, ob die Datenbank erreichbar ist (für Readiness Probe)."""
     with get_connection() as conn:
         conn.execute("SELECT 1")

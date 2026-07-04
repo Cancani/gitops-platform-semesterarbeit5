@@ -7,7 +7,7 @@ type: application
 version: 0.1.0
 
 # Version der Anwendung, die das Chart deployed (synchron zu app/backend/main.py)
-appVersion: "0.1.0"
+appVersion: "0.3.0"
 
 keywords:
   - fastapi

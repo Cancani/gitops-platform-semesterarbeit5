@@ -1,5 +1,5 @@
 # Standardwerte für das Price Watch Helm Chart.
-# Diese Datei kann über --values, --set oder ein Overlay overridden werden.
+# Diese Datei kann über --values, --set oder ein Overlay überschrieben werden.
 
 # Anzahl Replicas. Bewusst auf 1 fixiert, da SQLite Single Writer ist
 # (siehe ADR-003). Skalierung würde eine Multi-Pod taugliche DB voraussetzen.
@@ -24,7 +24,8 @@ securityContext:
   capabilities:
     drop:
       - ALL
-# Ressourcen für das Skelett. Werden in Sprint 2 nach echten Lasttests angepasst.
+# Ressourcen bewusst klein dimensioniert, passend zur leichtgewichtigen FastAPI App
+# im lokalen kind Cluster.
 resources:
   requests:
     cpu: 50m
