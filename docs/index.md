@@ -20,7 +20,7 @@ GitOps Plattform mit Preisüberwachungs WebApp, Cloud Native Deployment auf Kube
 
 ## Dokumentation
 
-Die laufende Projektdokumentation ist auf GitHub Pages verfügbar:
+Die vollständige Projektdokumentation ist auf GitHub Pages verfügbar:
 
 **GitHub Pages:** [https://cancani.com/gitops-platform-semesterarbeit5/](https://cancani.com/gitops-platform-semesterarbeit5/)
 
@@ -47,7 +47,7 @@ Diese Semesterarbeit baut eine kleine, aber realistische Cloud Native Plattform 
 | --- | --- | --- | --- |
 | Sprint 1 | 1 bis 3 | Setup, Cluster, WebApp Skelett, Container | ![status](https://img.shields.io/badge/done-brightgreen?style=flat-square) |
 | Sprint 2 | 4 bis 6 | GitOps Durchstich (CI, Helm, Argo CD) | ![status](https://img.shields.io/badge/done-brightgreen?style=flat-square) |
-| Sprint 3 | 7 bis 9 | Stabilisierung, Runbooks, Doku, Demo | ![status](https://img.shields.io/badge/in__progress-yellow?style=flat-square) |
+| Sprint 3 | 7 bis 9 | Stabilisierung, Runbooks, Doku, Demo | ![status](https://img.shields.io/badge/done-brightgreen?style=flat-square) |
 
 ---
 
@@ -109,7 +109,7 @@ sequenceDiagram
     CI->>CI: build-and-push, nur wenn lint-and-test grün
     CI->>Reg: docker push image, sha-Tag und latest
     CI->>Git: values.yaml Update, Commit mit skip ci
-    Argo->>Git: Polling auf Aenderung
+    Argo->>Git: Polling auf Änderung
     Argo->>K8s: apply Manifeste aus Helm Chart
     K8s->>Reg: pull image
     K8s-->>Argo: Status Healthy

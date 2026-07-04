@@ -63,7 +63,7 @@ Diese Dokumentation richtet sich an:
 
 ### SMART Ziele
 
-Die Ziele aus Kapitel 2.3 werden nach dem SMART Prinzip weiter konkretisiert. Damit ist pro Ziel überprüfbar, ob es spezifisch, messbar, attraktiv, realistisch und terminiert ist.
+Die Ziele aus dem Kapitel Zielsetzung und Messkriterien werden nach dem SMART Prinzip weiter konkretisiert. Damit ist pro Ziel überprüfbar, ob es spezifisch, messbar, attraktiv, realistisch und terminiert ist.
 
 | Ziel | Spezifisch | Messbar | Attraktiv | Realistisch | Terminiert |
 | --- | --- | --- | --- | --- | --- |
@@ -74,7 +74,7 @@ Die Ziele aus Kapitel 2.3 werden nach dem SMART Prinzip weiter konkretisiert. Da
 | **CI Build und Push automatisieren** | GitHub Actions Workflow baut Image bei jedem Push auf `main` und pusht nach GHCR | Erfolgreiche Workflow Runs, Tags `:sha` und `:latest` in GHCR sichtbar | Automatisierung als DevOps Kernprinzip | GitHub Actions im selben Ökosystem, kein extra Setup | Sprint 2 |
 | **Dokumentation und Runbooks erstellen** | Dokumentation auf MkDocs Pages mit Architektur, ADRs, drei Runbooks, Reflexion | Pages URL erreichbar, alle Kapitel vollständig, drei Runbooks getestet | HF Bewertbarkeit, Nachvollziehbarkeit für Dritte | MkDocs Setup aus Sem 4 bekannt, parallele Doku Pflege | laufend, final Sprint 3 |
 
-Die Erfolgskriterien werden in den Sprint Reviews (Kapitel 3.6) konkret pro Story abgeglichen. Die SMART Tabelle dient als Referenz für die Gesamtbewertung am Projektende (siehe Fazit, Kapitel 15).
+Die Erfolgskriterien werden in den Sprint Reviews (Kapitel Sprint Planungen, Reviews und Retrospektiven) konkret pro Story abgeglichen. Die SMART Tabelle dient als Referenz für die Gesamtbewertung am Projektende (siehe Kapitel Fazit).
 
 
 ### Abgrenzung
@@ -135,8 +135,8 @@ Die Entscheidung für ein iteratives Vorgehen basiert auf folgenden Punkten:
 
 - Kontinuierliche Arbeit an den definierten User Stories
 - GitHub Issues für Aufgabentracking und Statusupdates
-- Regelmässige Commits und Pushes auf den `develop` Branch, kleine Änderungen statt grosse Sprünge
-- Pull Requests von `develop` nach `main` per Squash Merge für nachvollziehbare Integration
+- Regelmässige Commits auf Feature Branches, kleine Änderungen statt grosse Sprünge
+- Pull Requests per Squash Merge nach `main` für nachvollziehbare Integration
 - Ticket Status aktuell halten, WIP Limit in Progress maximal 2
 
 **Sprint Review (Sprintende):**
@@ -814,10 +814,9 @@ Akzeptanzkriterien technisch validieren bevor sie ins Issue geschrieben werden, 
 Bewusst einfach gehalten, passend für ein Einpersonen Projekt mit Nachweisanspruch.
 
 - `main` ist der stabile Hauptbranch und gleichzeitig der GitOps Soll Zustand. Direktpushes sind durch Branch Protection unterbunden.
-- `develop` ist der permanente Arbeitsbranch. Hier erfolgen die täglichen Commits.
+- Feature Branches werden direkt von `main` abgezweigt (Namensschema `sprint3.x` in Sprint 3) und per Pull Request mit Squash Merge zurückgeführt (siehe ADR-005).
 - `gh-pages` wird ausschliesslich vom MkDocs Workflow geschrieben, niemals manuell.
-- Pull Requests gehen `develop` nach `main`, jeweils am Sprint Ende, per Squash Merge.
-- Optional Feature Branches `feat/<kurzname>` für grössere parallele Themen.
+- In Sprint 1 und 2 lief die tägliche Arbeit über einen permanenten `develop` Branch. Da Squash Merges die SHA Stände von `develop` und `main` divergieren lassen, wurde `develop` in Sprint 3 aufgegeben (siehe Sprint 3 Retrospektive, Stop Doing). Seither wird ausschliesslich mit kurzlebigen Feature Branches ab `main` gearbeitet.
 - Tags pro Sprint Abschluss: `sprint-1`, `sprint-2`, `sprint-3` und `demo`.
 
 Branch Protection ist über GitHub Rulesets umgesetzt:
@@ -825,7 +824,7 @@ Branch Protection ist über GitHub Rulesets umgesetzt:
 | Branch | Schutz |
 | --- | --- |
 | `main` | kein Direktpush, PR Pflicht, linear history, kein Force Push, keine Löschung |
-| `develop` | keine Löschung, kein Force Push |
+| `develop` | keine Löschung, kein Force Push (Branch seit Sprint 3 nicht mehr genutzt) |
 | `gh-pages` | keine Löschung (Force Push erlaubt, da MkDocs gh-deploy ihn benötigt) |
 
 ### Repository Strategie: Monorepo
@@ -846,7 +845,7 @@ Es wurde zwischen Monorepo und mehreren Repositories abgewogen.
 
 Eine User Story gilt als erledigt, wenn:
 
-1. der Code auf `main` ist (über `develop` und Pull Request),
+1. der Code auf `main` ist (über Feature Branch und Pull Request),
 2. ein Issue Eintrag dokumentiert, was erledigt wurde,
 3. relevante Screenshots oder Logs in `docs/screenshots/sprint-X/` abgelegt sind,
 4. die Funktion lokal reproduzierbar ist (Anleitung in der Doku oder im Runbook),
@@ -961,7 +960,7 @@ _Abbildung 8: Use Case Diagramm aus Plattform Sicht_
 
 **Akteur:** Entwickler
 **Auslöser:** Code Anpassung, Image Tag Bump oder Doku Änderung
-**Ablauf:** Entwickler ändert Datei lokal, committet auf `develop`, öffnet Pull Request nach `main`, mergt per Squash Merge.
+**Ablauf:** Entwickler ändert Datei lokal, committet auf einen Feature Branch, öffnet Pull Request nach `main`, mergt per Squash Merge.
 **Ergebnis:** Änderung ist auf `main` und triggert je nach Pfad die CI Pipeline oder den Pages Build.
 
 ##### UC2: Image bauen und pushen
@@ -1025,8 +1024,8 @@ _Abbildung 8: Use Case Diagramm aus Plattform Sicht_
 - Änderungen am Deployment erfolgen ausschliesslich über Git Commits, niemals direkt im Cluster (GitOps Prinzip).
 - Die WebApp läuft auch ohne externe Preis API durch den Testdaten Fallback.
 - Argo CD synct automatisch (`syncPolicy.automated`) mit `prune: true` und `selfHeal: true`.
-- Image Tags werden manuell in `values.yaml` gebumpt, kein Argo CD Image Updater (Scope Entscheidung).
-- Pull Requests gehen ausschliesslich von `develop` nach `main`, niemals umgekehrt im normalen Flow.
+- Image Tags werden von der CI Pipeline per Bot Commit in `values.yaml` gebumpt, kein Argo CD Image Updater (Scope Entscheidung).
+- Pull Requests gehen ausschliesslich über Feature Branches nach `main`, niemals umgekehrt im normalen Flow.
 
 ---
 
@@ -1282,7 +1281,7 @@ sequenceDiagram
     participant Argo as Argo CD
     participant K8s as Kubernetes Cluster
 
-    Dev->>Git: git push, Code oder Helm Aenderung
+    Dev->>Git: git push, Code oder Helm Änderung
     Git->>CI: Trigger lint-and-test
     CI->>CI: ruff, pytest, helm lint, helm template
 
@@ -1290,7 +1289,7 @@ sequenceDiagram
         CI->>CI: build-and-push
         CI->>GHCR: Image Push, sha-Tag und latest
         CI->>Git: values.yaml Update, Commit mit skip ci
-        Argo->>Git: Polling auf Aenderung
+        Argo->>Git: Polling auf Änderung
         Argo->>K8s: Sync neues Image
         K8s-->>Argo: Status Synced, Healthy
     else Prüfung schlägt fehl
@@ -1614,6 +1613,10 @@ Die Detail Commits aus `develop` gehen damit zwar in der `main` History verloren
 - GitHub Merge Optionen: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges
 - Conventional Commits: https://www.conventionalcommits.org/
 
+**Nachtrag (Sprint 3)**
+
+Der in diesem ADR beschriebene permanente `develop` Branch wurde in Sprint 3 aufgegeben, da Squash Merges die SHA Stände von `develop` und `main` divergieren lassen (siehe Sprint 3 Retrospektive und Kapitel Branching Strategie). Die Entscheidung für Squash Merge selbst bleibt unverändert gültig und gilt seither für kurzlebige Feature Branches ab `main`.
+
 ---
 
 ## Plattformaufbau
@@ -1685,7 +1688,7 @@ gitops-platform-control-plane     Ready    control-plane   1m    v1.31.x
 gitops-platform-worker            Ready    <none>          1m    v1.31.x
 ```
 
-Sind beide Nodes `Ready`, ist das Messkriterium aus Ziel 1 (Kapitel 2.3) erfüllt.
+Sind beide Nodes `Ready`, ist das Messkriterium aus Ziel 1 (Kapitel Zielsetzung und Messkriterien) erfüllt.
 
 ### Backend Anwendung (FastAPI)
 
@@ -1913,7 +1916,7 @@ Damit `readOnlyRootFilesystem: true` mit uvicorn funktioniert, wird `/tmp` als `
 
 #### Service Exposition via NodePort
 
-Bewusst NodePort statt Ingress. Ein Ingress Controller (zum Beispiel ingress-nginx) wäre eine zusätzliche Plattformkomponente, die im Scope der Semesterarbeit keinen Mehrwert bringt, sondern nur Wartungsaufwand erzeugt. NodePort matched ausserdem die kind Cluster Konfiguration aus US03 (siehe Kapitel 6.1.1), die Port 30080 vom Cluster auf den Host mappt.
+Bewusst NodePort statt Ingress. Ein Ingress Controller (zum Beispiel ingress-nginx) wäre eine zusätzliche Plattformkomponente, die im Scope der Semesterarbeit keinen Mehrwert bringt, sondern nur Wartungsaufwand erzeugt. NodePort matched ausserdem die kind Cluster Konfiguration aus US03 (siehe Kapitel Lokaler Cluster mit kind), die Port 30080 vom Cluster auf den Host mappt.
 
 Damit ist das Backend unter `http://localhost:30080/` erreichbar, sobald der Pod im Status `Running` und `Ready` ist.
 
@@ -1985,7 +1988,7 @@ helm uninstall price-watch
 
 ### CI Pipeline (GitHub Actions)
 
-Die CI Pipeline automatisiert den Build und Push des Container Images nach GHCR. Sie ist das erste Glied im GitOps Loop: ein Commit auf `main` mit Code-Änderungen triggert die Pipeline, die das Image baut, pushed und die `helm/price-watch/values.yaml` mit dem neuen Image Tag aktualisiert. Argo CD erkennt die Änderung und synct den Cluster (siehe Kapitel 6.6).
+Die CI Pipeline automatisiert den Build und Push des Container Images nach GHCR. Sie ist das erste Glied im GitOps Loop: ein Commit auf `main` mit Code-Änderungen triggert die Pipeline, die das Image baut, pushed und die `helm/price-watch/values.yaml` mit dem neuen Image Tag aktualisiert. Argo CD erkennt die Änderung und synct den Cluster (siehe Kapitel Argo CD Application und GitOps Loop).
 
 #### Workflow Überblick
 
@@ -2061,7 +2064,7 @@ image:
   pullPolicy: Always                                  # gesetzt durch CI
 ```
 
-Der Commit durch `github-actions[bot]` trägt `[skip ci]` in der Message, damit kein weiterer Workflow Loop ausgelöst wird. Argo CD erkennt die Änderung in `values.yaml` und synct den Cluster auf das neue Image (siehe Kapitel 6.6).
+Der Commit durch `github-actions[bot]` trägt `[skip ci]` in der Message, damit kein weiterer Workflow Loop ausgelöst wird. Argo CD erkennt die Änderung in `values.yaml` und synct den Cluster auf das neue Image (siehe Kapitel Argo CD Application und GitOps Loop).
 
 #### Layer Caching
 
@@ -2227,8 +2230,8 @@ Mit der Application ist der Loop geschlossen. Eine Code-Änderung durchläuft fo
 
 | Schritt | Akteur | Aktion |
 | --- | --- | --- |
-| 1 | Entwickler | Commit auf `develop`, Pull Request, Squash Merge auf `main` |
-| 2 | GitHub Actions | CI baut Container Image, pushed nach GHCR (siehe Kapitel 6.5) |
+| 1 | Entwickler | Commit auf Feature Branch, Pull Request, Squash Merge auf `main` |
+| 2 | GitHub Actions | CI baut Container Image, pushed nach GHCR (siehe Kapitel CI Pipeline) |
 | 3 | GitHub Actions | `helm/price-watch/values.yaml` wird mit neuem Image Tag aktualisiert, Commit zurück auf `main` |
 | 4 | Argo CD | Erkennt die Änderung in `values.yaml` (Polling alle 3 Minuten oder via Webhook) |
 | 5 | Argo CD | Rendert das Helm Chart neu und synchronisiert den Cluster |
@@ -2251,7 +2254,7 @@ curl http://localhost:30080/healthz
 # Erwartet: {"status":"ok"}
 ```
 
-In der Argo CD UI (siehe Kapitel 6.6.3) wird die Application `price-watch` mit allen Ressourcen (Deployment, Service, Pod, ReplicaSet) als Baum dargestellt, jeweils mit Health- und Sync-Status.
+In der Argo CD UI (siehe Kapitel Argo CD Installation, Abschnitt UI Zugang) wird die Application `price-watch` mit allen Ressourcen (Deployment, Service, Pod, ReplicaSet) als Baum dargestellt, jeweils mit Health- und Sync-Status.
 
 Hinweis zu Image Pull: Da `values.yaml` durch die CI auf das GHCR Image zeigt, muss das GHCR Paket auf Public gesetzt sein. Andernfalls zeigt der Pod `ImagePullBackOff`.
 
@@ -2706,7 +2709,7 @@ Die Priorität im Ernstfall ist, den GitOps-Gedanken nachvollziehbar zu erkläre
 
 ### Zielerreichung im Detail
 
-Die sechs Ziele aus Kapitel 2.3 (Zielsetzung und Messkriterien) sind der Massstab für dieses Fazit.
+Die sechs Ziele aus dem Kapitel Zielsetzung und Messkriterien sind der Massstab für dieses Fazit.
 
 **Ziel 1, Kubernetes Umgebung aufbauen.** Erreicht. Der kind Cluster mit zwei Nodes (`gitops-platform-control-plane`, `gitops-platform-worker`) läuft reproduzierbar über das idempotente Setup-Skript, `kubectl get nodes` zeigt beide Nodes im Status `Ready`. Das Messkriterium ist seit Sprint 1 erfüllt und blieb über alle drei Sprints stabil.
 
@@ -2730,7 +2733,7 @@ Die grösste Schwäche der Arbeit liegt nicht in der Technik, sondern in der Pfl
 
 ### Ausblick
 
-Für eine mögliche Folgearbeit oder Weiterentwicklung wären naheliegende nächste Schritte: ein Argo CD Image Updater statt manuellem Tag-Bump in `values.yaml`, ein Ingress Controller statt NodePort für einen produktionsnäheren Zugriffsweg, PostgreSQL statt SQLite sobald mehr als ein schreibender Zugriff nötig wird, sowie ein einfacher Observability-Stack (Prometheus, Grafana) für Laufzeitmetriken. Alle vier waren im Rahmen dieser Arbeit bewusst ausserhalb des Scopes (siehe Abgrenzung, Kapitel 2.5, und SWOT-Chancen), bauen aber direkt auf der jetzt vorhandenen GitOps-Grundlage auf und liessen sich ohne strukturellen Umbau ergänzen.
+Für eine mögliche Folgearbeit oder Weiterentwicklung wären naheliegende nächste Schritte: ein Argo CD Image Updater statt manuellem Tag-Bump in `values.yaml`, ein Ingress Controller statt NodePort für einen produktionsnäheren Zugriffsweg, PostgreSQL statt SQLite sobald mehr als ein schreibender Zugriff nötig wird, sowie ein einfacher Observability-Stack (Prometheus, Grafana) für Laufzeitmetriken. Alle vier waren im Rahmen dieser Arbeit bewusst ausserhalb des Scopes (siehe Kapitel Abgrenzung und SWOT-Chancen), bauen aber direkt auf der jetzt vorhandenen GitOps-Grundlage auf und liessen sich ohne strukturellen Umbau ergänzen.
 
 ---
 
