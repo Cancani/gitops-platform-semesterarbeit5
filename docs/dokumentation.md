@@ -1076,19 +1076,7 @@ Die Risikomatrix stellt die identifizierten Projektrisiken zweidimensional dar. 
 
 #### Einordnung in die Risikomatrix
 
-Die folgende Tabelle zeigt, an welcher Position der grafischen Risikomatrix jedes Risiko eingezeichnet wird. Spalten sind die Auswirkung von links (Niedrig) nach rechts (Kritisch), Zeilen sind die Wahrscheinlichkeit von unten (Unwahrscheinlich) nach oben (Sehr wahrscheinlich).
-
-```
-                         Niedrig     Mittel       Hoch         Kritisch
-Sehr wahrscheinlich      [grün]      [orange]     [rot] R10    [rot]
-Wahrscheinlich           [grün]      [orange] R2  [rot] R1,R4  [rot] R9
-Gelegentlich             [grün]      [gelb] R6    [orange] R3, [orange]
-                                                  R5
-Selten                   [grün] R7   [grün]       [gelb]       [orange]
-Unwahrscheinlich         [grün]      [grün]       [grün]       [gelb] R8
-```
-
-**Position pro Risiko zum Eintragen in der Grafik:**
+Die grafische Risikomatrix (Abbildung 9) ordnet jedes Risiko nach Eintrittswahrscheinlichkeit (vertikal) und Auswirkung (horizontal) ein. Die folgende Tabelle fasst die Position und Zonenfarbe pro Risiko zusammen:
 
 | Risiko | Position (Wahrscheinlichkeit, Auswirkung) | Feldfarbe |
 | --- | --- | --- |
