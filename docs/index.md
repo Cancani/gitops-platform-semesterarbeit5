@@ -27,6 +27,7 @@ Die vollständige Projektdokumentation ist auf GitHub Pages verfügbar:
 | Dokument | Inhalt |
 | --- | --- |
 | [Dokumentation](dokumentation.md) | Hauptdokument, alle Kapitel von Management Summary bis Reflexion |
+| [Einreichungsformular](ITCNE24_Semesterarbeit-5_GitOps_Platform.pdf) | Ursprüngliche Projekteingabe der Semesterarbeit (PDF) |
 | [Runbook 01: Plattform Initial Setup](runbooks/RB01_plattform_initial_setup.md) | Cluster und Argo CD initial aufbauen |
 | [Runbook 02: Neue Version deployen](runbooks/RB02_neue_version_deployen.md) | Standard GitOps Release Workflow |
 | [Runbook 03: Rollback Release](runbooks/RB03_rollback_release.md) | Rollback eines fehlerhaften Releases |
@@ -138,6 +139,7 @@ sequenceDiagram
 │       ├── models.py               # Pydantic Modelle
 │       ├── pricesource.py          # Preisquelle (Steam API mit Mock-Fallback)
 │       ├── requirements.txt        # Python Abhängigkeiten
+│       ├── pyproject.toml          # Konfiguration für ruff und pytest
 │       ├── Dockerfile              # Multi-Stage Container Build
 │       ├── static/                 # Frontend (index.html mit Chart.js)
 │       └── tests/                  # pytest API Tests

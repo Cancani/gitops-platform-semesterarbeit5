@@ -13,6 +13,7 @@
 | Geplanter Aufwand | ca. 50 Stunden über 9 Wochen |
 | Repository | https://github.com/Cancani/gitops-platform-semesterarbeit5 |
 | Pages | https://cancani.com/gitops-platform-semesterarbeit5/ |
+| Einreichungsformular | [ITCNE24_Semesterarbeit-5_GitOps_Platform.pdf](ITCNE24_Semesterarbeit-5_GitOps_Platform.pdf) |
 
 ---
 
@@ -187,7 +188,7 @@ Laufende Nachweise pro Sprint durchgehend in [`docs/img/`](https://github.com/Ca
 
 ### Anpassung der Projektdauer nach Kickoff Präsentation
 
-Die ursprüngliche Planung im Einreichungsformular ging von einer Projektdauer von 12 Wochen aus, aufgeteilt in vier Sprints zu je drei Wochen. In der Kickoff Präsentation wurde durch die Lehrgangsleitung präzisiert, dass die Semesterarbeit tatsächlich nur **9 Wochen** dauert. Empfohlen wurde eine Sprintdauer von drei Wochen, sodass insgesamt drei Sprints durchgeführt werden.
+Die ursprüngliche Planung im [Einreichungsformular](ITCNE24_Semesterarbeit-5_GitOps_Platform.pdf) ging von einer Projektdauer von 12 Wochen aus, aufgeteilt in vier Sprints zu je drei Wochen. In der Kickoff Präsentation wurde durch die Lehrgangsleitung präzisiert, dass die Semesterarbeit tatsächlich nur **9 Wochen** dauert. Empfohlen wurde eine Sprintdauer von drei Wochen, sodass insgesamt drei Sprints durchgeführt werden.
 
 Die beiden Zwischenpräsentationen fallen damit jeweils auf das Ende von Sprint 1 und Sprint 2. Sie bieten eine strukturierte Gelegenheit, den Fortschritt zu reflektieren und gegebenenfalls den Plan anzupassen.
 

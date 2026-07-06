@@ -29,6 +29,7 @@ Die vollständige Projektdokumentation ist auf GitHub Pages verfügbar:
 | Dokument | Inhalt |
 | --- | --- |
 | [Dokumentation](./docs/dokumentation.md) | Hauptdokument, alle Kapitel von Management Summary bis Reflexion |
+| [Einreichungsformular](./docs/ITCNE24_Semesterarbeit-5_GitOps_Platform.pdf) | Ursprüngliche Projekteingabe der Semesterarbeit (PDF) |
 | [Runbook 01: Plattform Initial Setup](docs/runbooks/RB01_plattform_initial_setup.md) | Cluster und Argo CD initial aufbauen |
 | [Runbook 02: Neue Version deployen](docs/runbooks/RB02_neue_version_deployen.md) | Standard GitOps Release Workflow |
 | [Runbook 03: Rollback Release](docs/runbooks/RB03_rollback_release.md) | Rollback eines fehlerhaften Releases |
@@ -132,7 +133,7 @@ sequenceDiagram
 │   └── runbooks/
 │       ├── RB01_plattform_initial_setup.md
 │       ├── RB02_neue_version_deployen.md
-│       └──RB03_rollback_release.md
+│       └── RB03_rollback_release.md
 ├── app/
 │   ├── argocd/
 │   │   └── price-watch.app.yaml
@@ -153,6 +154,7 @@ sequenceDiagram
 │       ├── Chart.yaml
 │       ├── values.yaml
 │       └── templates/
+│           ├── _helpers.tpl
 │           ├── deployment.yaml
 │           ├── service.yaml
 │           ├── configmap.yaml
