@@ -82,3 +82,5 @@ def refresh_prices() -> dict:
     return {"fetched": len(entries)}
 
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
+
+#TestDemo
