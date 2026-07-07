@@ -96,3 +96,5 @@ def check_connection() -> None:
     """Prüft, ob die Datenbank erreichbar ist (für Readiness Probe)."""
     with get_connection() as conn:
         conn.execute("SELECT 1")
+
+#Test
