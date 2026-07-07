@@ -97,4 +97,4 @@ def check_connection() -> None:
     with get_connection() as conn:
         conn.execute("SELECT 1")
 
-#Test 
+#Test
