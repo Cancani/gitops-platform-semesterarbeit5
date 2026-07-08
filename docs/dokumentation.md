@@ -2612,6 +2612,7 @@ Alle Quellen wurden im Verlauf der drei Sprints zur Recherche, Entscheidungsfind
 | OpenGitOps, GitOps Prinzipien | https://opengitops.dev/ | Definition der vier GitOps Prinzipien als konzeptionelle Grundlage | Mai 2026 |
 | Conventional Commits Spezifikation | https://www.conventionalcommits.org/ | Einheitliches Commit Format über alle Sprints | Mai 2026 |
 | Sem 4 Referenzprojekt, Geräteausleihe | https://cancani.com/geraeteausleihe-sem4/dokumentation/ | Vergleich Dokumentationsstil, Lerntransfer für Reflexion | Mai und Juli 2026 |
+| Claude (Anthropic) | https://claude.ai/ | KI-gestützte Unterstützung bei Coding-Fragen zur WebApp (u. a. FastAPI, Kubernetes-Ressourcen, Git-Workflows), Erklärung von Konzepten und Fehlersuche während der Implementierung | Mai bis Juli 2026 |
 
 Die Steam Community Market API ist nicht offiziell dokumentiert. Feldnamen und Verhalten des `priceoverview` Endpoints wurden über eigene Testaufrufe und öffentlich bekannte, von der Community zusammengetragene Beispiele ermittelt, nicht über eine autoritative Herstellerdokumentation. Das ist einer der Gründe für den Mock-Fallback in `pricesource.py`: Ohne offizielle Garantie auf Verfügbarkeit oder Format-Stabilität ist ein Fallback für eine Referenzanwendung angemessen.
 
