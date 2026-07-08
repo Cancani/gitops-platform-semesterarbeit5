@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://cancani.com/gitops-platform-semesterarbeit5/</loc>
+         <lastmod>2026-07-08</lastmod>
+    </url>
+    <url>
+         <loc>https://cancani.com/gitops-platform-semesterarbeit5/dokumentation/</loc>
+         <lastmod>2026-07-08</lastmod>
+    </url>
+    <url>
+         <loc>https://cancani.com/gitops-platform-semesterarbeit5/runbooks/RB01_plattform_initial_setup/</loc>
+         <lastmod>2026-07-08</lastmod>
+    </url>
+    <url>
+         <loc>https://cancani.com/gitops-platform-semesterarbeit5/runbooks/RB02_neue_version_deployen/</loc>
+         <lastmod>2026-07-08</lastmod>
+    </url>
+    <url>
+         <loc>https://cancani.com/gitops-platform-semesterarbeit5/runbooks/RB03_rollback_release/</loc>
+         <lastmod>2026-07-08</lastmod>
+    </url>
+</urlset>
